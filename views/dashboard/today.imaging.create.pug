@@ -1,0 +1,12 @@
+#todayimagingReportModal.modal.fade(role='dialog', aria-labelledby='todayimagingReportModalLabel', aria-hidden='true')
+  .modal-dialog.modal-lg(role='document')
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') &times;
+        h4#todayimagingReportModalLabel.modal-title  Today Imaging Report Details
+      .modal-body(style='max-height: 70vh; overflow-y: auto;')
+        #todayimaging-report-content
+          p Loading...
+      .modal-footer
+        button.btn.btn-secondary(type='button', data-dismiss='modal') Close

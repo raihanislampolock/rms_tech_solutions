@@ -1,0 +1,96 @@
+extends ../layout
+block style
+  style.
+    /* Subtle Tech Grid Background */
+    section.content {
+      background-image: 
+        radial-gradient(#3c8dbc1a 1px, transparent 1px), 
+        radial-gradient(#3c8dbc1a 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+      min-height: 100vh;
+    }
+
+      .neon-box {
+      background: rgba(255, 255, 255, 0.9) !important;
+      backdrop-filter: blur(5px); /* Modern Glassmorphism */
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 12px !important;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+
+      .neon-box:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(60, 141, 188, 0.2) !important;
+    }
+
+      .info-box-icon {
+      transition: all 0.4s ease;
+    }
+
+      .neon-box:hover .info-box-icon {
+      filter: brightness(1.2);
+    }
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | SuperAdmin Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          img(
+            src='/dist/img/rms-logo.svg', 
+            alt='RMS Logo', 
+            style='width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; display: inline-block;'
+          )
+          |  Dashboard
+
+  section.content
+    +dashboardSelector(user.roleName)
+
+    .row
+      .col-md-12
+        .box.box-parrot(style="background: transparent; border: none; box-shadow: none;")
+          .box-header(style="padding-bottom: 20px;")
+            h3.box-title(style="font-weight: 700; color: #2c3e50; letter-spacing: 1px;") 
+              i.fa.fa-rocket(style="margin-right: 10px; color: #3c8dbc;")
+              | RMS COMMAND CENTER
+
+    .row
+      //- Button 1: Items
+      .col-lg-4.col-md-6.col-sm-6.col-xs-12
+        a(href='/rms/rms-items' style='text-decoration:none;')
+          .info-box.neon-box
+            span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
+              img(src='/dist/img/list-logo.svg' style='width: 40px; filter: invert(1);')
+            .info-box-content
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") RMS ITEMS
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Manage Inventory
+              .progress
+                .progress-bar(style='width: 100%; background: #3c8dbc;')
+
+      //- Button 2: Quotation
+      .col-lg-4.col-md-6.col-sm-6.col-xs-12
+        a(href='/rms/rms-quotation' style='text-decoration:none;')
+          .info-box.neon-box
+            span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
+              img(src='/dist/img/quotationdashboard.svg' style='width: 40px; filter: invert(1);')
+            .info-box-content
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") QUOTATIONS
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Sales & Billing
+              .progress
+                .progress-bar(style='width: 100%; background: #00a65a;')
+
+      //- NEW: Empty "Upcoming Feature" or Stats card to fill space
+      .col-lg-4.col-md-6.col-sm-6.col-xs-12
+        .info-box.neon-box(style="opacity: 0.7; border: 1px dashed #ccc;")
+          span.info-box-icon(style="background: #f4f4f4;")
+            i.fa.fa-plus(style="color: #bbb;")
+          .info-box-content
+            span.info-box-text(style="color: #bbb;") Add New Module
+            span.info-box-number(style="color: #ddd; font-weight: 400;") Coming Soon
+          

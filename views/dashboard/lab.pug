@@ -1,0 +1,113 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | Lab Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Dashboard
+      li.active Lab Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Welcome
+            span.info-box-number #{user.username || 'User'}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')  
+
+    .row
+      .col-md-12
+        .box.box-parrot
+          .box-header
+            h3.box-title Quick Link Button for Lab And Deo Team                    
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/lab/lab-report' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #8b0f2eff;")
+              <i class="fa fa-inbox" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text B2b Lab Report Email
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/lab/dengue-report' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #15656dff;")
+              <i class="fa fa-mosquito" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Dengue Report Email
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')     
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/lab/hislab-emailtracker' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #15486dff;")
+              <i class="fa fa-square-envelope" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text HIS Lab Report Email Tracker
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/lab/invoice-receipt' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #022d30ff;")
+              <i class="fa fa-file-invoice-dollar" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Detailed Receipts Mode Tracker
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')                                          
+
+block script
+  script(src='/socket.io/socket.io.js')
+  script.
+    $(function () {
+      // Initialize socket.io client
+      const socket = io();
+      socket.on('dashboard-update', function(data) {
+        console.log('User dashboard update received:', data);
+        if (data.message) {
+          alert('Update: ' + data.message);
+        }
+      });
+
+      // Set current date once
+      $('#currentDate').text(new Date().toLocaleDateString());
+
+      // Update time every second
+      setInterval(function() {
+        const now = new Date();
+        $('#currentTime').text(now.toLocaleTimeString());
+      }, 1000);
+    });

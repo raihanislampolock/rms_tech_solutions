@@ -1,0 +1,256 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | Medical Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Dashboard
+      li.active Medical Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box(data-toggle='modal', data-target='#imagingReportModal', style='cursor: pointer;')
+          span.info-box-icon.bg-red
+            i.fa.fa-paper-plane 
+          .info-box-content
+            span.info-box-text Total Imaging Reports
+            span.info-box-number #{stats.total_ImgReports}
+            .progress
+              .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box(data-toggle='modal', data-target='#todayimagingReportModal', style='cursor: pointer;')
+          span.info-box-icon.bg-orange
+            i.fa.fa-share-square
+          .info-box-content
+            span.info-box-text Today's Imaging Reports
+            span.info-box-number #{stats.today_ImgReports}
+            .progress
+              .progress-bar.bg-orange(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box(data-toggle='modal', data-target='#prescriptionReportModal', style='cursor: pointer;')
+          span.info-box-icon.bg-parrot
+            i.fa.fa-medkit(style='color: white')
+          .info-box-content
+            span.info-box-text Total Prescriptions
+            span.info-box-number #{stats.total_prescriptions}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box(data-toggle='modal', data-target='#todayprescriptionReportModal', style='cursor: pointer;')
+          span.info-box-icon.bg-parrot
+            i.fa.fa-plus-square(style='color: white')
+          .info-box-content
+            span.info-box-text Today's Prescriptions
+            span.info-box-number #{stats.today_prescriptions}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+    .row
+      .col-md-12
+        .box.box-parrot
+          .box-header
+            h3.box-title Medical Reports Overview
+            .box-tools.pull-right
+              button.btn.btn-box-tool(type='button', data-widget='collapse')
+                i.fa.fa-minus
+              button.btn.btn-box-tool(type='button', data-widget='remove')
+                i.fa.fa-times
+          .box-body
+            .chart
+              canvas#medicalChart(style='height:230px')
+
+    include ./imaging.create.pug
+    include ./prescription.create.pug
+    include ./today.imaging.create.pug
+    include ./today.prescription.create.pug
+
+block script
+  script(src='/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js')
+  script(src='/socket.io/socket.io.js')
+  script(src='https://cdn.jsdelivr.net/npm/chart.js')
+  script.
+    // Pass backend arrays to frontend
+    var imagingtotal = !{JSON.stringify(imagingtotal || [])};
+    var prescriptiontotal = !{JSON.stringify(prescriptiontotal || [])};
+
+    // Initial chart data
+    var medicalChartData = {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets: [
+        {
+          label: 'Imaging Reports',
+          backgroundColor: 'rgba(210, 214, 222, 0.5)',
+          borderColor: 'rgba(210, 214, 222, 1)',
+          borderWidth: 1,
+          data: imagingtotal
+        },
+        {
+          label: 'Prescriptions',
+          backgroundColor: 'rgba(60,141,188,0.5)',
+          borderColor: 'rgba(60,141,188,1)',
+          borderWidth: 1,
+          data: prescriptiontotal
+        }
+      ]
+    };
+
+    var medicalChartOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    };
+
+    // Initialize chart
+    $(function () {
+      var ctx = $('#medicalChart').get(0).getContext('2d');
+      window.medicalChart = new Chart(ctx, {
+        type: 'bar',
+        data: medicalChartData,
+        options: medicalChartOptions
+      });
+
+      // Initialize socket.io
+      const socket = io();
+      socket.emit('join-dashboard', {
+        userId: '#{user.userId}',
+        roleName: '#{user.roleName}'
+      });
+
+      socket.on('dashboard-update', function(data) {
+        console.log('Medical dashboard update received:', data);
+
+        if (data.type === 'dashboard-data-update') {
+          // Update stats
+          if (data.stats) {
+            updateMedicalDashboardStats(data.stats);
+          }
+          // Update chart
+          if (data.imagingtotal && data.prescriptiontotal) {
+            updateMedicalChart(data.imagingtotal, data.prescriptiontotal);
+          }
+        }
+        showNotification('Medical dashboard updated', 'success');
+      });
+
+      // Update dashboard numbers
+      function updateMedicalDashboardStats(stats) {
+        $('.info-box-number').each(function() {
+          const text = $(this).text();
+          if (text.includes('Total Patients') && stats.total_users !== undefined) {
+            $(this).text(stats.total_users);
+          } else if (text.includes('Total Imaging Reports') && stats.total_ImgReports !== undefined) {
+            $(this).text(stats.total_ImgReports);
+          } else if (text.includes("Today's Imaging Reports") && stats.today_ImgReports !== undefined) {
+            $(this).text(stats.today_ImgReports);
+          } else if (text.includes('Total Prescriptions') && stats.total_prescriptions !== undefined) {
+            $(this).text(stats.total_prescriptions);
+          } else if (text.includes("Today's Prescriptions") && stats.today_prescriptions !== undefined) {
+            $(this).text(stats.today_prescriptions);
+          }
+        });
+      }
+
+      // Update chart function
+      function updateMedicalChart(imagingtotal, prescriptiontotal) {
+        if (window.medicalChart) {
+          window.medicalChart.destroy();
+        }
+
+        var newData = {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets: [
+            {
+              label: 'Imaging Reports',
+              backgroundColor: 'rgba(210, 214, 222, 0.5)',
+              borderColor: 'rgba(210, 214, 222, 1)',
+              borderWidth: 1,
+              data: imagingtotal
+            },
+            {
+              label: 'Prescriptions',
+              backgroundColor: 'rgba(60,141,188,0.5)',
+              borderColor: 'rgba(60,141,188,1)',
+              borderWidth: 1,
+              data: prescriptiontotal
+            }
+          ]
+        };
+
+        var ctx = $('#medicalChart').get(0).getContext('2d');
+        window.medicalChart = new Chart(ctx, {
+          type: 'bar',
+          data: newData,
+          options: medicalChartOptions
+        });
+      }
+
+      // Notification helper
+      function showNotification(message, type='info') {
+        if(type==='success') console.log('✅ '+message);
+        else if(type==='error') console.log('❌ '+message);
+        else console.log('ℹ️ '+message);
+      }
+    });
+
+    // Modal AJAX handlers (unchanged)
+    $('#imagingReportModal').on('show.bs.modal', function () {
+        $('#imaging-report-content').html('Loading...');
+        $.ajax({
+            url: '/dashboard/imaging-report-details',
+            method: 'GET',
+            success: function(data) { $('#imaging-report-content').html(data); },
+            error: function() { $('#imaging-report-content').html('<p>Error loading data.</p>'); }
+        });
+    });
+    $('#todayimagingReportModal').on('show.bs.modal', function () {
+        $('#todayimaging-report-content').html('Loading...');
+        $.ajax({
+            url: '/dashboard/today-imaging-report-details',
+            method: 'GET',
+            success: function(data) { $('#todayimaging-report-content').html(data); },
+            error: function() { $('#todayimaging-report-content').html('<p>Error loading data.</p>'); }
+        });
+    });
+    $('#prescriptionReportModal').on('show.bs.modal', function () {
+        $('#prescription-report-content').html('Loading...');
+        $.ajax({
+            url: '/dashboard/prescription-report-details',
+            method: 'GET',
+            success: function(data) { $('#prescription-report-content').html(data); },
+            error: function() { $('#prescription-report-content').html('<p>Error loading data.</p>'); }
+        });
+    });
+    $('#todayprescriptionReportModal').on('show.bs.modal', function () {
+        $('#today-prescription-report-content').html('Loading...');
+        $.ajax({
+            url: '/dashboard/today-prescription-report-details',
+            method: 'GET',
+            success: function(data) { $('#today-prescription-report-content').html(data); },
+            error: function() { $('#today-prescription-report-content').html('<p>Error loading data.</p>'); }
+        });
+    });

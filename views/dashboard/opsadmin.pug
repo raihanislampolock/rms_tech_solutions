@@ -1,0 +1,353 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | Operation Admin Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Operation Admin Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+
+    .row
+      .col-md-12
+        .box.box-parrot
+          .box-header
+            h3.box-title Quick Link Button for Operation Admin Team
+      .col-md-4.col-sm-6.col-xs-12
+          a(href='/ops/imaging-doctor-tag' style='text-decoration:none; color:inherit;')
+            .info-box(style='cursor: pointer;')
+              span.info-box-icon(style="background-color: #032a2ea2;")
+                <i class="fa fa-photo-film" style="font-size:48px;color:white"></i>
+              .info-box-content
+                span.info-box-text Imaging Doctor Tag
+                span.info-box-text(style="font-size:14px; font-weight:600;") Tracker Dashboard
+                .progress
+                  .progress-bar.bg-red(style='width: 100%')
+                span.info-box-text(style='font-weight: bold;')
+      .col-md-4.col-sm-6.col-xs-12
+          a(href='/ops/imaging-doctor-tag/view' style='text-decoration:none; color:inherit;')
+            .info-box(style='cursor: pointer;')
+              span.info-box-icon(style="background-color: #0cc1d5a2;")
+                <i class="fa fa-photo-film" style="font-size:48px;color:white"></i>
+              .info-box-content
+                span.info-box-text View Imaging Doctor Tag
+                span.info-box-text(style="font-size:14px; font-weight:600;") Tracker Dashboard
+                .progress
+                  .progress-bar.bg-red(style='width: 100%')
+                span.info-box-text(style='font-weight: bold;')                 
+      .col-md-4.col-sm-6.col-xs-12
+          a(href='/ops/patient-discount-reason' style='text-decoration:none; color:inherit;')
+            .info-box(style='cursor: pointer;')
+              span.info-box-icon(style="background-color: #06905ba2;")
+                <i class="fa fa-percent" style="font-size:48px;color:white"></i>
+              .info-box-content
+                span.info-box-text Patient Discount 
+                span.info-box-text(style="font-size:14px; font-weight:600;") Reason Dashboard
+                .progress
+                  .progress-bar.bg-red(style='width: 100%')
+                span.info-box-text(style='font-weight: bold;')          
+      .col-md-4.col-sm-6.col-xs-12
+          a(href='/ops/consultantdashboard' style='text-decoration:none; color:inherit;')
+            .info-box(style='cursor: pointer;')
+              span.info-box-icon(style="background-color: #8b0f2eff;")
+                <i class="fa fa-hospital-user" style="font-size:48px;color:white"></i>
+              .info-box-content
+                span.info-box-text Consultant Live
+                span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+                .progress
+                  .progress-bar.bg-red(style='width: 100%')
+                span.info-box-text(style='font-weight: bold;')   
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/appointments' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #434849c0;")
+              <i class="fa fa-book-medical" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Book Appointment
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')   
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/patient-portal-orders' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #04768dff;")
+              <i class="fa fa-cart-plus" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Patient Portal
+              span.info-box-text(style="font-size:14px; font-weight:600;") Order List Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/premium-membership' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #66048dff;")
+              <i class="fa fa-coins" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Premium Membership Plan
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')    
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/emergency-contact' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #671001ff;")
+              <i class="fa fa-ring" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Contact Dashboard For Premium
+              span.info-box-text(style="font-size:14px; font-weight:600;") Membership Plan Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')       
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/marketing' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #675901ff;")
+              <i class="fa fa-location-dot" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Pipedrive
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/service-tariff' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #060606ff;")
+              <i class="fa fa-calculator" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Discount Calculator
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')   
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/multiple-appointment' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #15656dff;")
+              <i class="fa fa-calendar-check" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Multiple Appointment
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;') 
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/ops/appointment-list' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #022d30ff;")
+              <i class="fa fa-file-video" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Ops Appointment List
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')                                                                      
+    
+    .row
+      .col-md-12
+        .box.box-parrot
+          .box-header
+            h3.box-title Dashboard
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')  
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-light-blue
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Total Home Sample Collection
+            span.info-box-number #{stats.total_HomeSampleCollection}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-blue
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Today's Home Sample Collection
+            span.info-box-number #{stats.today_HomeSampleCollection}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon(style='background-color: #36b504;')
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Total HSC Confirmed
+            span.info-box-number #{stats.total_HscConfirmed}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon(style='background-color: #36b504;')
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Today's HSC Confirmed
+            span.info-box-number #{stats.today_HscConfirmed}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon(style='background-color: #b5313e;')
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Total HSC Unconfirmed
+            span.info-box-number #{stats.total_HscUnconfirmed}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon(style='background-color: #b5313e;')
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Today's HSC Unconfirmed
+            span.info-box-number #{stats.today_HscUnconfirmed}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon(style='background-color: #f20707;')
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Total HSC Cancelled
+            span.info-box-number #{stats.total_HscCancelled}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon(style='background-color: #f20707;')
+            i.fa.fa-home(style='color: white')
+          .info-box-content
+            span.info-box-text Today's HSC Cancelled
+            span.info-box-number #{stats.today_HscCancelled}
+            .progress
+              .progress-bar.progress-bar-parrot(style='width: 100%')             
+
+    .row
+      .col-md-12
+        .box.box-parrot
+          .box-header
+            h3.box-title HSC Status Overview
+            .box-tools.pull-right
+              button.btn.btn-box-tool(type='button', data-widget='collapse')
+                i.fa.fa-minus
+              button.btn.btn-box-tool(type='button', data-widget='remove')
+                i.fa.fa-times
+          .box-body
+            .chart
+              canvas#hscChart(style='height:230px')                             
+
+block script
+  script(src='/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js')
+  script(src='/socket.io/socket.io.js')
+  script(src='https://cdn.jsdelivr.net/npm/chart.js')
+  script.
+    var confirmedData = !{JSON.stringify(confirmedData || [])};
+    var pendingData   = !{JSON.stringify(pendingData || [])};
+    var invoicetotal   = !{JSON.stringify(invoicetotal || [])};
+
+    var hscChartData = {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [
+        {
+          label: 'HSC Confirmed',
+          backgroundColor: 'rgba(210, 214, 222, 0.5)',
+          borderColor: 'rgba(210, 214, 222, 1)',
+          borderWidth: 1,
+          data: confirmedData
+        },
+        {
+          label: 'HSC Pending',
+          backgroundColor: 'rgba(255, 0, 25, 0.9)',
+          borderColor: 'rgba(181, 49, 62, 1)',
+          borderWidth: 1,
+          data: pendingData
+        },
+        {
+          label: 'Invoice Send',
+          backgroundColor: 'rgba(60,141,188,0.5)',
+          borderColor: 'rgba(60,141,188,1)',
+          borderWidth: 1,
+          data: invoicetotal
+        }
+      ]
+    };
+
+    var hscChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          },
+          grid: {
+            color: 'rgba(0,0,0,.05)',
+            lineWidth: 1
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(0,0,0,.05)',
+            lineWidth: 1
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltip: {
+          enabled: true
+        }
+      }
+    };
+
+    $(function () {
+      var ctx = $('#hscChart').get(0).getContext('2d');
+      window.hscChart = new Chart(ctx, {
+        type: 'bar',
+        data: hscChartData,
+        options: hscChartOptions
+      });
+
+      // Socket.io updates
+      const socket = io();
+      socket.on('dashboard-update', function(data) {
+        console.log('HSC dashboard update received:', data);
+
+        if (data.confirmedData && data.pendingData) {
+          window.hscChart.data.datasets[0].data = data.confirmedData;
+          window.hscChart.data.datasets[1].data = data.pendingData;
+          window.hscChart.update();
+        }
+      });
+    });

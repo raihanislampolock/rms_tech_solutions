@@ -1,0 +1,124 @@
+//- extends ../layout
+
+//- include ../partials/dashboard-selector
+
+//- block content
+//-   section.content-header
+//-     h1
+//-       | Praava Health - PMS Dashboard
+//-     ol.breadcrumb
+//-       li
+//-         a(href='/dashboard')
+//-           i.fa.fa-dashboard
+//-           |  Praava Health - PMS Dashboard
+
+//-   section.content
+//-     //- Dashboard Selector
+//-     +dashboardSelector(user.roleName)
+
+//-     .row
+//-         .col-md-12
+//-             .box.box-parrot
+//-                 .box-header.with-border
+//-                     h3.box-title
+//-                       i.fa.fa-print
+//-                       |  Live Printer Status
+//-                     .pull-right
+//-                       a(href='/it/pms' class='btn btn-xs btn-parrot')
+//-                         i.fa.fa-external-link
+//-                         |  View Full PMS
+
+//-             .box-body
+//-               .table-responsive(style='max-height:300px; overflow-y:auto;')
+//-                 table.table.table-bordered.table-striped#pmsLiveTable
+//-                   thead
+//-                     tr
+//-                       th ID
+//-                       th Location
+//-                       th IP
+//-                       th Printer Cartridge Details
+//-                       th Printer Status
+//-                       th Printer Device Status
+//-                       th Time
+//-                   tbody#pmsLiveBody
+//-                     tr
+//-                       td(colspan='6' class='text-center') Loading...                           
+
+//- block script
+//-   script.
+//-     document.addEventListener('DOMContentLoaded', function () {
+//-       const body = document.getElementById('pmsLiveBody');
+
+//-       function renderDetailsCell(detailsStr) {
+//-         let html = '';
+//-         try {
+//-           const obj = JSON.parse(detailsStr); // Parse the JSON
+//-           for (const key in obj) {
+//-             if (obj.hasOwnProperty(key)) {
+//-               let value = obj[key];
+
+//-               // Remove % and convert to number for coloring
+//-               let numericValue = parseInt(String(value).replace('%','')) || 0;
+
+//-               // Determine color
+//-               let color = 'black';
+//-               if (numericValue <= 30) color = 'red';
+//-               else if (numericValue === 50) color = 'blue';
+//-               else if (numericValue === 100) color = 'black';
+
+//-               // Append key and value with color
+//-               html += `<span style="color:${color}">${key} ${value}</span><br>`;
+//-             }
+//-           }
+//-         } catch (e) {
+//-           // Fallback if not JSON
+//-           html = detailsStr;
+//-         }
+
+//-         return html;
+//-       }
+
+//-       async function loadPmsLive() {
+//-         try {
+//-           const res = await fetch('/api/it/pms/all?limit=10');
+//-           const json = await res.json();
+
+//-           if (json && json.data && json.data.length) {
+//-             let html = '';
+
+//-             json.data.forEach(function (row) {
+//-               const statusColor =
+//-                 row.status && row.status.toLowerCase() === 'offline'
+//-                   ? 'red'
+//-                   : 'green';
+
+//-               html +=
+//-                 '<tr>' +
+//-                   '<td>' + (row.id || '-') + '</td>' +
+//-                   '<td>' + (row.location || '-') + '</td>' +
+//-                   '<td>' + (row.ip || '-') + '</td>' +
+//-                   '<td>' + renderDetailsCell(row.details) + '</td>' +
+//-                   '<td style="color:' + statusColor + '; font-weight:600">' +
+//-                     (row.status || '-') +
+//-                   '</td>' +
+//-                   '<td>' + (row.device_status || '-') + '</td>' +
+//-                   '<td>' + (row.created_at || '-') + '</td>' +
+//-                 '</tr>';
+//-             });
+
+//-             body.innerHTML = html;
+//-           } else {
+//-             body.innerHTML =
+//-               '<tr><td colspan="6" class="text-center">No printer data</td></tr>';
+//-           }
+//-         } catch (e) {
+//-           console.error('PMS live load error:', e);
+//-           body.innerHTML =
+//-             '<tr><td colspan="6" class="text-center text-danger">Error loading PMS</td></tr>';
+//-         }
+//-       }
+
+//-       loadPmsLive();
+//-       setInterval(loadPmsLive, 30000);
+//-     });
+

@@ -1,0 +1,176 @@
+extends ../layout
+
+block style
+  style.
+    .neon-box {
+      background: #ffffffff;
+      border-radius: 8px;
+      box-shadow:
+        0 0 0 0px #797777ff,
+        0 0 5px rgba(255, 255, 255, 0.8),
+        0 0 24px rgba(100, 96, 96, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .neon-box:hover {
+      box-shadow:
+        
+        0 0 20px rgba(138, 32, 97, 1),
+        0 0 40px rgba(0, 0, 0, 0.9);
+      transform: translateY(-4px);
+    }
+
+    .neon-icon {
+      background: #000 !important;
+      box-shadow:
+        inset 0 0 8px rgba(138, 32, 97, 1),
+        0 0 10px rgba(138, 32, 97, 1);
+    }
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | Contace Center Admin Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Dashboard
+      li.active Contace Center Admin Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')  
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/callcenter/video-consultation/count' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #5c1919;")
+              i.fa-solid.fa-file-video(style='margin-right: 4px; color: #ffffffff;')
+            .info-box-content
+              span.info-box-text Total Video Consultation
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/callcenter/video-consultation' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #c63b3bff;")
+              i.fa-solid.fa-video(style='margin-right: 4px; color: #ffffffff;')
+            .info-box-content
+              span.info-box-text Video Consultation
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%') 
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/callcenter/video-consultation/followup' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #e51e49ff;")
+              i.fa-solid.fa-video-slash(style='margin-right: 4px; color: #ffffffff;')
+            .info-box-content
+              span.info-box-text Follow-Up Video Consultation
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/callcenter/service-availed' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #1684e4ff;")
+              i.fa-solid.fa-chart-pie(style='margin-right: 4px; color: #ffffffff;')
+            .info-box-content
+              span.info-box-text Prescription Follow-up
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%') 
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/callcenter/appointment-list' style='text-decoration:none; color:inherit;')
+          .info-box.neon-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #055d1bff;")
+              i.fa-solid.fa-calendar-check(style='margin-right: 4px; color: #ffffffff;')
+            .info-box-content
+              span.info-box-text Appointment List
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')                                                                
+
+
+block script
+  script(src='/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js')
+  script(src='/socket.io/socket.io.js')
+  script.
+    var confirmedData = !{JSON.stringify(confirmedData)};
+    var pendingData = !{JSON.stringify(pendingData)};
+
+    var hscChartData = {
+      labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [
+        {
+          label               : 'HSC Confirmed',
+          fillColor           : 'rgba(54, 181, 4, 0.9)',
+          strokeColor         : 'rgba(54, 181, 4, 0.8)',
+          pointColor          : '#36b504',
+          pointStrokeColor    : '#36b504',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(54, 181, 4, 1)',
+          data                : confirmedData
+        },
+        {
+          label               : 'HSC Pending',
+          fillColor           : 'rgba(181, 49, 62, 0.9)',
+          strokeColor         : 'rgba(181, 49, 62, 0.8)',
+          pointColor          : '#b5313e',
+          pointStrokeColor    : '#b5313e',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(181, 49, 62, 1)',
+          data                : pendingData
+        }
+      ]
+    };
+
+    $(function () {
+      var hscChartCanvas = $('#hscChart').get(0).getContext('2d');
+      var hscChart = new Chart(hscChartCanvas);
+
+      var hscChartOptions = {
+        scaleBeginAtZero        : true,
+        scaleShowGridLines      : true,
+        scaleGridLineColor      : 'rgba(0,0,0,.05)',
+        scaleGridLineWidth      : 1,
+        scaleShowHorizontalLines: true,
+        scaleShowVerticalLines  : true,
+        barShowStroke           : true,
+        barStrokeWidth          : 2,
+        barValueSpacing         : 5,
+        barDatasetSpacing       : 1,
+        responsive              : true,
+        maintainAspectRatio     : true
+      };
+
+      hscChartOptions.datasetFill = false;
+      hscChart.Bar(hscChartData, hscChartOptions);
+
+      // Initialize socket.io client
+      const socket = io();
+      socket.on('dashboard-update', function(data) {
+        console.log('HSC dashboard update received:', data);
+        location.reload();
+      });
+    });

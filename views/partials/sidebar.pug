@@ -1,0 +1,78 @@
+aside.main-sidebar
+        style.
+          /* Sidebar menu font size */
+          .sidebar-menu > li > a {
+            font-size: 12px; /* adjust as needed */
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow: visible !important;
+          }
+
+          /* Optional: adjust submenu font size separately */
+          .sidebar-menu li.treeview > a:hover img {
+            filter: drop-shadow(0 0 3px #3c8dbc);
+            transition: filter 0.3s ease;
+          }
+        section.sidebar
+          .user-panel
+            .pull-left.image
+              img(
+                src= user.files ? `/${user.files}` : '/dist/img/rms-logo.png',
+                alt='User Image',
+                style="width:45px;height:45px;border-radius:50%;object-fit:cover;"
+              )
+            .pull-left.info
+              p #{user.username}
+              small #{user.role}
+              a(href='#')
+                i.fa.fa-circle.text-success
+                |  Online
+          form.sidebar-form(action='#', method='get')
+            .input-group
+              input.form-control(type='text', name='q', placeholder='Search...', id='sidebarSearch')
+              span.input-group-btn
+                button#search-btn.btn.btn-flat(type='submit', name='search')
+                  i.fa.fa-search
+     
+          ul#sidebarMenu.sidebar-menu(data-widget='tree')
+            li
+              a(href='/dashboard')
+                img(
+                  src='/dist/img/rms-logo.svg', 
+                  alt='RMS Logo', 
+                  style='width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; display: inline-block;'
+                )
+                | Dashboard
+            li.active #{activeMenu}    
+            - var userRole = (user.roleName || '').toLowerCase().trim()      
+            if userRole === 'superadmin'
+              li.treeview
+                a(href='#')
+                  img(src='/dist/img/main-logo.svg' style='width:14px; margin-right:5px;')
+                  |  
+                  span RMS TecH Solutions 
+                  span.pull-right-container
+                    i.fa.fa-angle-left.pull-right
+                ul.treeview-menu
+                  li.treeview
+                    a(href='#')
+                      img(src='/dist/img/items-logo.svg' style='width:16px; margin-right:5px;')
+                      |  RMS Items
+                      span.pull-right-container
+                        i.fa.fa-angle-left.pull-right
+                    ul.treeview-menu
+                      li
+                        a(href='/rms/rms-items')
+                          img(src='/dist/img/list-logo.svg' style='width:14px; margin-right:5px;')
+                          |  Item List Dashboard 
+                  li.treeview
+                    a(href='#')
+                      img(src='/dist/img/quotation.svg' style='width:14px; margin-right:5px;')
+                      |  RMS Quotation
+                      span.pull-right-container
+                        i.fa.fa-angle-left.pull-right
+                    ul.treeview-menu
+                      li
+                        a(href='/rms/rms-quotation')
+                          img(src='/dist/img/quotationdashboard.svg' style='width:14px; margin-right:5px;')
+                          |  Quotation Dashboard                                          

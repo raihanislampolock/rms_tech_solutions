@@ -1,0 +1,62 @@
+#add-edit-items-modal.modal.fade(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xl
+    .modal-content
+      form#items-form(role='form', action='#', method='POST', enctype='multipart/form-data')
+        .modal-header
+          h5.modal-title RMS Item Information
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+
+        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto;')
+
+          h5.mt-4.mb-3.text-success Item Informations
+          .row
+            .col-md-4
+              .form-group
+                input.form-control(type='text', id='itemType', name='itemType', placeholder=' ')
+                label.control-label(for='itemType') Item Type
+              .form-group
+                input.form-control(type='text', id='itemPrice', name='itemPrice', placeholder=' ')
+                label.control-label(for='itemPrice') Item Price    
+            .col-md-4
+              .form-group
+                input.form-control(type='text', id='itemName', name='itemName', placeholder=' ')
+                label.control-label(for='itemName') Item Name
+              .form-group
+                input.form-control(type='text', id='manufactureOrigin', name='manufactureOrigin', placeholder=' ')
+                label.control-label(for='manufactureOrigin') Manufacture Origin    
+            .col-md-4     
+              .form-group
+                input.form-control(type='text', id='itemModel', name='itemModel', placeholder=' ')
+                label.control-label(for='itemModel') Item Model
+              .form-group
+                textarea.form-control#itemConfigurations(name='itemConfigurations', rows='4', placeholder='')
+                label.control-label(for='itemConfigurations') Item Configurations  
+          .row
+            .col-md-6
+               
+          .row
+            .col-md-4
+              .form-group
+                label(style='color: green') Document
+            
+                // 👇 existing file preview goes here
+                #filePreview.mt-2
+            
+                br
+                span(style='color: red;') N.B: If new file added previous file will be removed
+            
+              .form-group
+                input#file.form-control(type="file", name="file")
+                label(for="file") Upload New File                                                       
+
+            .col-md-6    
+                   
+
+        .modal-footer
+          button.btn.btn-green#button-create-user(type='submit')
+            span.fa.fa-save
+            |  Save
+          button.btn.btn-danger(type='button', data-dismiss='modal')
+            span.fa.fa-times-circle
+            |  Cancel

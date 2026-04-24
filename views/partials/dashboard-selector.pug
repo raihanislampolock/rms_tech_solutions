@@ -1,0 +1,50 @@
+//- Dashboard Selector Component
+//- This allows users to switch between different dashboard views
+mixin dashboardSelector(userRole)
+  - var userRole = (userRole || '').toLowerCase().trim()
+  - var availableDashboards = []
+  
+  //- Determine available dashboards based on role
+  if userRole === 'superadmin'
+    - availableDashboards = ['admin', 'medical', 'finance', 'contacecenter', 'marketing', 'sales', 'lab', 'contacecenteradmin', 'user']
+  else if ['medicalservice', 'nurse', 'doctor', 'medicaltranscriptionist', 'medicalserviceadmin'].includes(userRole)
+    - availableDashboards = ['medical']
+  else if ['finance'].includes(userRole)
+    - availableDashboards = ['finance']
+  else if ['callcenter'].includes(userRole)
+    - availableDashboards = ['contacecenter']
+  else if ['pms'].includes(userRole)
+    - availableDashboards = ['pms']
+  else if ['fde'].includes(userRole)
+    - availableDashboards = ['fde']
+  else if ['opsadmin'].includes(userRole)
+    - availableDashboards = ['opsadmin']
+  else if ['callcenteradmin', 'fdeadmin'].includes(userRole)
+    - availableDashboards = ['contacecenteradmin']     
+  else if ['user', 'agent', 'marketing', 'customer'].includes(userRole)
+    - availableDashboards = ['user']
+  else if ['marketing'].includes(userRole)
+    - availableDashboards = ['marketing'] 
+  else if ['sales'].includes(userRole)
+    - availableDashboards = ['sales'] 
+  else if ['lab'].includes(userRole)
+    - availableDashboards = ['lab']
+  else if ['qmt'].includes(userRole)
+    - availableDashboards = ['qmt'] 
+  else if ['medicalserviceadmin'].includes(userRole)
+    - availableDashboards = ['medicalserviceadmin'] 
+  else if ['vsdoctor'].includes(userRole)
+    - availableDashboards = ['vsdoctor'] 
+  else if ['radiology'].includes(userRole)
+    - availableDashboards = ['radiology']
+  else if ['cmt'].includes(userRole)
+    - availableDashboards = ['cmt']  
+  else
+    - availableDashboards = ['admin']
+          
+          a.btn.btn-sm.btn-default(href=`/dashboard/${dashboard === 'admin' ? '' : dashboard}`, class=isActive, style='text-decoration: none;')
+            i.fa(class=dashboardIcon)
+            |  #{dashboardName} Dashboard
+
+
+

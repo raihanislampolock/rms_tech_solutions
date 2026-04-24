@@ -1,0 +1,122 @@
+header.main-header
+        a.logo(href='/dashboard')
+          span.logo-mini
+            b Rms Tech Solutions
+          span.logo-lg
+            img.logo-image-lg(src='/dist/img/rms-logo.png', width='35', alt='Business Logo')
+            |
+            b Rms Tech Solutions
+        nav.navbar.navbar-static-top
+          a.sidebar-toggle(href='#', data-toggle='push-menu', role='button')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          .navbar-custom-menu
+            ul.nav.navbar-nav
+              //- li.dropdown.messages-menu
+              //-   a.dropdown-toggle(href='#', data-toggle='dropdown')
+                  //- i.fa.fa-envelope-o
+              //-     span.label.label-success 4
+              //-   ul.dropdown-menu
+              //-     li.header You have 4 messages
+              //-     li
+              //-       ul.menu
+              //-         li
+              //-           a(href='#')
+              //-             .pull-left
+              //-               //- img.img-circle(src='/dist/img/', alt='User Image')
+              //-             h4
+              //-               | Support Team
+              //-               small
+              //-                 i.fa.fa-clock-o
+              //-                 |  5 mins
+              //-             p Why not buy a new awesome theme?
+              //-     li.footer
+              //-       a(href='#') See All Messages
+              //- li.dropdown.notifications-menu
+              //-   a.dropdown-toggle(href='#', data-toggle='dropdown')
+              //-     i.fa.fa-bell-o
+              //-     span.label.label-warning 10
+              //-   ul.dropdown-menu
+              //-     li.header You have 10 notifications
+              //-     li
+              //-       ul.menu
+              //-         li
+              //-           a(href='#')
+              //-             i.fa.fa-users.text-aqua
+              //-             |  5 new members joined today
+              //-     li.footer
+              //-       a(href='#') View all
+              //- li.dropdown.tasks-menu
+              //-   a.dropdown-toggle(href='#', data-toggle='dropdown')
+              //-     i.fa.fa-flag-o
+              //-     span.label.label-danger 9
+              //-   ul.dropdown-menu
+              //-     li.header You have 9 tasks
+              //-     li
+              //-       ul.menu
+              //-         li
+              //-           a(href='#')
+              //-             h3
+              //-               | Design some buttons
+              //-               small.pull-right 20%
+              //-             .progress.xs
+              //-               .progress-bar.progress-bar-aqua(style='width: 20%', role='progressbar', aria-valuenow='20', aria-valuemin='0', aria-valuemax='100')
+              //-                 span.sr-only 20% Complete
+                  //- li.footer
+                  //-   a(href='#') View all tasks
+              li.dropdown.user.user-menu
+                a.dropdown-toggle(href='#', data-toggle='dropdown')
+                  img.user-image(
+                    src= user.files ? `/${user.files}` : '/dist/img/rms-logo.png',
+                    alt='User Image'
+                  )
+                  span.hidden-xs #{user.username || 'User'}
+
+                ul.dropdown-menu(style="border-radius:12px; overflow:hidden; padding:0; width:260px;")
+
+                  // USER HEADER CARD
+                  li.user-header(style="background:linear-gradient(135deg,#4facfe,#00f2fe); padding:20px; text-align:center; color:#fff;")
+
+                    img(
+                      src= user.files ? `/${user.files}` : '/dist/img/rms-logo.png',
+                      style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid #fff;"
+                    )
+
+                    p(style="margin-top:10px; font-weight:600;")
+                      | #{user.username || 'User'}
+                    
+                    small(style="display:block;")
+                      | Employee ID: #{user.empId}
+                    
+                    small(style="display:block;")
+                      | Role: #{user.roleName}
+
+                  // BODY
+                  li.user-body(style="padding:15px; text-align:center;")
+
+                    if (user.roleName || '').toLowerCase() === 'superadmin'
+                      .row
+                        .col-xs-4
+                          a(href='/signup', style="font-size:12px; display:block; color:#333;") Users
+                        .col-xs-4
+                          a(href='/roles', style="font-size:12px; display:block; color:#333;") Roles
+                        .col-xs-4
+                          a(href='/permission', style="font-size:12px; display:block; color:#333;") Permissions
+                    else
+                      span.label(
+                        style="background:#6f42c1; padding:6px 12px; border-radius:20px; color:#fff; font-size:12px;"
+                      ) #{user.roleName}
+
+                  // FOOTER
+                  li.user-footer(style="display:flex; justify-content:space-between; padding:10px; background:#f7f7f7;")
+
+                    a.btn.btn-default.btn-sm(href='/profile')
+                      i.fa.fa-user
+                      |  Profile
+
+                    a.btn.btn-danger.btn-sm(href='/logout')
+                      i.fa.fa-sign-out
+                      |  Logout
+              

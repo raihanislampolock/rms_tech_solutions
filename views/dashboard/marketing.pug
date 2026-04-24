@@ -1,0 +1,86 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | Marketing Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Dashboard
+      li.active Marketing Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Welcome
+            span.info-box-number #{user.username || 'User'}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')        
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/marketing/pipedrive' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #2dd0e2ff;")
+              <i class="fa fa-location-dot" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Pipedrive
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/medical-service/radiology' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #15656dff;")
+              <i class="fa fa-comments-dollar" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Insurance Coverage
+              span.info-box-text(style="font-size:14px; font-weight:600;") Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;')
+
+block script
+  script(src='/socket.io/socket.io.js')
+  script.
+    $(function () {
+      // Initialize socket.io client
+      const socket = io();
+      socket.on('dashboard-update', function(data) {
+        console.log('User dashboard update received:', data);
+        if (data.message) {
+          alert('Update: ' + data.message);
+        }
+      });
+
+      // Set current date once
+      $('#currentDate').text(new Date().toLocaleDateString());
+
+      // Update time every second
+      setInterval(function() {
+        const now = new Date();
+        $('#currentTime').text(now.toLocaleTimeString());
+      }, 1000);
+    });

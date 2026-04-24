@@ -1,0 +1,205 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      i.fa-solid.fa-money-bill-trend-up(style="margin-right: 8px;")
+      | Finance Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa-solid.fa-dashboard(style="margin-right: 5px;")
+          | Dashboard
+      li.active
+        i.fa-solid.fa-money-bill-trend-up(style="margin-right: 5px;")
+        | Finance Dashboard
+
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')  
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/counter-wise' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #a481e3;")
+              <i class="fa fa-calculator" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Counter Wise Collection
+              span.info-box-text(style="font-size:14px; font-weight:600;") Report
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/invoice-counts' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #6c6970;")
+              <i class="fa fa-line-chart" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Daily Revenue And Cash
+              span.info-box-text(style="font-size:14px; font-weight:600;") Reconciliation Report
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/doctor-commission-count' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-purple
+              i.fa-solid.fa-money-bill-transfer
+            .info-box-content
+              span.info-box-text Doctor Commission Invoice 
+              span.info-box-text(style="font-size:14px; font-weight:600;") Wise Count
+              .progress
+                .progress-bar.bg-red(style='width: 100%')  
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/invoice-pending' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-maroon
+              i.fa.fa-hourglass-half
+            .info-box-content
+              span.info-box-text Detailed Pending Invoice 
+              span.info-box-text(style="font-size:14px; font-weight:600;") Tracker
+              .progress
+                .progress-bar.bg-red(style='width: 100%') 
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/invoice-receipt' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-olive
+              i.fa.fa-money
+            .info-box-content
+              span.info-box-text Detailed Receipts Mode 
+              span.info-box-text(style="font-size:14px; font-weight:600;") Tracker Report
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/invoice-receipt-details' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-teal
+              i.fa.fa-bar-chart
+            .info-box-content
+              span.info-box-text Detailed Revenue
+              span.info-box-text(style="font-size:14px; font-weight:600;") Report
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/invoice-cancel' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-red
+              i.fa.fa-times
+            .info-box-content
+              span.info-box-text Cancelled Invoice 
+              span.info-box-text(style="font-size:14px; font-weight:600;") Report
+              .progress
+                .progress-bar.bg-red(style='width: 100%')  
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/invoice-sponser' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-green
+              i.fa.fa-handshake-o
+            .info-box-content
+              span.info-box-text Sponser Invoice
+              span.info-box-text(style="font-size:14px; font-weight:600;") Report
+              .progress
+                .progress-bar.bg-red(style='width: 100%')   
+
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/radiology' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #baa910ff;")
+              <i class="fa fa-radiation" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text X-Ray Tracker Invoice
+              span.info-box-text(style="font-size:14px; font-weight:600;") And Doctor Wise
+              .progress
+                .progress-bar.bg-red(style='width: 100%') 
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/finance/imaging-doctor-tag' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon(style="background-color: #063166ff;")
+              <i class="fa fa-radiation" style="font-size:48px;color:white"></i>
+            .info-box-content
+              span.info-box-text Imaging Doctor Tag
+              span.info-box-text(style="font-size:14px; font-weight:600;") Tracker Dashboard
+              .progress
+                .progress-bar.bg-red(style='width: 100%')                                                     
+
+block script
+  script(src='/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js')
+  script(src='/socket.io/socket.io.js')
+  script.
+    var confirmedData = !{JSON.stringify(confirmedData)};
+    var pendingData = !{JSON.stringify(pendingData)};
+
+    var financeChartData = {
+      labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [
+        {
+          label               : 'Invoice Amount',
+          fillColor           : 'rgba(210, 214, 222, 1)',
+          strokeColor         : 'rgba(210, 214, 222, 1)',
+          pointColor          : 'rgba(210, 214, 222, 1)',
+          pointStrokeColor    : '#c1c7d1',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(220,220,220,1)',
+          data                : confirmedData
+        },
+        {
+          label               : 'Collected Amount',
+          fillColor           : 'rgba(60,141,188,0.9)',
+          strokeColor         : 'rgba(60,141,188,0.8)',
+          pointColor          : '#3b8bba',
+          pointStrokeColor    : 'rgba(60,141,188,1)',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(60,141,188,1)',
+          data                : pendingData
+        }
+      ]
+    };
+
+    $(function () {
+      var financeChartCanvas = $('#financeChart').get(0).getContext('2d');
+      var financeChart = new Chart(financeChartCanvas);
+
+      var financeChartOptions = {
+        scaleBeginAtZero        : true,
+        scaleShowGridLines      : true,
+        scaleGridLineColor      : 'rgba(0,0,0,.05)',
+        scaleGridLineWidth      : 1,
+        scaleShowHorizontalLines: true,
+        scaleShowVerticalLines  : true,
+        barShowStroke           : true,
+        barStrokeWidth          : 2,
+        barValueSpacing         : 5,
+        barDatasetSpacing       : 1,
+        responsive              : true,
+        maintainAspectRatio     : true
+      };
+
+      financeChartOptions.datasetFill = false;
+      financeChart.Bar(financeChartData, financeChartOptions);
+
+      // Initialize socket.io client
+      const socket = io();
+      socket.on('dashboard-update', function(data) {
+        console.log('Finance dashboard update received:', data);
+        location.reload();
+      });
+    });

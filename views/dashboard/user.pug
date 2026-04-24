@@ -1,0 +1,135 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | User Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Dashboard
+      li.active User Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Welcome
+            span.info-box-number #{user.username || 'User'}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-aqua
+            i.fa.fa-user-circle-o 
+          .info-box-content
+            span.info-box-text Total Users
+            span.info-box-number #{stats.total_users}
+            .progress
+              .progress-bar.progress-bar-aqua(style='width: 100%')        
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-green
+            i.fa.fa-calendar-check-o
+          .info-box-content
+            span.info-box-text Today's Date
+            span.info-box-number #{new Date().toLocaleDateString()}
+            .progress
+              .progress-bar.bg-green(style='width: 100%')
+
+      .col-md-4.col-sm-6.col-xs-12
+        .info-box
+          span.info-box-icon.bg-blue
+            i.fa.fa-clock-o
+          .info-box-content
+            span.info-box-text Current Time
+            span.info-box-number #{new Date().toLocaleTimeString()}
+            .progress
+              .progress-bar.bg-blue(style='width: 100%')
+
+    .row
+      .col-md-12
+        .box.box-parrot
+          .box-header
+            h3.box-title Quick Actions
+            .box-tools.pull-right
+              button.btn.btn-box-tool(type='button', data-widget='collapse')
+                i.fa.fa-minus
+          .box-body
+            .row
+              .col-md-3.col-sm-6
+                .small-box.bg-aqua
+                  .inner
+                    h3 Profile
+                    p Manage your profile
+                  .icon
+                    i.fa.fa-user
+                  a.small-box-footer(href='/profile')
+                    | More info 
+                    i.fa.fa-arrow-circle-right
+
+              .col-md-3.col-sm-6
+                .small-box.bg-green
+                  .inner
+                    h3 Settings
+                    p Update settings
+                  .icon
+                    i.fa.fa-cog
+                  a.small-box-footer(href='/settings')
+                    | More info 
+                    i.fa.fa-arrow-circle-right
+
+              .col-md-3.col-sm-6
+                .small-box.bg-yellow
+                  .inner
+                    h3 Messages
+                    p View messages
+                  .icon
+                    i.fa.fa-envelope
+                  a.small-box-footer(href='/messages')
+                    | More info 
+                    i.fa.fa-arrow-circle-right
+
+              .col-md-3.col-sm-6
+                .small-box.bg-red
+                  .inner
+                    h3 Help
+                    p Get help
+                  .icon
+                    i.fa.fa-question-circle
+                  a.small-box-footer(href='/help')
+                    | More info 
+                    i.fa.fa-arrow-circle-right
+
+block script
+  script(src='/socket.io/socket.io.js')
+  script.
+    $(function () {
+      // Initialize socket.io client
+      const socket = io();
+      socket.on('dashboard-update', function(data) {
+        console.log('User dashboard update received:', data);
+        // For user dashboard, we might not need to reload
+        // Just show a notification
+        if (data.message) {
+          alert('Update: ' + data.message);
+        }
+      });
+
+      // Update time every second
+      setInterval(function() {
+        const now = new Date();
+        $('.info-box-number').eq(2).text(now.toLocaleTimeString());
+      }, 1000);
+    });

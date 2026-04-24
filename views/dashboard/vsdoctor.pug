@@ -1,0 +1,180 @@
+extends ../layout
+
+include ../partials/dashboard-selector
+
+block content
+  section.content-header
+    h1
+      | Doctor Commission Dashboard
+    ol.breadcrumb
+      li
+        a(href='/dashboard')
+          i.fa.fa-dashboard
+          |  Dashboard
+      li.active Doctor Commission Dashboard
+
+  section.content
+    //- Dashboard Selector
+    +dashboardSelector(user.roleName)
+    
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        a(href='/medical-service/doctor-commission-count-view' style='text-decoration:none; color:inherit;')
+          .info-box(style='cursor: pointer;')
+            span.info-box-icon.bg-red
+              i.fa.fa-stethoscope
+            .info-box-content
+              span.info-box-text Doctor Wise Commission Data
+              .progress
+                .progress-bar.bg-red(style='width: 100%')
+              span.info-box-text(style='font-weight: bold;') #{user.username}
+
+block script
+  script(src='/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js')
+  script(src='/socket.io/socket.io.js')
+  script.
+    var confirmedData = !{JSON.stringify(confirmedData)};
+    var pendingData = !{JSON.stringify(pendingData)};
+
+    var medicalChartData = {
+      labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [
+        {
+          label               : 'Imaging Reports',
+          fillColor           : 'rgba(210, 214, 222, 1)',
+          strokeColor         : 'rgba(210, 214, 222, 1)',
+          pointColor          : 'rgba(210, 214, 222, 1)',
+          pointStrokeColor    : '#c1c7d1',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(220,220,220,1)',
+          data                : confirmedData
+        },
+        {
+          label               : 'Prescriptions',
+          fillColor           : 'rgba(60,141,188,0.9)',
+          strokeColor         : 'rgba(60,141,188,0.8)',
+          pointColor          : '#3b8bba',
+          pointStrokeColor    : 'rgba(60,141,188,1)',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(60,141,188,1)',
+          data                : pendingData
+        }
+      ]
+    };
+
+    $(function () {
+      var medicalChartCanvas = $('#medicalChart').get(0).getContext('2d');
+      var medicalChart = new Chart(medicalChartCanvas);
+
+      var medicalChartOptions = {
+        scaleBeginAtZero        : true,
+        scaleShowGridLines      : true,
+        scaleGridLineColor      : 'rgba(0,0,0,.05)',
+        scaleGridLineWidth      : 1,
+        scaleShowHorizontalLines: true,
+        scaleShowVerticalLines  : true,
+        barShowStroke           : true,
+        barStrokeWidth          : 2,
+        barValueSpacing         : 5,
+        barDatasetSpacing       : 1,
+        responsive              : true,
+        maintainAspectRatio     : true
+      };
+
+      medicalChartOptions.datasetFill = false;
+      medicalChart.Bar(medicalChartData, medicalChartOptions);
+
+      // Initialize socket.io client
+      const socket = io();
+
+      // Join dashboard room based on user role
+      socket.emit('join-dashboard', {
+        userId: '#{user.userId}',
+        roleName: '#{user.roleName}'
+      });
+
+      socket.on('dashboard-update', function(data) {
+        console.log('Medical dashboard update received:', data);
+        
+        if (data.type === 'dashboard-data-update') {
+          // Update stats if they changed
+          if (data.stats) {
+            updateMedicalDashboardStats(data.stats);
+          }
+          
+          // Update chart if data changed
+          if (data.confirmedData && data.pendingData) {
+            updateMedicalChart(data.confirmedData, data.pendingData);
+          }
+        }
+        
+        // Show notification
+        showNotification('Medical dashboard updated', 'success');
+      });
+
+      // Function to update medical dashboard stats
+      function updateMedicalDashboardStats(stats) {
+        $('.info-box-number').each(function() {
+          const text = $(this).text();
+          if (text.includes('Total Patients') && stats.total_users !== undefined) {
+            $(this).text(stats.total_users);
+          } else if (text.includes('Total Imaging Reports') && stats.total_ImgReports !== undefined) {
+            $(this).text(stats.total_ImgReports);
+          } else if (text.includes('Today\'s Imaging Reports') && stats.today_ImgReports !== undefined) {
+            $(this).text(stats.today_ImgReports);
+          } else if (text.includes('Total Prescriptions') && stats.total_prescriptions !== undefined) {
+            $(this).text(stats.total_prescriptions);
+          } else if (text.includes('Today\'s Prescriptions') && stats.today_prescriptions !== undefined) {
+            $(this).text(stats.today_prescriptions);
+          }
+        });
+      }
+
+      // Function to update medical chart
+      function updateMedicalChart(confirmedData, pendingData) {
+        if (window.medicalChart) {
+          window.medicalChart.destroy();
+        }
+        
+        var newMedicalChartData = {
+          labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+          datasets: [
+            {
+              label               : 'Imaging Reports',
+              fillColor           : 'rgba(210, 214, 222, 1)',
+              strokeColor         : 'rgba(210, 214, 222, 1)',
+              pointColor          : 'rgba(210, 214, 222, 1)',
+              pointStrokeColor    : '#c1c7d1',
+              pointHighlightFill  : '#fff',
+              pointHighlightStroke: 'rgba(220,220,220,1)',
+              data                : confirmedData
+            },
+            {
+              label               : 'Prescriptions',
+              fillColor           : 'rgba(60,141,188,0.9)',
+              strokeColor         : 'rgba(60,141,188,0.8)',
+              pointColor          : '#3b8bba',
+              pointStrokeColor    : 'rgba(60,141,188,1)',
+              pointHighlightFill  : '#fff',
+              pointHighlightStroke: 'rgba(60,141,188,1)',
+              data                : pendingData
+            }
+          ]
+        };
+
+        var medicalChartCanvas = $('#medicalChart').get(0).getContext('2d');
+        window.medicalChart = new Chart(medicalChartCanvas);
+        window.medicalChart.Bar(newMedicalChartData, medicalChartOptions);
+      }
+
+      // Function to show notifications
+      function showNotification(message, type = 'info') {
+        if (type === 'success') {
+          console.log('✅ ' + message);
+        } else if (type === 'error') {
+          console.log('❌ ' + message);
+        } else {
+          console.log('ℹ️ ' + message);
+        }
+      }
+    });

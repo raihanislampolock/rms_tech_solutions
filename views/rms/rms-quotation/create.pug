@@ -1,0 +1,132 @@
+#add-edit-quotation-modal.modal.fade(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xl
+    .modal-content
+      form#quotation-form(role='form', method='POST')
+
+        // ===== HEADER =====
+        .modal-header
+          h5.modal-title.text-primary RMS Quotation
+          button.close(type='button', data-dismiss='modal')
+            span &times;
+
+        // ===== BODY =====
+        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto;')
+
+          // ===== SECTION 1: BASIC INFO =====
+          h5.mb-3.text-primary Quotation Info
+          .row
+            .col-md-4
+              .form-group
+                label Ref Number
+                input.form-control(type='text', id='refNumber', placeholder='Auto generated on save', readonly)
+
+            .col-md-4
+              .form-group
+                label Company Name
+                input.form-control(type='text', id='companyName', placeholder='Enter Company Name')
+
+            .col-md-4
+              .form-group
+                label Company Email
+                input.form-control(type='email', id='companyEmail', placeholder='Enter Company Email')
+
+            .col-md-4
+              .form-group
+                label Subject
+                input.form-control(type='text', id='subject', placeholder='Enter Subject')
+
+          .row
+            .col-md-12
+              .form-group
+                label Description
+                textarea.form-control(id='discriptions', rows='2', placeholder='Enter Description')
+
+          hr
+
+          // ===== SECTION 2: ITEM SELECTION =====
+          h5.mb-3.text-primary Item Selection
+
+          .row
+            .col-md-4
+              .form-group
+                label Select Item
+                select.form-control(id='itemSelect', style='width:100%')
+                  option(value='' disabled selected) Select Item
+                
+                  if items && items.length > 0
+                    each item in items
+                      option(
+                        value=item.id,
+                        data-quarterly=item.quarterly,
+                        data-price=item.itemPrice,
+                        data-name=item.itemName,
+                        data-model=item.itemModel,
+                        data-type=item.itemType,
+                        data-config=item.itemConfigurations
+                      ) #{item.itemName}
+
+            .col-md-2
+              .form-group
+                label Item Price
+                input.form-control(type='text', id='itemPrice', readonly)
+              .form-group
+                label RMS Price
+                input.form-control(type='number', id='rmsPrice', placeholder='Enter RMS Price')   
+                
+
+            .col-md-2
+              .form-group
+                label Item Type
+                input.form-control(type='text', id='itemType', readonly)
+
+            .col-md-2
+              .form-group
+                label Model
+                input.form-control(type='text', id='itemModel', readonly)
+            .col-md-2
+              .form-group
+                label Configuration
+                input.form-control(type='text', id='itemConfigurations', readonly)    
+
+            .col-md-2
+              .form-group
+                label RMS Quantity
+                input.form-control(type='number', id='quarterly', placeholder='Enter RMS Quantity', min='1')  
+
+          .row.mt-2
+            .col-md-2.offset-md-10
+              button.btn.btn-primary.btn-block(type='button', id='addItem')
+                i.fa.fa-plus
+                |  Add Item
+
+          hr
+
+          // ===== SECTION 3: ITEM TABLE =====
+          h5.mb-3.text-primary Added Items
+
+          table.table.table-bordered.table-striped#itemTable
+            thead
+              tr
+                th Item Name
+                th Type
+                th Model
+                th Configuration
+                th RMS Quantity
+                th.text-right Item Price
+                th.text-right(style="min-width:120px") RMS Price
+                th.text-right Total Item Price
+                th.text-right Total RMS Price
+                th Action
+            tbody
+              tr
+                td.text-center(colspan='10') No item added yet.
+
+        // ===== FOOTER =====
+        .modal-footer
+          button.btn.btn-success(type='button', id='saveQuotation')
+            i.fa.fa-save
+            |  Save Quotation
+
+          button.btn.btn-danger(type='button', data-dismiss='modal')
+            i.fa.fa-times
+            |  Cancel
