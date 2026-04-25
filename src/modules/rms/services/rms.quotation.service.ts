@@ -1,7 +1,6 @@
 import { Config } from "../../../core/Config";
 import fs from "fs";
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
-import { QuotationEmailService } from "../../../utils/quotation-email.service";
 import {
     IRmsQuotation,
     IRmsQuotationItem,
@@ -113,11 +112,10 @@ export class RmsQuotationService {
     public async generatePdf(id: number): Promise<{ pdfBuffer: Buffer; emailSent?: boolean }> {
         try {
             const quotation = await this.edit(id);
-            if (!quotation) {
-                throw new Error('Quotation not found');
-            }
+            if (!quotation) throw new Error('Quotation not found');
 
             const itemsWithDetails = await this.getItemsWithDetails(quotation.items || []);
+
             const totalAmount = itemsWithDetails.reduce((sum, item) => {
                 const qty = Number(item.quarterly) || 0;
                 const price = Number(item.rmsPrice) || 0;
@@ -127,6 +125,7 @@ export class RmsQuotationService {
             const pdfDoc = await PDFDocument.create();
             const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
             let page = pdfDoc.addPage();
             const { width, height } = page.getSize();
             const margin = 50;
@@ -146,23 +145,7 @@ export class RmsQuotationService {
                 yPosition -= lineHeight;
             };
 
-            const drawWrappedText = (text: string, x: number, maxChars: number, size: number, font = helvetica) => {
-                const words = String(text).split(' ');
-                let line = '';
-                for (const word of words) {
-                    const candidate = line ? `${line} ${word}` : word;
-                    if (candidate.length > maxChars) {
-                        drawText(line, x, size, font);
-                        line = word;
-                    } else {
-                        line = candidate;
-                    }
-                }
-                if (line) {
-                    drawText(line, x, size, font);
-                }
-            };
-
+            // ================= HEADER =================
             page.drawText('RMS Tech Solutions', {
                 x: margin,
                 y: yPosition,
@@ -171,6 +154,7 @@ export class RmsQuotationService {
                 color: rgb(0, 0, 0)
             });
             yPosition -= 26;
+
             page.drawText('Quotation', {
                 x: margin,
                 y: yPosition,
@@ -189,52 +173,274 @@ export class RmsQuotationService {
             drawText(`Subject: ${quotation.subject}`, margin, 12, helvetica);
             yPosition -= 8;
 
-            drawText('Description:', margin, 12, helveticaBold);
-            drawWrappedText(quotation.discriptions || '', margin + 10, 80, 11, helvetica);
-            yPosition -= 10;
-
-            yPosition -= 8;
-            page.drawText('SL.No', { x: margin, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Item Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Qty', { x: margin + 320, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Unit Price', { x: margin + 365, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Amount', { x: margin + 455, y: yPosition, size: 10, font: helveticaBold });
-            yPosition -= 14;
-
-            const drawTableRow = (index: number, description: string, qty: number, unitPrice: number, amount: number) => {
-                const wrappedLines = this.wrapText(description, 45);
-                const requiredHeight = wrappedLines.length * lineHeight;
-                if (yPosition < margin + requiredHeight + 40) {
-                    addPage();
-                }
-                const rowY = yPosition;
-                page.drawText(String(index + 1), { x: margin, y: rowY, size: 10, font: helvetica });
-                page.drawText(String(qty), { x: margin + 320, y: rowY, size: 10, font: helvetica });
-                page.drawText(this.formatCurrency(unitPrice), { x: margin + 365, y: rowY, size: 10, font: helvetica });
-                page.drawText(this.formatCurrency(amount), { x: margin + 455, y: rowY, size: 10, font: helvetica });
-
-                let currentY = rowY;
-                for (const line of wrappedLines) {
-                    page.drawText(line, { x: margin + 40, y: currentY, size: 10, font: helvetica });
-                    currentY -= lineHeight;
-                }
-                yPosition = currentY - 4;
+            const cleanText = (text: any): string => {
+                if (!text) return '';
+                return String(text)
+                    .replace(/\r/g, '')        // ❌ remove carriage return (MAIN ERROR)
+                    .replace(/\n/g, '\n')      // keep newline but normalize
+                    .replace(/\t/g, ' ')       // tabs → space
+                    .replace(/[^\x20-\x7E\n]/g, ''); // remove unsupported chars
             };
 
+            const wrapTextByWidth = (
+                text: string,
+                maxWidth: number,
+                font: any,
+                fontSize: number
+            ): string[] => {
+            
+                const clean = (val: any) =>
+                    String(val || '')
+                        .replace(/\r/g, '')
+                        .replace(/\t/g, ' ')
+                        .replace(/[^\x20-\x7E\n]/g, '');
+
+                const safeText = clean(text);
+                const paragraphs = safeText.split('\n');
+
+                const lines: string[] = [];
+
+                for (const paragraph of paragraphs) {
+                    const words = paragraph.split(' ');
+                    let line = '';
+                
+                    for (const word of words) {
+                        const testLine = line ? line + ' ' + word : word;
+                        const width = font.widthOfTextAtSize(testLine, fontSize);
+                    
+                        if (width > maxWidth) {
+                            if (line) lines.push(line);
+                            line = word;
+                        } else {
+                            line = testLine;
+                        }
+                    }
+                
+                    if (line) lines.push(line);
+                
+                    lines.push('');
+                }
+            
+                return lines;
+            };
+
+            // ================= DESCRIPTION =================
+            const desc = quotation.discriptions || '';
+
+            const descriptionText = cleanText(quotation.discriptions || '');
+
+            // 🔥 use width-based wrap (same as items)
+            const descLines = wrapTextByWidth(
+                descriptionText,
+                width - (margin * 2), // full width
+                helvetica,
+                11
+            );
+
+            // 🔥 manually control Y (not drawText)
+            let descY = yPosition;
+
+            descLines.forEach(line => {
+                if (!line.trim()) {
+                    descY -= 6;
+                    return;
+                }
+            
+                page.drawText(line, {
+                    x: margin,
+                    y: descY,
+                    size: 11,
+                    font: helvetica
+                });
+            
+                descY -= 15; // 11 + spacing
+            });
+
+            // ✅ VERY IMPORTANT: update global Y position
+            yPosition = descY - 10;
+
+            // ================= TABLE HEADER =================
+            // Add page break before table if needed
+            if (yPosition < margin + 200) {
+                addPage();
+            }
+
+            page.drawText('SL.No', { x: margin, y: yPosition, size: 10, font: helveticaBold });
+            page.drawText('Item Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
+            page.drawText('Qty', { x: margin + 300, y: yPosition, size: 10, font: helveticaBold });
+            page.drawText('Unit Price', { x: margin + 350, y: yPosition, size: 10, font: helveticaBold });
+            page.drawText('Amount', { x: margin + 430, y: yPosition, size: 10, font: helveticaBold });
+            yPosition -= 14;
+
+            page.drawLine({
+                start: { x: margin, y: yPosition },
+                end: { x: width - margin, y: yPosition },
+                thickness: 1
+            });
+            yPosition -= 10;
+
+            // ================= ITEMS TABLE =================
             itemsWithDetails.forEach((item: any, index: number) => {
                 const qty = Number(item.quarterly) || 0;
                 const unitPrice = Number(item.rmsPrice) || 0;
                 const amount = qty * unitPrice;
-                const description = [item.itemName, item.itemConfigurations].filter(Boolean).join(' - ');
-                drawTableRow(index + 1, description, qty, unitPrice, amount);
+
+                // Build structured description with Model, Origin, Spec format
+                let description = item.itemName || '';
+                if (item.itemConfigurations) {
+                    const configs = item.itemConfigurations.split(',').map((s: string) => s.trim());
+                    // Format: "Model: X3SP Pro\nOrigin: China\nSpec: 2.4" 320×240 Color-screen Display"
+                    configs.forEach((config: string) => {
+                        if (config.toLowerCase().includes('model')) {
+                            description += `\nModel: ${config.replace(/model[:\s]*/i, '').trim()}`;
+                        } else if (config.toLowerCase().includes('origin')) {
+                            description += `\nOrigin: ${config.replace(/origin[:\s]*/i, '').trim()}`;
+                        } else if (config.toLowerCase().includes('spec')) {
+                            description += `\nSpec: ${config.replace(/spec[:\s]*/i, '').trim()}`;
+                        } else {
+                            description += `\n${config}`;
+                        }
+                    });
+                }
+
+                const cleanText = (text: any): string => {
+                    if (!text) return '';
+
+                    return String(text)
+                        .replace(/\r/g, '')        // ❌ remove carriage return (MAIN ERROR)
+                        .replace(/\n/g, '\n')      // keep newline but normalize
+                        .replace(/\t/g, ' ')       // tabs → space
+                        .replace(/[^\x20-\x7E\n]/g, ''); // remove unsupported chars
+                };
+
+                const wrapTextByWidth = (
+                    text: string,
+                    maxWidth: number,
+                    font: any,
+                    fontSize: number
+                ) => {
+                    const safeText = cleanText(text); // ✅ CLEAN FIRST
+                
+                    const paragraphs = safeText.split('\n');
+                    const lines: string[] = [];
+                
+                    for (const paragraph of paragraphs) {
+                        const words = paragraph.split(' ');
+                        let line = '';
+                    
+                        for (const word of words) {
+                            const testLine = line ? line + ' ' + word : word;
+                        
+                            const width = font.widthOfTextAtSize(testLine, fontSize);
+                        
+                            if (width > maxWidth) {
+                                if (line) lines.push(line);
+                                line = word;
+                            } else {
+                                line = testLine;
+                            }
+                        }
+                    
+                        if (line) lines.push(line);
+                    
+                        lines.push('');
+                    }
+                
+                    return lines;
+                };
+
+                const wrappedLines = wrapTextByWidth(
+                    description,
+                    240,          // 🔥 width of description column (important)
+                    helvetica,
+                    10
+                );
+                const requiredHeight = wrappedLines.length * (10 + 4);
+
+                // Check if we need a new page for this item
+                if (yPosition < margin + requiredHeight + 40) {
+                    addPage();
+                    // Redraw table header on new page
+                    page.drawText('SL.No', { x: margin, y: yPosition, size: 10, font: helveticaBold });
+                    page.drawText('Item Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
+                    page.drawText('Qty', { x: margin + 300, y: yPosition, size: 10, font: helveticaBold });
+                    page.drawText('Unit Price', { x: margin + 350, y: yPosition, size: 10, font: helveticaBold });
+                    page.drawText('Amount', { x: margin + 430, y: yPosition, size: 10, font: helveticaBold });
+                    yPosition -= 14;
+
+                    page.drawLine({
+                        start: { x: margin, y: yPosition },
+                        end: { x: width - margin, y: yPosition },
+                        thickness: 1
+                    });
+                    yPosition -= 10;
+                }
+
+                const rowStartY = yPosition;
+
+                // Draw serial number at row start
+                page.drawText(String(index + 1), { x: margin, y: rowStartY, size: 10, font: helvetica });
+
+                // Draw right-aligned numeric values at row start
+                const rightAlignText = (text: string, xPos: number) => {
+                    const textWidth = helvetica.widthOfTextAtSize(text, 10);
+                    page.drawText(text, {
+                        x: xPos - textWidth,
+                        y: rowStartY,
+                        size: 10,
+                        font: helvetica
+                    });
+                };
+
+                rightAlignText(String(qty), margin + 320);
+                rightAlignText(this.formatCurrency(unitPrice), margin + 400);
+                rightAlignText(this.formatCurrency(amount), margin + 480);
+
+                // Draw multi-line description
+                let currentY = rowStartY;
+                for (const line of wrappedLines) {
+                    if (!line.trim()) {
+                        currentY -= 6; // spacing for blank line
+                        continue;
+                    }
+                
+                    page.drawText(line, {
+                        x: margin + 40,
+                        y: currentY,
+                        size: 10,
+                        font: helvetica
+                    });
+                
+                    currentY -= 14; // 10 font + spacing
+                }
+
+                yPosition = currentY - 4;
+
+                // Draw separator line
+                page.drawLine({
+                    start: { x: margin, y: yPosition },
+                    end: { x: width - margin, y: yPosition },
+                    thickness: 0.5
+                });
+                yPosition -= 8;
             });
 
+            // ================= TOTAL =================
             yPosition -= 10;
-            drawText(`Total Amount = ${this.formatCurrency(totalAmount)}`, margin + 350, 12, helveticaBold);
+
+            page.drawText(`Total Amount: ${this.formatCurrency(totalAmount)}`, {
+                x: margin + 350,
+                y: yPosition,
+                size: 12,
+                font: helveticaBold,
+                color: rgb(0, 0, 0)
+            });
+            yPosition -= 20;
+
             drawText(`In words: ${this.numberToWords(Math.floor(totalAmount))} only.`, margin, 11, helvetica);
             yPosition -= 10;
 
-            yPosition -= 10;
+            // ================= TERMS & CONDITIONS =================
             drawText('Note: Terms & Conditions:', margin, 12, helveticaBold);
             drawText('1. Project timeline will be 10 days from receipt of the Work Order (WO).', margin + 10, 10, helvetica);
             drawText('2. 50% Advance payable upon confirmation of work order.', margin + 10, 10, helvetica);
@@ -242,23 +448,14 @@ export class RmsQuotationService {
             drawText('4. 10% Final payment payable upon successful completion and handover/delivery.', margin + 10, 10, helvetica);
             drawText('WARRANTY: Standard 12 months against manufacturing defects from delivery date.', margin + 10, 10, helvetica);
             yPosition -= 10;
+
+            // ================= SIGNATURE =================
             drawText('Best Regards,', margin, 12, helveticaBold);
             drawText('RMS Tech Solutions', margin, 12, helvetica);
 
             const pdfBytes = await pdfDoc.save();
-            let emailSent = false;
-            if (quotation.companyEmail) {
-                const emailService = new QuotationEmailService();
-                await emailService.sendQuotationPdf(
-                    quotation.companyEmail,
-                    quotation.companyName,
-                    Buffer.from(pdfBytes),
-                    quotation.refNumber
-                );
-                emailSent = true;
-            }
 
-            return { pdfBuffer: Buffer.from(pdfBytes), emailSent };
+            return { pdfBuffer: Buffer.from(pdfBytes), emailSent: false };
         } catch (error) {
             console.error('Error generating PDF:', error);
             throw new Error(`Failed to generate PDF: ${error.message}`);
@@ -359,6 +556,15 @@ export class RmsQuotationService {
                     lines.push(currentLine);
                 }
                 currentLine = word;
+                // Break long words
+                if (currentLine.length > maxChars) {
+                    const chunks: string[] = [];
+                    for (let i = 0; i < currentLine.length; i += maxChars) {
+                        chunks.push(currentLine.substring(i, i + maxChars));
+                    }
+                    lines.push(...chunks);
+                    currentLine = '';
+                }
             } else {
                 currentLine = next;
             }
