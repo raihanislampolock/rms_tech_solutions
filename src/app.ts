@@ -76,6 +76,7 @@ app.setMenu("main", {
     items: [
         { name: "Dashboard", path: "/", for: [Role.Admin] },
         { name: "Report", path: "/report/weight-data", for: [Role.Admin, Role.Agent, Role.Customer] },
+        { name: "<i class='large material-icons'>admin_panel_settings</i>", path: "/role-permissions", for: [Role.Admin] },
         { name: "<i class='large material-icons'>people</i>", path: "/users", for: [Role.Admin] },
         { name: "<i class='large material-icons'>security</i>", path: "/password/change", for: [Role.Admin] },
         { name: "<i class='large material-icons'>exit_to_app</i>", path: "/logout", for: [Role.Admin] }

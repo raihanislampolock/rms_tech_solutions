@@ -84,13 +84,13 @@ block style
        SELECT BOX (FIX UI)
        ========================= */
     select {
-      color: #000;
+      color: #580db4;
       background-color: #fff;
     }
     
     /* IMPORTANT: Fix invisible dropdown items */
     select option {
-      color: #000 !important;
+      color: #580db4 !important;
       background-color: #fff !important;
     }
     
@@ -180,9 +180,15 @@ block content
                                       a(href='#') Action &nbsp;
                                         <i class="fa fa-sort-alpha-asc"></i> 
                                     th
+                                      a(href='#') Quotation PDF 
+                                    th
+                                      a(href='#') Email     
+                                    th
                                       a(href='#') Ref Number
                                     th
-                                      a(href='#') Company Name           
+                                      a(href='#') Company Name 
+                                    th
+                                      a(href='#') Company Email            
                                     th
                                       a(href='#') View Items
                                     th 
@@ -258,6 +264,7 @@ block script
                   id: row.id,
                   refNumber: row.refNumber,
                   companyName: row.companyName,
+                  companyEmail: row.companyEmail,
                   subject: row.subject,
                   discriptions: row.discriptions,
                   createdBy: row.createdBy,
@@ -285,7 +292,16 @@ block script
             // =========================
             // ✅ RENDER GROUPED UI
             // =========================
-            tableBody.innerHTML = Object.values(grouped).map(q => `
+            tableBody.innerHTML = Object.values(grouped).map(q => {
+              const totalQty = q.items.reduce((sum, i) => sum + (Number(i.quarterly) || 0), 0);
+              const itemPrice = q.items.reduce((sum, i) => sum + (Number(i.itemPrice) || 0), 0);
+              const sellPrice = q.items.reduce((sum, i) => sum + (Number(i.rmsPrice) || 0), 0);
+              const totalBuy = q.items.reduce((sum, i) => sum + (Number(i.totalItemPrice) || 0), 0);
+              const totalSell = q.items.reduce((sum, i) => sum + (Number(i.totalRmsPrice) || 0), 0);
+
+              const format = (num) => Number(num || 0).toLocaleString();
+
+              return `
 
               <!-- MAIN QUOTATION ROW -->
               <tr style="background:#f5f5f5;font-weight:bold;">
@@ -296,16 +312,27 @@ block script
                      data-toggle="modal"
                      data-target="#add-edit-quotation-modal">
                   </a>
-                  &nbsp;
+                </td>
+                <td>
                   <a href="/api/rms/rms-quotation/generate-pdf/${q.id}"
-                     class="fa fa-file-pdf-o"
+                     class="fa fa-file-pdf-o fa-2x"
                      target="_blank"
                      title="Generate PDF">
+                  </a>
+                </td>
+                <td>
+                  <a href="#"
+                     class="sendQuotationEmail fa fa-envelope fa-2x"
+                     data-quotation-id="${q.id}"
+                     data-company-email="${q.companyEmail}"
+                     data-company-name="${q.companyName}"
+                     title="Send via Email">
                   </a>
                 </td>
 
                 <td>${q.refNumber ?? ''}</td>
                 <td>${q.companyName ?? ''}</td>
+                <td>${q.companyEmail ?? ''}</td>
 
                 <!-- View Items column -->
                 <td>
@@ -322,14 +349,14 @@ block script
 
               <!-- ITEMS ROW -->
               <tr id="items-${q.id}" style="display:none;">
-                <td colspan="18">
+                <td colspan="21">
                   <table class="table table-bordered">
                     <thead style="background:#580db4;color:white;">
                       <tr>
                         <th>Item</th>
                         <th>Type</th>
                         <th>Model</th>
-                        <th>Config</th>
+                        <th>Spec</th>
                         <th>Qty</th>
                         <th>Buy</th>
                         <th>Sell</th>
@@ -351,12 +378,20 @@ block script
                           <td>${i.totalRmsPrice ?? ''}</td>
                         </tr>
                       `).join('')}
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-
-            `).join('');
+                    <!-- ✅ TOTAL ROW -->
+                            <tr style="background:#e8f5e9; font-weight:bold;">
+                              <td colspan="4" style="text-align:right;">TOTAL</td>
+                              <td>${format(totalQty)}</td>
+                              <td>${format(itemPrice)}</td>
+                              <td>${format(sellPrice)}</td>
+                              <td>${format(totalBuy)}</td>
+                              <td>${format(totalSell)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+            `}).join('');
 
             selectedRows.forEach((id) => {
               const row = tableBody.querySelector(`[data-id="${id}"]`);
@@ -608,6 +643,59 @@ block script
           console.log("CLICKED ID:", id); // 👈 MUST SHOW NUMBER
 
           loadQuotation(id);
+        });
+
+        // ========================
+        // 📧 SEND EMAIL WITH PDF
+        // ========================
+        document.addEventListener('click', function (e) {
+          if (!e.target.classList.contains('sendQuotationEmail')) return;
+
+          e.preventDefault();
+
+          const id = Number(e.target.getAttribute('data-quotation-id'));
+          const email = e.target.getAttribute('data-company-email');
+          const companyName = e.target.getAttribute('data-company-name');
+
+          if (!id || !email) {
+              alert('❌ Email not found for this quotation');
+              return;
+          }
+
+          // Confirm before sending
+          if (!confirm(`Send quotation to ${email}?`)) {
+              return;
+          }
+
+          // Show loading state
+          const originalClass = e.target.className;
+          e.target.className = 'fa fa-spinner fa-spin fa-2x';
+          e.target.style.cursor = 'not-allowed';
+
+          // Send email via API
+          fetch(`/api/rms/rms-quotation/send-email/${id}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              e.target.className = originalClass;
+              e.target.style.cursor = 'pointer';
+
+              if (data.status) {
+                  alert('✅ ' + data.message);
+              } else {
+                  alert('❌ ' + (data.message || 'Failed to send email'));
+              }
+          })
+          .catch(error => {
+              e.target.className = originalClass;
+              e.target.style.cursor = 'pointer';
+              console.error('Error:', error);
+              alert('❌ Error sending email: ' + error.message);
+          });
         });
 
         const itemSelect = document.getElementById('itemSelect');

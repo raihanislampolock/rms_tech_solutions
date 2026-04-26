@@ -123,79 +123,45 @@ export class RmsQuotationService {
             }, 0);
 
             const pdfDoc = await PDFDocument.create();
+
+            // ================= FILES =================
+            const headerImageBytes = fs.readFileSync('src/public/dist/img/header.png');
+            const footerImageBytes = fs.readFileSync('src/public/dist/img/footer.png');
+            const signatureBytes = fs.readFileSync('src/public/dist/img/sig.png');
+            const signatureImage = await pdfDoc.embedPng(signatureBytes);
+
+            const headerImage = await pdfDoc.embedPng(headerImageBytes);
+            const footerImage = await pdfDoc.embedPng(footerImageBytes);
+
             const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-            let page = pdfDoc.addPage();
-            const { width, height } = page.getSize();
+            // ================= PAGE SETUP =================
             const margin = 50;
-            const lineHeight = 16;
-            let yPosition = height - margin;
+            const lineHeight = 14;
+            const BOTTOM_LIMIT = 120;
 
-            const addPage = () => {
-                page = pdfDoc.addPage();
-                yPosition = height - margin;
-            };
+            let page = pdfDoc.addPage();
+            let { width, height } = page.getSize();
 
-            const drawText = (text: string, x: number, size: number, font = helvetica) => {
-                if (yPosition < margin + 40) {
-                    addPage();
-                }
-                page.drawText(text, { x, y: yPosition, size, font, color: rgb(0, 0, 0) });
-                yPosition -= lineHeight;
-            };
+            let yPosition = height - 120; // SAFE START POSITION
 
-            // ================= HEADER =================
-            page.drawText('RMS Tech Solutions', {
-                x: margin,
-                y: yPosition,
-                size: 18,
-                font: helveticaBold,
-                color: rgb(0, 0, 0)
-            });
-            yPosition -= 26;
-
-            page.drawText('Quotation', {
-                x: margin,
-                y: yPosition,
-                size: 14,
-                font: helveticaBold,
-                color: rgb(0, 0, 0)
-            });
-            yPosition -= 24;
-
-            drawText(`Ref Number: ${quotation.refNumber}`, margin, 12, helvetica);
-            drawText(`Date: ${quotation.createdAt ? new Date(quotation.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}`, margin, 12, helvetica);
-            drawText(`To: ${quotation.companyName}`, margin, 12, helvetica);
-            if (quotation.companyEmail) {
-                drawText(`Email: ${quotation.companyEmail}`, margin, 12, helvetica);
-            }
-            drawText(`Subject: ${quotation.subject}`, margin, 12, helvetica);
-            yPosition -= 8;
-
+            // ================= CLEAN TEXT =================
             const cleanText = (text: any): string => {
-                if (!text) return '';
-                return String(text)
-                    .replace(/\r/g, '')        // ❌ remove carriage return (MAIN ERROR)
-                    .replace(/\n/g, '\n')      // keep newline but normalize
-                    .replace(/\t/g, ' ')       // tabs → space
-                    .replace(/[^\x20-\x7E\n]/g, ''); // remove unsupported chars
+                return String(text || '')
+                    .replace(/\r/g, '')
+                    .replace(/\t/g, ' ')
+                    .replace(/[^\x20-\x7E\n]/g, '');
             };
 
+            // ================= WRAP TEXT =================
             const wrapTextByWidth = (
                 text: string,
                 maxWidth: number,
                 font: any,
                 fontSize: number
             ): string[] => {
-            
-                const clean = (val: any) =>
-                    String(val || '')
-                        .replace(/\r/g, '')
-                        .replace(/\t/g, ' ')
-                        .replace(/[^\x20-\x7E\n]/g, '');
-
-                const safeText = clean(text);
+                const safeText = cleanText(text);
                 const paragraphs = safeText.split('\n');
 
                 const lines: string[] = [];
@@ -203,260 +169,292 @@ export class RmsQuotationService {
                 for (const paragraph of paragraphs) {
                     const words = paragraph.split(' ');
                     let line = '';
-                
+
                     for (const word of words) {
                         const testLine = line ? line + ' ' + word : word;
-                        const width = font.widthOfTextAtSize(testLine, fontSize);
-                    
-                        if (width > maxWidth) {
+                        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+
+                        if (testWidth > maxWidth) {
                             if (line) lines.push(line);
                             line = word;
                         } else {
                             line = testLine;
                         }
                     }
-                
+
                     if (line) lines.push(line);
-                
                     lines.push('');
                 }
-            
+
                 return lines;
             };
 
+            // ================= HEADER / FOOTER =================
+            const drawHeaderFooter = () => {
+                const headerHeight = 60;
+                const footerHeight = 50;
+
+                page.drawImage(headerImage, {
+                    x: 0,
+                    y: height - headerHeight,
+                    width,
+                    height: headerHeight,
+                });
+
+                page.drawImage(footerImage, {
+                    x: 0,
+                    y: 0,
+                    width,
+                    height: footerHeight,
+                });
+            };
+
+            // ================= NEW PAGE =================
+            const addPage = () => {
+                page = pdfDoc.addPage();
+                ({ width, height } = page.getSize());
+
+                drawHeaderFooter();
+
+                yPosition = height - 120; // reset safe content start
+            };
+
+            // first page header/footer
+            drawHeaderFooter();
+
+            // ================= TEXT DRAW =================
+            const drawText = (text: string, x: number, size = 11, font = helvetica) => {
+                if (yPosition < BOTTOM_LIMIT) addPage();
+
+                page.drawText(cleanText(text), {
+                    x,
+                    y: yPosition,
+                    size,
+                    font,
+                    color: rgb(0, 0, 0),
+                });
+
+                yPosition -= lineHeight;
+            };
+
+            // ================= TITLE =================
+            page.drawText('RMS Tech Solutions', {
+                x: margin,
+                y: yPosition,
+                size: 18,
+                font: helveticaBold,
+            });
+            yPosition -= 25;
+
+            page.drawText('Quotation', {
+                x: margin,
+                y: yPosition,
+                size: 14,
+                font: helveticaBold,
+            });
+            yPosition -= 20;
+
+            drawText(`Ref Number: ${quotation.refNumber}`, margin);
+            drawText(`Date: ${new Date().toLocaleDateString()}`, margin);
+            drawText(`To: ${quotation.companyName}`, margin);
+            if (quotation.companyEmail) drawText(`Email: ${quotation.companyEmail}`, margin);
+            drawText(`Subject: ${quotation.subject}`, margin);
+
+            yPosition -= 10;
+
             // ================= DESCRIPTION =================
-            const desc = quotation.discriptions || '';
+            page.drawText('Description:', {
+                x: margin,
+                y: yPosition,
+                size: 12,
+                font: helveticaBold,
+            });
+            yPosition -= 15;
 
-            const descriptionText = cleanText(quotation.discriptions || '');
-
-            // 🔥 use width-based wrap (same as items)
             const descLines = wrapTextByWidth(
-                descriptionText,
-                width - (margin * 2), // full width
+                quotation.discriptions || '',
+                width - margin * 2,
                 helvetica,
                 11
             );
 
-            // 🔥 manually control Y (not drawText)
-            let descY = yPosition;
-
-            descLines.forEach(line => {
+            for (const line of descLines) {
                 if (!line.trim()) {
-                    descY -= 6;
-                    return;
+                    yPosition -= 6;
+                    continue;
                 }
-            
+
+                if (yPosition < BOTTOM_LIMIT) addPage();
+
                 page.drawText(line, {
                     x: margin,
-                    y: descY,
+                    y: yPosition,
                     size: 11,
-                    font: helvetica
+                    font: helvetica,
                 });
-            
-                descY -= 15; // 11 + spacing
-            });
 
-            // ✅ VERY IMPORTANT: update global Y position
-            yPosition = descY - 10;
-
-            // ================= TABLE HEADER =================
-            // Add page break before table if needed
-            if (yPosition < margin + 200) {
-                addPage();
+                yPosition -= 14;
             }
 
-            page.drawText('SL.No', { x: margin, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Item Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Qty', { x: margin + 300, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Unit Price', { x: margin + 350, y: yPosition, size: 10, font: helveticaBold });
-            page.drawText('Amount', { x: margin + 430, y: yPosition, size: 10, font: helveticaBold });
-            yPosition -= 14;
-
-            page.drawLine({
-                start: { x: margin, y: yPosition },
-                end: { x: width - margin, y: yPosition },
-                thickness: 1
-            });
             yPosition -= 10;
+            addPage();
 
-            // ================= ITEMS TABLE =================
-            itemsWithDetails.forEach((item: any, index: number) => {
+            // ================= TABLE HEADER =================
+            const drawTableHeader = () => {
+                page.drawText('SL', { x: margin, y: yPosition, size: 10, font: helveticaBold });
+                page.drawText('Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
+                page.drawText('Qty', { x: margin + 300, y: yPosition, size: 10, font: helveticaBold });
+                page.drawText('Unit Price', { x: margin + 350, y: yPosition, size: 10, font: helveticaBold });
+                page.drawText('Amount', { x: margin + 430, y: yPosition, size: 10, font: helveticaBold });
+
+                yPosition -= 12;
+
+                page.drawLine({
+                    start: { x: margin, y: yPosition },
+                    end: { x: width - margin, y: yPosition },
+                    thickness: 1,
+                });
+
+                yPosition -= 10;
+            };
+
+            drawTableHeader();
+
+            // ================= ITEMS =================
+            for (let i = 0; i < itemsWithDetails.length; i++) {
+                const item = itemsWithDetails[i];
+
                 const qty = Number(item.quarterly) || 0;
                 const unitPrice = Number(item.rmsPrice) || 0;
                 const amount = qty * unitPrice;
 
-                // Build structured description with Model, Origin, Spec format
                 let description = item.itemName || '';
                 if (item.itemConfigurations) {
-                    const configs = item.itemConfigurations.split(',').map((s: string) => s.trim());
-                    // Format: "Model: X3SP Pro\nOrigin: China\nSpec: 2.4" 320×240 Color-screen Display"
-                    configs.forEach((config: string) => {
-                        if (config.toLowerCase().includes('model')) {
-                            description += `\nModel: ${config.replace(/model[:\s]*/i, '').trim()}`;
-                        } else if (config.toLowerCase().includes('origin')) {
-                            description += `\nOrigin: ${config.replace(/origin[:\s]*/i, '').trim()}`;
-                        } else if (config.toLowerCase().includes('spec')) {
-                            description += `\nSpec: ${config.replace(/spec[:\s]*/i, '').trim()}`;
-                        } else {
-                            description += `\n${config}`;
-                        }
-                    });
+                    description += '\n' + item.itemConfigurations;
                 }
 
-                const cleanText = (text: any): string => {
-                    if (!text) return '';
+                const wrappedLines = wrapTextByWidth(description, 240, helvetica, 10);
+                const rowHeight = wrappedLines.length * 14;
 
-                    return String(text)
-                        .replace(/\r/g, '')        // ❌ remove carriage return (MAIN ERROR)
-                        .replace(/\n/g, '\n')      // keep newline but normalize
-                        .replace(/\t/g, ' ')       // tabs → space
-                        .replace(/[^\x20-\x7E\n]/g, ''); // remove unsupported chars
-                };
-
-                const wrapTextByWidth = (
-                    text: string,
-                    maxWidth: number,
-                    font: any,
-                    fontSize: number
-                ) => {
-                    const safeText = cleanText(text); // ✅ CLEAN FIRST
-                
-                    const paragraphs = safeText.split('\n');
-                    const lines: string[] = [];
-                
-                    for (const paragraph of paragraphs) {
-                        const words = paragraph.split(' ');
-                        let line = '';
-                    
-                        for (const word of words) {
-                            const testLine = line ? line + ' ' + word : word;
-                        
-                            const width = font.widthOfTextAtSize(testLine, fontSize);
-                        
-                            if (width > maxWidth) {
-                                if (line) lines.push(line);
-                                line = word;
-                            } else {
-                                line = testLine;
-                            }
-                        }
-                    
-                        if (line) lines.push(line);
-                    
-                        lines.push('');
-                    }
-                
-                    return lines;
-                };
-
-                const wrappedLines = wrapTextByWidth(
-                    description,
-                    240,          // 🔥 width of description column (important)
-                    helvetica,
-                    10
-                );
-                const requiredHeight = wrappedLines.length * (10 + 4);
-
-                // Check if we need a new page for this item
-                if (yPosition < margin + requiredHeight + 40) {
+                if (yPosition < BOTTOM_LIMIT + rowHeight) {
                     addPage();
-                    // Redraw table header on new page
-                    page.drawText('SL.No', { x: margin, y: yPosition, size: 10, font: helveticaBold });
-                    page.drawText('Item Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
-                    page.drawText('Qty', { x: margin + 300, y: yPosition, size: 10, font: helveticaBold });
-                    page.drawText('Unit Price', { x: margin + 350, y: yPosition, size: 10, font: helveticaBold });
-                    page.drawText('Amount', { x: margin + 430, y: yPosition, size: 10, font: helveticaBold });
-                    yPosition -= 14;
-
-                    page.drawLine({
-                        start: { x: margin, y: yPosition },
-                        end: { x: width - margin, y: yPosition },
-                        thickness: 1
-                    });
-                    yPosition -= 10;
+                    drawTableHeader();
                 }
 
-                const rowStartY = yPosition;
+                const rowY = yPosition;
 
-                // Draw serial number at row start
-                page.drawText(String(index + 1), { x: margin, y: rowStartY, size: 10, font: helvetica });
+                page.drawText(String(i + 1), {
+                    x: margin,
+                    y: rowY,
+                    size: 10,
+                    font: helvetica,
+                });
 
-                // Draw right-aligned numeric values at row start
-                const rightAlignText = (text: string, xPos: number) => {
-                    const textWidth = helvetica.widthOfTextAtSize(text, 10);
+                const rightAlign = (text: string, x: number) => {
+                    const w = helvetica.widthOfTextAtSize(text, 10);
                     page.drawText(text, {
-                        x: xPos - textWidth,
-                        y: rowStartY,
+                        x: x - w,
+                        y: rowY,
                         size: 10,
-                        font: helvetica
+                        font: helvetica,
                     });
                 };
 
-                rightAlignText(String(qty), margin + 320);
-                rightAlignText(this.formatCurrency(unitPrice), margin + 400);
-                rightAlignText(this.formatCurrency(amount), margin + 480);
+                rightAlign(String(qty), margin + 320);
+                rightAlign(this.formatCurrency(unitPrice), margin + 400);
+                rightAlign(this.formatCurrency(amount), margin + 480);
 
-                // Draw multi-line description
-                let currentY = rowStartY;
+                let textY = rowY;
+
                 for (const line of wrappedLines) {
                     if (!line.trim()) {
-                        currentY -= 6; // spacing for blank line
+                        textY -= 6;
                         continue;
                     }
-                
+
                     page.drawText(line, {
                         x: margin + 40,
-                        y: currentY,
+                        y: textY,
                         size: 10,
-                        font: helvetica
+                        font: helvetica,
                     });
-                
-                    currentY -= 14; // 10 font + spacing
+
+                    textY -= 14;
                 }
 
-                yPosition = currentY - 4;
+                yPosition = textY - 6;
 
-                // Draw separator line
                 page.drawLine({
                     start: { x: margin, y: yPosition },
                     end: { x: width - margin, y: yPosition },
-                    thickness: 0.5
+                    thickness: 0.5,
                 });
-                yPosition -= 8;
-            });
+
+                yPosition -= 10;
+            }
 
             // ================= TOTAL =================
             yPosition -= 10;
 
-            page.drawText(`Total Amount: ${this.formatCurrency(totalAmount)}`, {
+            if (yPosition < BOTTOM_LIMIT) addPage();
+
+            page.drawText(`Total: ${this.formatCurrency(totalAmount)}`, {
                 x: margin + 350,
                 y: yPosition,
                 size: 12,
                 font: helveticaBold,
-                color: rgb(0, 0, 0)
             });
+
             yPosition -= 20;
 
-            drawText(`In words: ${this.numberToWords(Math.floor(totalAmount))} only.`, margin, 11, helvetica);
-            yPosition -= 10;
+            drawText(`In words: ${this.numberToWords(Math.floor(totalAmount))} only.`, margin);
 
-            // ================= TERMS & CONDITIONS =================
+            yPosition -= 30;
+
+            // ================= TERMS =================
+            if (yPosition < BOTTOM_LIMIT) addPage();
+
             drawText('Note: Terms & Conditions:', margin, 12, helveticaBold);
-            drawText('1. Project timeline will be 10 days from receipt of the Work Order (WO).', margin + 10, 10, helvetica);
-            drawText('2. 50% Advance payable upon confirmation of work order.', margin + 10, 10, helvetica);
-            drawText('3. 40% Progress payment payable midway through project execution.', margin + 10, 10, helvetica);
-            drawText('4. 10% Final payment payable upon successful completion and handover/delivery.', margin + 10, 10, helvetica);
-            drawText('WARRANTY: Standard 12 months against manufacturing defects from delivery date.', margin + 10, 10, helvetica);
+            drawText('1. Project timeline: 10 days.', margin + 10, 10, helvetica);
+            drawText('2. 50% Advance payable.', margin + 10, 10, helvetica);
+            drawText('3. 40% Progress payment.', margin + 10, 10, helvetica);
+            drawText('4. 10% Final payment.', margin + 10, 10, helvetica);
+            drawText('WARRANTY: 12 months manufacturing warranty.', margin + 10, 10, helvetica);
+
             yPosition -= 10;
 
-            // ================= SIGNATURE =================
             drawText('Best Regards,', margin, 12, helveticaBold);
             drawText('RMS Tech Solutions', margin, 12, helvetica);
 
+            if (yPosition < 150) {
+                addPage();
+            }
+
+            yPosition -= 10;
+
+            page.drawImage(signatureImage, {
+                x: margin,
+                y: yPosition - 40,
+                width: 120,
+                height: 60,
+            });
+
+            yPosition -= 50;
+
+            // ================= SIGNATURE TEXT =================
+            drawText('Md. Masud Rana', margin, 11, helveticaBold);
+            drawText('Technical Manager', margin, 10, helvetica);
+            drawText('RMS Tech Solutions', margin, 10, helvetica);
+
+            // ================= SAVE =================
             const pdfBytes = await pdfDoc.save();
 
-            return { pdfBuffer: Buffer.from(pdfBytes), emailSent: false };
-        } catch (error) {
+            return {
+                pdfBuffer: Buffer.from(pdfBytes),
+                emailSent: false,
+            };
+
+        } catch (error: any) {
             console.error('Error generating PDF:', error);
             throw new Error(`Failed to generate PDF: ${error.message}`);
         }

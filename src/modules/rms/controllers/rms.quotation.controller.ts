@@ -20,6 +20,7 @@ export class RmsQuotationController extends Controller {
         this.onPut("/api/rms/rms-quotation/update/:id", [], this.auth.private, this.update);
         this.onGet("/api/rms/rms-quotation/generate-ref", [], this.auth.private, this.generateRef);
         this.onGet("/api/rms/rms-quotation/generate-pdf/:id", [], this.auth.private, this.generatePdf);
+        this.onPost("/api/rms/rms-quotation/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
     }
 
     // ✅ PAGE
@@ -229,6 +230,64 @@ export class RmsQuotationController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message
+            });
+        }
+    }
+
+    public async sendEmailWithPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            // ✅ VALIDATION
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid quotation ID"
+                });
+            }
+
+            // Get quotation data
+            const quotation = await this.rmsQuotationService.edit(id);
+            if (!quotation) {
+                return resp.status(404).json({
+                    status: false,
+                    message: "Quotation not found"
+                });
+            }
+
+            // Check if email exists
+            if (!quotation.companyEmail) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Company email not found"
+                });
+            }
+
+            // Generate PDF
+            const pdfResult = await this.rmsQuotationService.generatePdf(id);
+
+            // Send email with PDF
+            const QuotationEmailService = require("../../../utils/quotation-email.service").QuotationEmailService;
+            const emailService = new QuotationEmailService();
+
+            await emailService.sendQuotationPdf(
+                quotation.companyEmail,
+                quotation.companyName,
+                pdfResult.pdfBuffer,
+                quotation.refNumber
+            );
+
+            return resp.json({
+                status: true,
+                message: `✅ Email sent successfully to ${quotation.companyEmail}`
+            });
+
+        } catch (error: any) {
+            console.error('Error sending email:', error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message || "Failed to send email"
             });
         }
     }
