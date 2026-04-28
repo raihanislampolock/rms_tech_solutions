@@ -10,6 +10,8 @@ import { EmailConfigModel } from "./modules/it/email-admin/models/email.config.m
 import { RmsItemsModel } from "./modules/rms/models/rms.items.model";
 import { RmsQuotationModel } from "./modules/rms/models/rms.quotation.model";
 import { RmsQuotationItemModel } from "./modules/rms/models/rms.quotation.Item.model";
+import { RmsDeliveryModel } from "./modules/rms/models/rms.delivery.model";
+import { RmsDeliveryItemModel } from "./modules/rms/models/rms.delivery.item.model";
 
 
 const APP_CONFIG: Config = new Config(JSON.parse(fs.readFileSync("config.json").toString()));
@@ -23,7 +25,7 @@ export const AppDataSource = new DataSource({
     password: APP_CONFIG.postgres.dbPassword || 'secret',
     database: APP_CONFIG.postgres.dbName || 'rms_portal',
     entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsQuotationModel,
-                RmsQuotationItemModel],
+                RmsQuotationItemModel, RmsDeliveryModel, RmsDeliveryItemModel],
     synchronize: true, // Automatically sync entity schema (disable in production)
     logging: false,
 });
@@ -40,6 +42,10 @@ export const initializeDatabase = async (): Promise<void> => {
             }
 
             console.log('Connected to PostgreSQL with TypeORM');
+
+            // ✅ CREATE SEQUENCES if they don't exist
+            await createSequences();
+
             return;
         } catch (error) {
             console.error('PostgreSQL connection error. Please make sure PostgreSQL is running:', error);
@@ -51,5 +57,34 @@ export const initializeDatabase = async (): Promise<void> => {
 
     console.error('Max retries reached. Could not connect to PostgreSQL.');
     process.exit(1);
+};
+
+// ✅ CREATE SEQUENCES
+const createSequences = async (): Promise<void> => {
+    try {
+        // Create rms_ref_seq if it doesn't exist
+        await AppDataSource.query(`
+            CREATE SEQUENCE IF NOT EXISTS rms_ref_seq
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        `);
+
+        // Create rms_delivery_seq if it doesn't exist
+        await AppDataSource.query(`
+            CREATE SEQUENCE IF NOT EXISTS rms_delivery_seq
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        `);
+
+        console.log('✅ Database sequences initialized');
+    } catch (error) {
+        console.error('Error creating sequences:', error);
+    }
 };
 

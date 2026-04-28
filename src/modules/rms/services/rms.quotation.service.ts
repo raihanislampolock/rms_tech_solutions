@@ -297,6 +297,54 @@ export class RmsQuotationService {
             }
 
             yPosition -= 10;
+
+            // ===== SIGNATURE ON FIRST PAGE =====
+            const signatureY = 150; // bottom anchor
+
+            // Signature Image
+            page.drawImage(signatureImage, {
+                x: margin,
+                y: signatureY,
+                width: 120,
+                height: 60,
+            });
+
+            // Text ABOVE the signature (not using drawText)
+            page.drawText('Best Regards,', {
+                x: margin,
+                y: signatureY + 80,
+                size: 12,
+                font: helveticaBold,
+            });
+
+            page.drawText('RMS Tech Solutions', {
+                x: margin,
+                y: signatureY + 60,
+                size: 12,
+                font: helvetica,
+            });
+
+            // Name & designation BELOW signature
+            page.drawText('Md. Masud Rana', {
+                x: margin,
+                y: signatureY - 15,
+                size: 11,
+                font: helveticaBold,
+            });
+
+            page.drawText('Technical Manager', {
+                x: margin,
+                y: signatureY - 30,
+                size: 10,
+                font: helvetica,
+            });
+
+            page.drawText('RMS Tech Solutions', {
+                x: margin,
+                y: signatureY - 45,
+                size: 10,
+                font: helvetica,
+            });
             addPage();
 
             // ================= TABLE HEADER =================

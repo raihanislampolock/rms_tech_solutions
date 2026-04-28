@@ -35,4 +35,13 @@
 ## Contributor 🤝
  - [**Raihan Ul Islam**](https://github.com/raihanislampolock)
 
+ ## Auto Generate Code Run this query
+
+ CREATE SEQUENCE IF NOT EXISTS rms_ref_seq
+  START WITH 1
+  INCREMENT BY 1
+  NO MINVALUE
+  NO MAXVALUE
+  CACHE 1;
+
 

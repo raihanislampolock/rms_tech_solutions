@@ -1,0 +1,583 @@
+extends ../../layout
+
+block style
+  link(rel='stylesheet', href='/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')
+  link(rel='stylesheet', href='/plugins/datatables-responsive/css/responsive.bootstrap4.min.css')
+  link(rel='stylesheet', href='/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')
+  link(rel='stylesheet', href='/plugins/select2/css/select2.min.css')
+  link(rel='stylesheet', href='/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')
+
+block content
+  .content-wrapper
+    section.content-header
+      .container-fluid
+        .row.mb-2
+          .col-sm-6
+            h1 Delivery Management
+          .col-sm-6
+            ol.breadcrumb.float-sm-right
+              li.breadcrumb-item
+                a(href='/dashboard') Home
+              li.breadcrumb-item.active Delivery Management
+
+    section.content
+      .container-fluid
+        .row
+          .col-12
+            .card
+              .card-header
+                h3.card-title Delivery Challans
+                .card-tools
+                  button.btn.btn-success.btn-sm#createBtn(type='button', data-toggle='modal', data-target='#createModal')
+                    i.fas.fa-plus
+                    |  Create Delivery
+                  button.btn.btn-primary.btn-sm#createFromQuotationBtn(type='button', data-toggle='modal', data-target='#quotationModal')
+                    i.fas.fa-file-import
+                    |  Create from Quotation
+
+              .card-body
+                table#deliveryTable.table.table-bordered.table-striped
+                  thead
+                    tr
+                      th Delivery Number
+                      th Company Name
+                      th Status
+                      th Created Date
+                      th Actions
+                  tbody
+
+        // Create Modal
+        #createModal.modal.fade(tabindex='-1', role='dialog')
+          .modal-dialog.modal-lg(role='document')
+            .modal-content
+              .modal-header
+                h4.modal-title Create Delivery Challan
+                button.close(type='button', data-dismiss='modal')
+                  span &times;
+              form#deliveryForm
+                .modal-body
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='deliveryNumber') Delivery Number *
+                        input.form-control#deliveryNumber(type='text', name='deliveryNumber', required)
+                    .col-md-6
+                      .form-group
+                        label(for='companyName') Company Name *
+                        input.form-control#companyName(type='text', name='companyName', required)
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='companyEmail') Company Email
+                        input.form-control#companyEmail(type='email', name='companyEmail')
+                    .col-md-6
+                      .form-group
+                        label(for='deliveryStatus') Status
+                        select.form-control#deliveryStatus(name='deliveryStatus')
+                          option(value='pending') Pending
+                          option(value='delivered') Delivered
+                          option(value='cancelled') Cancelled
+                  .form-group
+                    label(for='notes') Notes
+                    textarea.form-control#notes(name='notes', rows='3')
+
+                  // Items Section
+                  .form-group
+                    label Items *
+                    .table-responsive
+                      table.table.table-bordered#itemsTable
+                        thead
+                          tr
+                            th Item
+                            th Delivered Quantity
+                            th Notes
+                            th
+                        tbody
+                          tr.item-row
+                            td
+                              select.form-control.item-select(name='itemId[]', required)
+                                option(value='') Select Item
+                                each item in items
+                                  option(value=item.id)= item.label
+                            td
+                              input.form-control.quantity-input(type='number', name='deliveredQuantity[]', min='0', step='1', required)
+                            td
+                              input.form-control.notes-input(type='text', name='notes[]', placeholder='Optional notes')
+                            td
+                              button.btn.btn-danger.btn-sm.remove-item(type='button')
+                                i.fas.fa-trash
+                    button.btn.btn-info.btn-sm#addItemBtn(type='button')
+                      i.fas.fa-plus
+                      |  Add Item
+
+                .modal-footer
+                  button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                  button.btn.btn-primary#createSubmitBtn(type='submit') Create Delivery
+
+        // Edit Modal
+        #editModal.modal.fade(tabindex='-1', role='dialog')
+          .modal-dialog.modal-lg(role='document')
+            .modal-content
+              .modal-header
+                h4.modal-title Edit Delivery Challan
+                button.close(type='button', data-dismiss='modal')
+                  span &times;
+              form#editDeliveryForm
+                input#editId(type='hidden', name='id')
+                .modal-body
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='editDeliveryNumber') Delivery Number *
+                        input.form-control#editDeliveryNumber(type='text', name='deliveryNumber', required)
+                    .col-md-6
+                      .form-group
+                        label(for='editCompanyName') Company Name *
+                        input.form-control#editCompanyName(type='text', name='companyName', required)
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='editCompanyEmail') Company Email
+                        input.form-control#editCompanyEmail(type='email', name='companyEmail')
+                    .col-md-6
+                      .form-group
+                        label(for='editDeliveryStatus') Status
+                        select.form-control#editDeliveryStatus(name='deliveryStatus')
+                          option(value='pending') Pending
+                          option(value='delivered') Delivered
+                          option(value='cancelled') Cancelled
+                  .form-group
+                    label(for='editNotes') Notes
+                    textarea.form-control#editNotes(name='notes', rows='3')
+
+                  // Items Section
+                  .form-group
+                    label Items *
+                    .table-responsive
+                      table.table.table-bordered#editItemsTable
+                        thead
+                          tr
+                            th Item
+                            th Delivered Quantity
+                            th Notes
+                            th
+                        tbody
+                .modal-footer
+                  button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                  button.btn.btn-primary#editSubmitBtn(type='submit') Update Delivery
+
+        // Quotation Modal
+        #quotationModal.modal.fade(tabindex='-1', role='dialog')
+          .modal-dialog.modal-lg(role='document')
+            .modal-content
+              .modal-header
+                h4.modal-title Create Delivery from Quotation
+                button.close(type='button', data-dismiss='modal')
+                  span &times;
+              .modal-body
+                .form-group
+                  label(for='quotationSearch') Search Quotation
+                  input.form-control#quotationSearch(type='text', placeholder='Enter quotation number or company name')
+                .table-responsive
+                  table.table.table-bordered#quotationTable(style='display: none;')
+                    thead
+                      tr
+                        th Quotation Number
+                        th Company Name
+                        th Date
+                        th Actions
+                    tbody
+              .modal-footer
+                button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+
+block script
+  script.
+    // Make items data available to JavaScript
+    window.deliveryItems = !{JSON.stringify(items)};
+  script(src='/plugins/datatables/jquery.dataTables.min.js')
+  script(src='/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')
+  script(src='/plugins/datatables-responsive/js/dataTables.responsive.min.js')
+  script(src='/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')
+  script(src='/plugins/datatables-buttons/js/dataTables.buttons.min.js')
+  script(src='/plugins/datatables-buttons/js/buttons.bootstrap4.min.js')
+  script(src='/plugins/select2/js/select2.full.min.js')
+
+  script.
+    $(document).ready(function() {
+        // Initialize DataTable
+        const table = $('#deliveryTable').DataTable({
+            ajax: {
+                url: '/api/rms/rms-delivery/all',
+                type: 'GET'
+            },
+            columns: [
+                { data: 'deliveryNumber' },
+                { data: 'companyName' },
+                {
+                    data: 'deliveryStatus',
+                    render: function(data) {
+                        const statusClass = data === 'delivered' ? 'success' :
+                                          data === 'pending' ? 'warning' : 'danger';
+                        return `<span class="badge badge-${statusClass}">${data}</span>`;
+                    }
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return new Date(data).toLocaleDateString();
+                    }
+                },
+                {
+                    data: 'id',
+                    orderable: false,
+                    render: function(data, type, row) {
+                        return `
+                            <button class="btn btn-sm btn-info edit-btn" data-id="${data}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-success pdf-btn" data-id="${data}">
+                                <i class="fas fa-download"></i> PDF
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${data}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        `;
+                    }
+                }
+            ],
+            responsive: true,
+            pageLength: 25
+        });
+
+        // Initialize Select2
+        $('.item-select').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select an item',
+            allowClear: true
+        });
+
+        // Generate delivery number on company name change
+        $('#companyName').on('input', function() {
+            const companyName = $(this).val();
+            if (companyName.length >= 2) {
+                $.get('/api/rms/rms-delivery/generate-ref', { companyName })
+                    .done(function(response) {
+                        if (response.status) {
+                            $('#deliveryNumber').val(response.deliveryNumber);
+                        }
+                    });
+            }
+        });
+
+        // Add item row
+        $('#addItemBtn').on('click', function() {
+            const itemOptions = !{JSON.stringify(items)}.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+            const rowHtml = `
+                <tr class="item-row">
+                    <td>
+                        <select class="form-control item-select" name="itemId[]" required>
+                            <option value="">Select Item</option>
+                            ${itemOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input class="form-control quantity-input" type="number" name="deliveredQuantity[]" min="0" step="1" required>
+                    </td>
+                    <td>
+                        <input class="form-control notes-input" type="text" name="notes[]" placeholder="Optional notes">
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-item" type="button">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#itemsTable tbody').append(rowHtml);
+            $('.item-select').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select an item',
+                allowClear: true
+            });
+        });
+
+        // Remove item row
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // Create delivery
+        $('#deliveryForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = {
+                deliveryNumber: formData.get('deliveryNumber'),
+                companyName: formData.get('companyName'),
+                companyEmail: formData.get('companyEmail'),
+                deliveryStatus: formData.get('deliveryStatus'),
+                notes: formData.get('notes'),
+                items: []
+            };
+
+            // Collect items
+            const itemIds = formData.getAll('itemId[]');
+            const quantities = formData.getAll('deliveredQuantity[]');
+            const notes = formData.getAll('notes[]');
+
+            for (let i = 0; i < itemIds.length; i++) {
+                if (itemIds[i]) {
+                    data.items.push({
+                        itemId: parseInt(itemIds[i]),
+                        deliveredQuantity: parseInt(quantities[i]) || 0,
+                        notes: notes[i] || null
+                    });
+                }
+            }
+
+            $.ajax({
+                url: '/rms/rms-delivery/create',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.status) {
+                        $('#createModal').modal('hide');
+                        table.ajax.reload();
+                        toastr.success(response.message);
+                        $('#deliveryForm')[0].reset();
+                        const itemOptions = !{JSON.stringify(items)}.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+                        $('#itemsTable tbody').html(`
+                            <tr class="item-row">
+                                <td>
+                                    <select class="form-control item-select" name="itemId[]" required>
+                                        <option value="">Select Item</option>
+                                        ${itemOptions}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input class="form-control quantity-input" type="number" name="deliveredQuantity[]" min="0" step="1" required>
+                                </td>
+                                <td>
+                                    <input class="form-control notes-input" type="text" name="notes[]" placeholder="Optional notes">
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm remove-item" type="button">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        $('.item-select').select2({
+                            theme: 'bootstrap4',
+                            placeholder: 'Select an item',
+                            allowClear: true
+                        });
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error('Failed to create delivery');
+                }
+            });
+        });
+
+        // Edit button
+        $(document).on('click', '.edit-btn', function() {
+            const id = $(this).data('id');
+
+            $.get(`/api/rms/rms-delivery/edit/${id}`)
+                .done(function(response) {
+                    if (response.status && response.data) {
+                        const delivery = response.data;
+
+                        $('#editId').val(delivery.id);
+                        $('#editDeliveryNumber').val(delivery.deliveryNumber);
+                        $('#editCompanyName').val(delivery.companyName);
+                        $('#editCompanyEmail').val(delivery.companyEmail);
+                        $('#editDeliveryStatus').val(delivery.deliveryStatus);
+                        $('#editNotes').val(delivery.notes);
+
+                        // Clear existing items
+                        $('#editItemsTable tbody').empty();
+
+                        // Add items
+                        delivery.items.forEach(function(item) {
+                            const itemOptions = !{JSON.stringify(items)}.map(itemOpt => `<option value="${itemOpt.id}" ${itemOpt.id == (item.itemId || '') ? 'selected' : ''}>${itemOpt.label}</option>`).join('');
+                            const rowHtml = `
+                                <tr class="item-row">
+                                    <td>
+                                        <select class="form-control item-select" name="itemId[]" required>
+                                            <option value="">Select Item</option>
+                                            ${itemOptions}
+                                        </select>
+                                        <input type="hidden" name="itemName[]" value="${item.itemName}">
+                                    </td>
+                                    <td>
+                                        <input class="form-control quantity-input" type="number" name="deliveredQuantity[]" min="0" step="1" value="${item.deliveredQuantity}" required>
+                                    </td>
+                                    <td>
+                                        <input class="form-control notes-input" type="text" name="notes[]" value="${item.deliveryNotes || ''}" placeholder="Optional notes">
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm remove-item" type="button">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                            $('#editItemsTable tbody').append(rowHtml);
+                        });
+
+                        $('.item-select').select2({
+                            theme: 'bootstrap4',
+                            placeholder: 'Select an item',
+                            allowClear: true
+                        });
+
+                        $('#editModal').modal('show');
+                    } else {
+                        toastr.error('Failed to load delivery data');
+                    }
+                })
+                .fail(function() {
+                    toastr.error('Failed to load delivery data');
+                });
+        });
+
+        // Update delivery
+        $('#editDeliveryForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const id = $('#editId').val();
+            const formData = new FormData(this);
+            const data = {
+                deliveryNumber: formData.get('deliveryNumber'),
+                companyName: formData.get('companyName'),
+                companyEmail: formData.get('companyEmail'),
+                deliveryStatus: formData.get('deliveryStatus'),
+                notes: formData.get('notes'),
+                items: []
+            };
+
+            // Collect items
+            const itemIds = formData.getAll('itemId[]');
+            const quantities = formData.getAll('deliveredQuantity[]');
+            const notes = formData.getAll('notes[]');
+
+            for (let i = 0; i < itemIds.length; i++) {
+                if (itemIds[i]) {
+                    data.items.push({
+                        itemId: parseInt(itemIds[i]),
+                        deliveredQuantity: parseInt(quantities[i]) || 0,
+                        notes: notes[i] || null
+                    });
+                }
+            }
+
+            $.ajax({
+                url: `/api/rms/rms-delivery/update/${id}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.status) {
+                        $('#editModal').modal('hide');
+                        table.ajax.reload();
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error('Failed to update delivery');
+                }
+            });
+        });
+
+        // PDF button
+        $(document).on('click', '.pdf-btn', function() {
+            const id = $(this).data('id');
+            window.open(`/api/rms/rms-delivery/generate-pdf/${id}`, '_blank');
+        });
+
+        // Delete button
+        $(document).on('click', '.delete-btn', function() {
+            const id = $(this).data('id');
+
+            if (confirm('Are you sure you want to delete this delivery?')) {
+                $.ajax({
+                    url: `/api/rms/rms-delivery/delete/${id}`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        if (response.status) {
+                            table.ajax.reload();
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('Failed to delete delivery');
+                    }
+                });
+            }
+        });
+
+        // Quotation search
+        let quotationSearchTimeout;
+        $('#quotationSearch').on('input', function() {
+            clearTimeout(quotationSearchTimeout);
+            const searchTerm = $(this).val();
+
+            if (searchTerm.length >= 2) {
+                quotationSearchTimeout = setTimeout(function() {
+                    $.get('/api/rms/rms-quotation/all', { search: searchTerm, limit: 10 })
+                        .done(function(response) {
+                            if (response.status && response.data.length > 0) {
+                                $('#quotationTable tbody').empty();
+                                response.data.forEach(function(quotation) {
+                                    $('#quotationTable tbody').append(`
+                                        <tr>
+                                            <td>${quotation.refNumber}</td>
+                                            <td>${quotation.companyName}</td>
+                                            <td>${new Date(quotation.created_at).toLocaleDateString()}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success create-from-quotation-btn" data-id="${quotation.id}">
+                                                    <i class="fas fa-plus"></i> Create Delivery
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `);
+                                });
+                                $('#quotationTable').show();
+                            } else {
+                                $('#quotationTable').hide();
+                            }
+                        });
+                }, 500);
+            } else {
+                $('#quotationTable').hide();
+            }
+        });
+
+        // Create from quotation
+        $(document).on('click', '.create-from-quotation-btn', function() {
+            const quotationId = $(this).data('id');
+
+            $.post(`/rms/rms-delivery/create-from-quotation/${quotationId}`)
+                .done(function(response) {
+                    if (response.status) {
+                        $('#quotationModal').modal('hide');
+                        table.ajax.reload();
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                })
+                .fail(function(xhr) {
+                    toastr.error('Failed to create delivery from quotation');
+                });
+        });
+    });

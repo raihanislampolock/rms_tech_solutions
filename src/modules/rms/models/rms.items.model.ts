@@ -12,7 +12,7 @@ export class RmsItemsModel {
     @Column({ type: "varchar", length: 255, nullable: true })
     manufactureOrigin!: string;
 
-    @Column({ type: "varchar", length: 50, nullable: true })
+    @Column({ type: "varchar", length: 255, nullable: true })
     itemName!: string;
 
     @Column({ type: "varchar", length: 255, nullable: true })
