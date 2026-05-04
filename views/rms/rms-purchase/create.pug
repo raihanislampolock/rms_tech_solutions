@@ -1,7 +1,7 @@
 #add-edit-purchase-modal.modal.fade(data-backdrop='static', data-keyboard='false')
   .modal-dialog.modal-dialog-centered.modal-xl
     .modal-content
-      form#purchase-form(role='form', method='POST')
+      form#purchase-form(role='form', method='POST', enctype='multipart/form-data')
 
         // ===== HEADER =====
         .modal-header
@@ -45,6 +45,13 @@
               .form-group
                 label Notes
                 textarea.form-control(id='notes', placeholder='Enter purchase notes')
+
+            .col-md-12
+              .form-group
+                label Purchase File
+                input.form-control(type='file', id='purchaseFile', name='file')
+                #existingPurchaseFile.mt-2
+                  small No file uploaded
 
           hr
 

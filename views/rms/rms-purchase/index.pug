@@ -134,7 +134,7 @@ block style
 block content
     section.content-header
       h1.text-lg.font-weight-bold.mb-3
-        | RMS Quotation Dashboard
+        | RMS Purchase Dashboard
 
       ol.breadcrumb
         li
@@ -180,8 +180,11 @@ block content
                                       a(href='#') Action &nbsp;
                                         i.fa.fa-sort-alpha-asc
                                     th
-                                      a(href='#') PDF &nbsp;
+                                      a(href='#') PR PDF &nbsp;
                                         i.fa.fa-sort-alpha-asc
+                                    th
+                                      a(href='#') Purchase PDF &nbsp;
+                                        i.fa.fa-sort-alpha-asc    
                                     th
                                       a(href='#') Purchase Number
                                     th
@@ -265,6 +268,7 @@ block script
                   if (!grouped[row.id]) {
                       grouped[row.id] = {
                           id: row.id,
+                          files: row.files,
                           purchaseNumber: row.purchaseNumber,
                           supplierName: row.supplierName,
                           supplierEmail: row.supplierEmail,
@@ -321,6 +325,25 @@ block script
                              target="_blank"
                              title="Generate PDF">
                           </a>
+                      </td>
+
+                      <td>
+                        ${
+                          p.files
+                            ? (
+                                p.files.match(/\.(jpg|jpeg|png|webp|gif)$/i)
+                                  ? `<a href="/${p.files}" target="_blank">
+                                       <img src="/${p.files}" 
+                                            style="width:60px;height:60px;object-fit:cover;border-radius:5px;" />
+                                     </a>`
+                                  : p.files.match(/\.pdf$/i)
+                                    ? `<a href="/${p.files}" target="_blank" title="View PDF">
+                                         <i class="fa fa-file-pdf-o fa-2x" style="color:red;"></i>
+                                       </a>`
+                                    : `<a href="/${p.files}" target="_blank">View File</a>`
+                              )
+                            : 'No File'
+                        }
                       </td>
 
                       <td>${p.purchaseNumber ?? ''}</td>
@@ -634,6 +657,9 @@ block script
         const supplierEmail = document.getElementById('supplierEmail');
         const purchaseStatus = document.getElementById('purchaseStatus');
         const notes = document.getElementById('notes');
+        const purchaseFile = document.getElementById('purchaseFile');
+        const existingPurchaseFile = document.getElementById('existingPurchaseFile');
+        let existingFilePath = '';
         const addPurchaseBtn = document.querySelector("[data-target='#add-edit-purchase-modal']");
 
         async function generatePurchaseNumber() {
@@ -658,6 +684,13 @@ block script
             supplierEmail.value = '';
             purchaseStatus.value = 'Pending';
             notes.value = '';
+            existingFilePath = '';
+            if (existingPurchaseFile) {
+                existingPurchaseFile.innerHTML = '<small>No file uploaded</small>';
+            }
+            if (purchaseFile) {
+                purchaseFile.value = '';
+            }
             generatePurchaseNumber();
         });
 
@@ -799,6 +832,12 @@ block script
                 supplierEmail.value = p.supplierEmail || '';
                 purchaseStatus.value = p.purchaseStatus || '';
                 notes.value = p.notes || '';
+                existingFilePath = p.files || '';
+                if (existingPurchaseFile) {
+                    existingPurchaseFile.innerHTML = existingFilePath
+                        ? `<a href="/${existingFilePath}" target="_blank">View current file</a>`
+                        : '<small>No file uploaded</small>';
+                }
 
                 cart = (p.items || []).map(i => ({
                     itemId: i.itemId,
@@ -822,14 +861,17 @@ block script
         
             if (!cart.length) return alert("No items added");
 
-            const payload = {
-                purchaseNumber: purchaseNumber.value,
-                supplierName: supplierName.value,
-                supplierEmail: supplierEmail.value,
-                purchaseStatus: purchaseStatus.value,
-                notes: notes.value,
-                items: cart
-            };
+            const formData = new FormData();
+            formData.append('purchaseNumber', purchaseNumber.value);
+            formData.append('supplierName', supplierName.value);
+            formData.append('supplierEmail', supplierEmail.value);
+            formData.append('purchaseStatus', purchaseStatus.value);
+            formData.append('notes', notes.value);
+            formData.append('items', JSON.stringify(cart));
+
+            if (purchaseFile?.files?.[0]) {
+                formData.append('file', purchaseFile.files[0]);
+            }
 
             const baseUrl = `${window.location.protocol}//${window.location.host}`;
             let url = `${baseUrl}/api/rms/rms-purchase/create`;
@@ -845,8 +887,7 @@ block script
             try {
                 const res = await fetch(url, {
                     method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: formData
                 });
 
                 console.log('Save response', res.status, res.headers.get('content-type'));

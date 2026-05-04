@@ -27,6 +27,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 supplierEmail: data.supplierEmail,
                 purchaseStatus: data.purchaseStatus,
                 notes: data.notes,
+                files: data.files,
                 createdBy: data.createdBy
             });
 
@@ -122,6 +123,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
             SELECT
                 p.id,
                 p."purchaseNumber",
+                p.files,
                 p."supplierName",
                 p."supplierEmail",
                 p."purchaseStatus",
@@ -186,6 +188,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
             SELECT
                 p.id,
                 p."purchaseNumber",
+                p.files,
                 p."supplierName",
                 p."supplierEmail",
                 p."purchaseStatus",
@@ -222,6 +225,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
             supplierEmail: rows[0].supplierEmail,
             purchaseStatus: rows[0].purchaseStatus,
             notes: rows[0].notes,
+            files: rows[0].files,
             createdAt: rows[0].createdAt,
             updatedAt: rows[0].updatedAt,
 
@@ -274,6 +278,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 await qr.manager.save(RmsStockMovementModel, {
                     itemId: old.itemId,
                     quantity: -old.quantity,
+                    files: null,
                     movementType: "PURCHASE_UPDATE_REVERSAL",
                     referenceId: id,
                     note: "Reversal before update"
@@ -289,6 +294,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 supplierEmail: data.supplierEmail,
                 purchaseStatus: data.purchaseStatus,
                 notes: data.notes,
+                files: data.files,
                 updatedBy: data.updatedBy
             });
 

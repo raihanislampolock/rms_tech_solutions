@@ -1,6 +1,9 @@
 import { Controller } from "../../../core/Controller";
 import { NextFunc, HttpRequest, HttpResponse } from "../../../core/Types";
 import { RmsPurchaseService } from "../services/rms.purchase.service";
+import { upload } from "../../../middlewares/upload";
+import fs from "fs";
+import path from "path";
 
 export class RmsPurchaseController extends Controller {
 
@@ -14,10 +17,10 @@ export class RmsPurchaseController extends Controller {
 
     public onRegister(): void {
         this.onGet("/rms/rms-purchase", [], this.auth.private, this.index);
-        this.onPost("/api/rms/rms-purchase/create", [], this.auth.private, this.create);
+        this.onPost("/api/rms/rms-purchase/create", [upload.single("file")], this.auth.private, this.create);
         this.onGet("/api/rms/rms-purchase/all", [], this.auth.private, this.getAll);
         this.onGet("/api/rms/rms-purchase/edit/:id", [], this.auth.private, this.edit);
-        this.onPut("/api/rms/rms-purchase/update/:id", [], this.auth.private, this.update);
+        this.onPut("/api/rms/rms-purchase/update/:id", [upload.single("file")], this.auth.private, this.update);
         this.onGet("/api/rms/rms-purchase/generate-number", [], this.auth.private, this.generateNumber);
         this.onGet("/api/rms/rms-purchase/generate-pdf/:id", [], this.auth.private, this.generatePdf);
     }
@@ -55,12 +58,21 @@ export class RmsPurchaseController extends Controller {
                 items
             } = req.body;
 
+            const itemsArray = typeof items === 'string' ? JSON.parse(items) : items;
+
             // ✅ VALIDATION
-            if (!purchaseNumber || !items?.length) {
+            if (!purchaseNumber || !itemsArray?.length) {
                 return resp.status(400).json({
                     status: false,
                     message: "Purchase number and items are required"
                 });
+            }
+
+            const file = (req as any).file;
+
+            let filePath: string | null = null;
+            if (file) {
+                filePath = `uploads/${file.filename}`;
             }
 
             const createdBy = req.user?.userId || "system";
@@ -71,8 +83,9 @@ export class RmsPurchaseController extends Controller {
                 supplierEmail,
                 purchaseStatus,
                 notes,
+                files: filePath,
                 createdBy,
-                items
+                items: itemsArray
             });
 
             return resp.status(201).json({
@@ -168,6 +181,29 @@ export class RmsPurchaseController extends Controller {
                 items
             } = req.body;
 
+            const itemsArray = typeof items === 'string' ? JSON.parse(items) : items;
+
+            const existing = await this.rmsPurchaseService.edit(id);
+            if (!existing) {
+                return resp.status(404).json({
+                    status: false,
+                    message: "Purchase not found"
+                });
+            }
+
+            const file = (req as any).file;
+            let filePath: string | null = existing.files || null;
+
+            if (file) {
+                if (existing.files) {
+                    const oldPath = path.join(process.cwd(), existing.files);
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath);
+                    }
+                }
+                filePath = `uploads/${file.filename}`;
+            }
+
             const updatedBy = req.user?.userId || "system";
 
             await this.rmsPurchaseService.update(
@@ -177,9 +213,10 @@ export class RmsPurchaseController extends Controller {
                     supplierEmail,
                     purchaseStatus,
                     notes,
+                    files: filePath,
                     updatedBy
                 },
-                items
+                itemsArray
             );
 
             return resp.json({
