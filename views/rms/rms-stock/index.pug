@@ -1,0 +1,202 @@
+extends ../../layout
+block style
+  style.
+    #tableHead {
+      background-color: #580db4;
+      color: white;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem 1rem 0.3rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: none;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    }
+    
+    .stock-badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .stock-ok {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .stock-low {
+      background-color: #ff9800;
+      color: white;
+    }
+
+    .stock-critical {
+      background-color: #f44336;
+      color: white;
+    }
+
+block content
+    section.content-header
+      h1.text-lg.font-weight-bold.mb-3
+        | RMS Stock Inventory Dashboard
+
+      ol.breadcrumb
+        li
+          a(href='/dashboard')
+            strong(style="color: #580db4") Dashboard 
+        li
+            strong(style="color: #580db4") RMS TecH Solutions
+        li
+            strong(style="color: #580db4") Stock
+        li
+          a(href='/rms/rms-stock')
+            strong(style="color: #580db4") Stock Dashboard
+        
+    section.content
+        .row
+          .col-md-12.col-xs-12
+             .box.box-parrot
+                .box-header.with-border
+                    .pull-left
+                        span.title-filter(style='display:flex;align-items:center;') Search:
+                         input.form-control.input-sm(type='text', placeholder='Search by Item Name, Type', name='search' autocomplete='off' style='margin-left:10px' id='search')
+                         button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
+                          span.fa.fa-search      
+                    .pull-right
+                        span.title-filter(style='display:flex;align-items:center') Show:
+                            select.form-control.input-filter.input-sm(id='limitSelect')
+                                option 10
+                                option 25
+                                option 50
+                                option 100                                
+                .box-body
+                    .table.table-responsive
+                        table.table.table-striped.table-hover
+                            thead
+                                tr
+                                    th
+                                      a(href='#') Item Name
+                                    th
+                                      a(href='#') Item Type            
+                                    th
+                                      a(href='#') On Hand Qty
+                                    th
+                                      a(href='#') Reserved Qty
+                                    th
+                                      a(href='#') Available Qty
+                                    th 
+                                      a(href='#') Last Purchase Price
+                                    th 
+                                      a(href='#') Last Purchase Date
+                                    th 
+                                      a(href='#') Status           
+                            tbody#stockTableBody
+                                tr
+                                    td.text-center(colspan='8') No data to display. Use the search filters above to load data.
+
+                .box-footer.clearfix
+                    .pull-left
+                        span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
+                    ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
+
+block script
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('stockTableBody');
+      const paginationContainer = document.getElementById('paginationContainer');
+      let search = document.getElementById('search');
+      const searchBtn = document.getElementById('searchBtn');
+      const limitSelect = document.getElementById('limitSelect');
+
+      let currentPage = 1;
+      let currentSearch = '';
+      let limit = limitSelect.value;
+
+      function getStockStatus(available) {
+        if (available >= 50) {
+          return { class: 'stock-ok', text: 'Good Stock' };
+        } else if (available >= 10) {
+          return { class: 'stock-low', text: 'Low Stock' };
+        } else {
+          return { class: 'stock-critical', text: 'Critical' };
+        }
+      }
+
+      async function fetchStock(page = 1, search = '', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #8A2061;"></i></td></tr>`;
+        try {
+          const response = await fetch(`/api/rms/rms-stock/all?page=${page}&search=${search}&limit=${limit}`);
+          const data = await response.json();
+
+          if (data?.data?.length > 0) {
+            tableBody.innerHTML = data.data.map((stock, index) => {
+              const status = getStockStatus(stock.availableQuantity);
+              return `
+                <tr>
+                  <td>${stock.itemName || '-'}</td>
+                  <td>${stock.itemType || '-'}</td>
+                  <td class="text-center"><strong>${stock.onHandQuantity || 0}</strong></td>
+                  <td class="text-center">${stock.reservedQuantity || 0}</td>
+                  <td class="text-center"><strong>${stock.availableQuantity || 0}</strong></td>
+                  <td class="text-right">${stock.lastPurchasePrice || '-'}</td>
+                  <td>${stock.lastPurchaseDate ? new Date(stock.lastPurchaseDate).toLocaleDateString() : '-'}</td>
+                  <td><span class="stock-badge ${status.class}">${status.text}</span></td>
+                </tr>
+              `;
+            }).join('');
+
+            // Render pagination
+            const totalPages = data.totalPages || 1;
+            paginationContainer.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+              const li = document.createElement('li');
+              li.className = i === page ? 'active' : '';
+              li.innerHTML = `<a href="#" onclick="goToPage(${i})">${i}</a>`;
+              paginationContainer.appendChild(li);
+            }
+
+            // Update showing entries
+            document.getElementById('title-filter').textContent = `Showing ${data.data.length} of ${data.total} entries`;
+          } else {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No stock data found</td></tr>';
+          }
+        } catch (error) {
+          console.error('Error fetching stock:', error);
+          tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading data</td></tr>';
+        }
+      }
+
+      // Event listeners
+      searchBtn.addEventListener('click', function() {
+        currentSearch = search.value.trim();
+        currentPage = 1;
+        fetchStock(currentPage, currentSearch, limit);
+      });
+
+      search.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          currentSearch = search.value.trim();
+          currentPage = 1;
+          fetchStock(currentPage, currentSearch, limit);
+        }
+      });
+
+      limitSelect.addEventListener('change', function() {
+        limit = this.value;
+        currentPage = 1;
+        fetchStock(currentPage, currentSearch, limit);
+      });
+
+      // Initial load
+      fetchStock(currentPage, currentSearch, limit);
+
+      // Global functions
+      window.goToPage = function(page) {
+        currentPage = page;
+        fetchStock(currentPage, currentSearch, limit);
+      };
+    });

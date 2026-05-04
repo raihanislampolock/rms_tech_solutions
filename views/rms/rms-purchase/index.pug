@@ -1,0 +1,871 @@
+extends ../../layout
+block style
+  style.
+    .selected-row {
+      background-color: #580db4 !important;
+      color: white !important;
+    }
+    
+    .select-report {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    #tableHead {
+      background-color: #580db4;
+      color: white;
+    }
+    
+    /* =========================
+       FORM CHECK
+       ========================= */
+    .form-check {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem 1rem 0.3rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: none;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    }
+    
+    .form-check-input {
+      width: 2rem;
+      height: 2rem;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #580db4;
+    }
+    
+    .form-check-label {
+      font-size: 1rem;
+      color: #555;
+      cursor: pointer;
+      margin-left: 0.1rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* =========================
+       MODAL WIDTH
+       ========================= */
+    #add-edit-quotation-modal .modal-dialog {
+      max-width: 60%;
+      width: auto;
+    }
+    
+    /* =========================
+       SERVICE TABLE
+       ========================= */
+    #serviceTable {
+      font-size: 16px;
+    }
+    
+    #serviceTable th,
+    #serviceTable td {
+      padding: 10px 14px;
+    }
+    
+    #serviceTable tfoot td {
+      font-size: 15px;
+      font-weight: 400;
+    }
+    
+    /* =========================
+       SELECT BOX (FIX UI)
+       ========================= */
+    select {
+      color: #580db4;
+      background-color: #fff;
+    }
+    
+    /* IMPORTANT: Fix invisible dropdown items */
+    select option {
+      color: #580db4 !important;
+      background-color: #fff !important;
+    }
+    
+    /* =========================
+       SELECT2 (SAFE KEEP IF USED ELSEWHERE)
+       ========================= */
+    .select2-container--default .select2-selection--single {
+      height: 38px !important;
+      line-height: 38px !important;
+      background-color: #fff !important;
+      border: 1px solid #ced4da !important;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      color: #333 !important;
+      line-height: 36px !important;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 36px !important;
+    }
+    
+    /* =========================
+       DROPDOWN VISIBILITY FIX
+       ========================= */
+    #itemSelect {
+      color: #000 !important;
+    }
+    
+    /* Fix dropdown hidden text issue */
+    select option {
+      color: #000 !important;
+    }
+    
+    /* Ensure modal does not break dropdown */
+    .modal {
+      overflow: visible !important;
+    }
+
+
+block content
+    section.content-header
+      h1.text-lg.font-weight-bold.mb-3
+        | RMS Quotation Dashboard
+
+      ol.breadcrumb
+        li
+          a(href='/dashboard')
+            strong(style="color: #580db4") Dashboard 
+        li
+            strong(style="color: #580db4") RMS TecH Solutions
+        li
+            strong(style="color: #580db4") RMS Purchase
+        li
+          a(href='/rms/rms-purchase')
+            strong(style="color: #580db4") Purchase Dashboard
+        
+    section.content
+        .row
+          .col-md-12.col-xs-12
+             .box.box-parrot
+                .box-header.with-border
+                    .pull-left
+                        span.title-filter(style='display:flex;align-items:center;') Search:
+                         input.form-control.input-sm(type='text', placeholder='Enter search by Name,', name='search' autocomplete='off' style='margin-left:10px' id='search')
+                         button.btn.btn-sm.btn-default.btn-filter.date-range-btn#daterange-btn(type="button" style='display:none;')
+                            span#date-range-display Select date range
+                            input#date-range-input(type="hidden" name="" value="")
+                         button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
+                          span.fa.fa-search      
+                    .pull-left 
+                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-purchase-modal') 
+                            span.fa.fa-plus                                   
+                    .pull-right
+                        span.title-filter(style='display:flex;align-items:center') Show:
+                            select.form-control.input-filter.input-sm(id='limitSelect')
+                                option 10
+                                option 25
+                                option 50
+                                option 100                                
+                .box-body
+                    .table.table-responsive
+                        table.table.table-striped.table-hover
+                            thead
+                                tr
+                                    th
+                                      a(href='#') Action &nbsp;
+                                        i.fa.fa-sort-alpha-asc
+                                    th
+                                      a(href='#') PDF &nbsp;
+                                        i.fa.fa-sort-alpha-asc
+                                    th
+                                      a(href='#') Purchase Number
+                                    th
+                                      a(href='#') Supplier Name
+                                    th
+                                      a(href='#') Supplier Email
+                                    th
+                                      a(href='#') Purchase Status
+                                    th
+                                      a(href='#') Notes
+                                    th
+                                      a(href='#') View Items
+                                    th
+                                      a(href='#') Created By
+                                    th
+                                      a(href='#') Updated By
+                                    th
+                                      a(href='#') Created Date
+                                    th
+                                      a(href='#') Updated Date         
+                            tbody#purchaseTableBody
+                                tr
+                                    td.text-center(colspan='19') No data to display. Use the search filters above to load data.
+
+
+                .box-footer.clearfix
+                    .pull-left
+                        span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
+                    ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
+
+    include ./create                  
+
+block script
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+  
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('purchaseTableBody');
+      const paginationContainer = document.getElementById('paginationContainer');
+      let search = document.getElementById('search');
+      const searchBtn = document.getElementById('searchBtn');
+      const limitSelect = document.getElementById('limitSelect');
+      const dateRangeDisplay = document.querySelector('#date-range-display');
+      const dateRangeInput = document.getElementById('date-range-input');
+
+      const updateMargin = () => {
+        if (dateRangeDisplay.textContent.trim() === "Select date range") {
+        dateRangeDisplay.style.marginRight = "70px";
+        } else {
+        dateRangeDisplay.style.marginRight = "0";
+        }
+      };
+
+        // Initial check
+        updateMargin();
+
+        // Observe changes in text content
+        const observer = new MutationObserver(updateMargin);
+        observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
+
+      let currentPage = 1;
+      let currentSearch = '';
+      let limit = limitSelect.value;
+      let dateRange = '';
+      const selectedRows = new Set();
+      const selectedData = [];
+
+      async function fetchPurchase(page = 1, search = '', dateRange='', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="19" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #8A2061;"></i></td></tr>`;
+        try {
+          const response = await fetch(`/api/rms/rms-purchase/all?page=${page}&search=${search}&limit=${limit}`);
+          const data = await response.json();
+
+          if (data?.data?.length > 0) {
+              const grouped = {};
+
+              data.data.forEach(row => {
+                  if (!grouped[row.id]) {
+                      grouped[row.id] = {
+                          id: row.id,
+                          purchaseNumber: row.purchaseNumber,
+                          supplierName: row.supplierName,
+                          supplierEmail: row.supplierEmail,
+                          purchaseStatus: row.purchaseStatus,
+                          notes: row.notes,
+                          createdBy: row.createdBy,
+                          updatedBy: row.updatedBy,
+                          createdAt: row.createdAt,
+                          updatedAt: row.updatedAt,
+                          items: []
+                      };
+                  }
+
+                  grouped[row.id].items.push({
+                      itemName: row.itemName,
+                      itemType: row.itemType,
+                      itemModel: row.itemModel,
+                      itemConfigurations: row.itemConfigurations,
+                      itemPrice: row.itemPrice,
+                      unitPrice: row.unitPrice,
+                      quantity: row.quantity,
+                      totalPrice: row.totalPrice,
+                      files: row.files
+                  });
+              });
+
+              // =========================
+              // ✅ RENDER GROUPED UI
+              // =========================
+              tableBody.innerHTML = Object.values(grouped).map(p => {
+              
+                  const totalQty = p.items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+                  const totalBuy = p.items.reduce((sum, i) => sum + (Number(i.totalPrice) || 0), 0);
+
+                  const format = (num) => Number(num || 0).toLocaleString();
+
+                  return `
+
+                  <!-- MAIN PURCHASE ROW -->
+                  <tr style="background:#f5f5f5;font-weight:bold;">
+
+                      <td>
+                          <a href="#"
+                             class="editPurchase fa fa-edit"
+                             data-purchase-id="${p.id}"
+                             data-toggle="modal"
+                             data-target="#add-edit-purchase-modal">
+                          </a>
+                      </td>
+
+                      <td>
+                          <a href="/api/rms/rms-purchase/generate-pdf/${p.id}"
+                             class="fa fa-file-pdf-o fa-2x"
+                             target="_blank"
+                             title="Generate PDF">
+                          </a>
+                      </td>
+
+                      <td>${p.purchaseNumber ?? ''}</td>
+                      <td>${p.supplierName ?? ''}</td>
+                      <td>${p.supplierEmail ?? ''}</td>
+                      <td>${p.purchaseStatus ?? ''}</td>
+                      <td>${p.notes ?? ''}</td>
+
+                      <!-- View Items -->
+                      <td>
+                          <button class="btn btn-sm btn-info toggleItems" data-id="${p.id}">
+                              View Items (${p.items.length})
+                          </button>
+                      </td>
+
+                      <td>${p.createdBy ?? ''}</td>
+                      <td>${p.updatedBy ?? ''}</td>
+                      <td>${p.createdAt ?? ''}</td>
+                      <td>${p.updatedAt ?? ''}</td>
+
+                  </tr>
+
+                  <!-- ITEMS ROW -->
+                  <tr id="items-${p.id}" style="display:none;">
+                      <td colspan="12">
+                          <table class="table table-bordered">
+
+                              <thead style="background:#580db4;color:white;">
+                                  <tr>
+                                      <th>Item</th>
+                                      <th>Description</th>
+                                      <th>Type</th>
+                                      <th>Model</th>
+                                      <th>Spec</th>
+                                      <th>Qty</th>
+                                      <th>Unit Price</th>
+                                      <th>Total</th>
+                                  </tr>
+                              </thead>
+
+                              <tbody>
+                                  ${p.items.map(i => `
+                                      <tr>
+                                          <td>${i.itemName ?? ''}</td>
+                                          <td>${i.description ?? ''}</td>
+                                          <td>${i.itemType ?? ''}</td>
+                                          <td>${i.itemModel ?? ''}</td>
+                                          <td>${i.itemConfigurations ?? ''}</td>
+                                          <td>${i.quantity ?? ''}</td>
+                                          <td>${i.unitPrice ?? ''}</td>
+                                          <td>${i.totalPrice ?? ''}</td>
+                                      </tr>
+                                  `).join('')}
+
+                                  <!-- TOTAL ROW -->
+                                  <tr style="background:#e8f5e9;font-weight:bold;">
+                                      <td colspan="4" style="text-align:right;">TOTAL</td>
+                                      <td>${format(totalQty)}</td>
+                                      <td></td>
+                                      <td>${format(totalBuy)}</td>
+                                  </tr>
+
+                              </tbody>
+                          </table>
+                      </td>
+                  </tr>
+
+                  `;
+              }).join('');
+
+            selectedRows.forEach((id) => {
+              const row = tableBody.querySelector(`[data-id="${id}"]`);
+              if (row) row.classList.add('selected-row');
+          });
+
+          const totalRecords = data.total;
+          const startRecord = (currentPage - 1) * limit + 1;
+          const endRecord = Math.min(currentPage * limit, totalRecords);
+
+          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+
+          } else {
+            tableBody.innerHTML = `<tr><td colspan="19" class="text-center">No data found</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries to display';
+            return;
+          }
+
+          // Generate pagination buttons
+          const totalPages = Math.ceil(data.totalRecords / limit);
+          renderPagination(totalPages, page);
+
+        } catch (error) {
+          console.error('Error fetching reports:', error);
+          tableBody.innerHTML = `<tr><td colspan="18" class="text-center">Error loading data</td></tr>`;
+          document.querySelector('#title-filter').textContent = 'Error loading entries';
+        }
+      }
+
+      function renderPagination(totalPages, currentPage) {
+        paginationContainer.innerHTML = ""
+
+        const maxVisiblePages = 5
+        const firstPages = 2
+        const lastPages = 2
+
+        // Helper function to create pagination link
+        const createPageLink = (page, isActive = false) => {
+          const pageItem = document.createElement("li")
+          if (isActive) pageItem.classList.add("active")
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
+          paginationContainer.appendChild(pageItem)
+        }
+
+        // Show "Previous" button if not on first page
+        if (currentPage > 1) {
+          const prevItem = document.createElement("li")
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}">« Previous</a>`
+          paginationContainer.appendChild(prevItem)
+        }
+
+        // For small number of pages, show all pages without ellipsis
+        if (totalPages <= maxVisiblePages) {
+          for (let i = 1; i <= totalPages; i++) {
+            createPageLink(i, i === currentPage)
+          }
+        } else {
+          // Show first page
+          createPageLink(1, currentPage === 1)
+
+          // Calculate range of pages to show around current page
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
+
+          // Adjust range if current page is near the end
+          if (rangeEnd === totalPages - 1) {
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+          }
+
+          // Show ellipsis after first page if needed
+          if (rangeStart > 2) {
+            paginationContainer.innerHTML += `<li><span>...</span></li>`
+          }
+
+          // Show pages in range
+          for (let i = rangeStart; i <= rangeEnd; i++) {
+            createPageLink(i, i === currentPage)
+          }
+
+          // Show ellipsis before last page if needed
+          if (rangeEnd < totalPages - 1) {
+            paginationContainer.innerHTML += `<li><span>...</span></li>`
+          }
+
+          // Show last page if not already shown
+          if (totalPages > 1) {
+            createPageLink(totalPages, currentPage === totalPages)
+          }
+        }
+
+        // Show "Next" button if not on last page
+        if (currentPage < totalPages) {
+          const nextItem = document.createElement("li")
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}">Next »</a>`
+          paginationContainer.appendChild(nextItem)
+        }
+      }
+
+       // Update page and fetch data
+      function updatePage(page) {
+        let currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        currentPage = page;
+        fetchPurchase(currentPage, currentSearch, dateRange, limit);
+      }
+
+      // Event listener for pagination links
+      paginationContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('pagination-link')) {
+          event.preventDefault();
+          const page = parseInt(event.target.getAttribute('data-page'), 10);
+          if (!isNaN(page)) {
+            updatePage(page);
+          }
+        }
+      });
+
+      // Search and limit event listeners
+      searchBtn.addEventListener('click', () => {
+        selectedRows.clear();
+        selectedData.length = 0;
+        currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        fetchPurchase(1, currentSearch, dateRange, limit);
+      });
+      
+      limitSelect.addEventListener('change', () => {
+        limit = limitSelect.value;
+        currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        currentPage = 1;
+        fetchPurchase(currentPage, currentSearch, dateRange, limit);
+      });
+
+      function updateSelectedData(rowId, email, mrno, patientName) {
+          if (add) {
+            selectedData.push({ id: rowId, email, mrno, patientName });
+          } else {
+            const index = selectedData.findIndex(item => item.id === rowId);
+            if (index !== -1) selectedData.splice(index, 1);
+          } 
+      }
+
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      
+      // Initialize the daterangepicker
+      $('#daterange-btn').daterangepicker({
+        startDate: yesterday,
+        endDate: today,
+        ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        locale: {
+          format: 'MMMM DD, YYYY'
+        }
+      }, function(start, end, label) {
+        const startDate = start.format('MMMM DD, YYYY');
+        const endDate = end.format('MMMM DD, YYYY');
+        
+        dateRangeDisplay.innerText = `${startDate} - ${endDate}`;
+        dateRangeInput.value = `${startDate} - ${endDate}`;
+      });
+
+      const initialStart = moment(yesterday).format('MMMM DD, YYYY');
+      const initialEnd = moment(today).format('MMMM DD, YYYY');
+      dateRangeDisplay.innerText = `${initialStart} - ${initialEnd}`;
+      dateRangeInput.value = `${initialStart} - ${initialEnd}`;
+
+      $('.btn-download').on('click', function () {
+        const dateRangeDisplay = document.querySelector('#date-range-display');
+        const $downloadBtn = $(".btn-download");
+        const originalText = $downloadBtn.html();
+        let dateRange = dateRangeDisplay.textContent.trim();
+
+        if (!dateRange) {
+            alert("No date range selected!");
+            return;
+        }
+
+        $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
+
+        $.ajax({
+          url: `/api/callcenter/service-status/export-excel?`, // Move dateRange to query param
+          method: "GET", // ✅ MUST match controller
+          xhrFields: { responseType: "blob" },
+          success: function (blob, status, xhr) {
+              const contentDisposition = xhr.getResponseHeader("Content-Disposition");
+              let filename = "X_Ray_Tracker.xlsx";
+              if (contentDisposition) {
+                  const match = contentDisposition.match(/filename="(.+)"/);
+                  if (match && match.length > 1) {
+                      filename = match[1];
+                  }
+              }
+
+              const blobUrl = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = blobUrl;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+          },
+          error: function (xhr, status, err) {
+              console.error("XHR:", xhr);
+              console.error("Status:", status);
+              console.error("Error:", err);
+              alert("Failed to download. Please try again.");
+          },
+          complete: function () {
+              // Restore button state
+              $downloadBtn.prop("disabled", false).html(originalText);
+          }
+      });
+
+    });      
+
+      fetchPurchase(currentPage, currentSearch, dateRangeInput.value, limit);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        let cart = [];
+        let editMode = false;
+        let editId = null;
+
+        const itemSelect = document.getElementById('itemSelect');
+        const unitPrice = document.getElementById('unitPrice');
+        const quantity = document.getElementById('quantity');
+        const itemDescription = document.getElementById('itemDescription');
+
+        const purchaseNumber = document.getElementById('purchaseNumber');
+        const supplierName = document.getElementById('supplierName');
+        const supplierEmail = document.getElementById('supplierEmail');
+        const purchaseStatus = document.getElementById('purchaseStatus');
+        const notes = document.getElementById('notes');
+        const addPurchaseBtn = document.querySelector("[data-target='#add-edit-purchase-modal']");
+
+        async function generatePurchaseNumber() {
+            try {
+                const res = await fetch('/api/rms/rms-purchase/generate-number');
+                const result = await res.json();
+                if (result?.status && result.purchaseNumber) {
+                    purchaseNumber.value = result.purchaseNumber;
+                }
+            } catch (err) {
+                console.error('Purchase number generation failed:', err);
+            }
+        }
+
+        addPurchaseBtn?.addEventListener('click', function () {
+            editMode = false;
+            editId = null;
+            cart = [];
+            renderCart();
+            purchaseNumber.value = '';
+            supplierName.value = '';
+            supplierEmail.value = '';
+            purchaseStatus.value = 'Pending';
+            notes.value = '';
+            generatePurchaseNumber();
+        });
+
+        // ========================
+        // EDIT CLICK
+        // ========================
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-purchase-id]');
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const id = Number(btn.dataset.purchaseId);
+            if (!id || isNaN(id)) return;
+
+            loadPurchase(id);
+        });
+
+        // ========================
+        // TOGGLE ITEMS
+        // ========================
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.toggleItems');
+            if (!btn) return;
+
+            const row = document.getElementById(`items-${btn.dataset.id}`);
+            if (!row) return;
+
+            row.style.display = row.style.display === 'table-row' ? 'none' : 'table-row';
+        });
+
+        // ========================
+        // ITEM CHANGE
+        // ========================
+        itemSelect?.addEventListener('change', function () {
+            const opt = this.options[this.selectedIndex];
+            if (!opt?.value) return;
+
+            unitPrice.value = opt.dataset.price || '';
+        });
+
+        // ========================
+        // ADD ITEM
+        // ========================
+        document.getElementById('addItem').addEventListener('click', function () {
+        
+            const opt = itemSelect.options[itemSelect.selectedIndex];
+            const itemId = itemSelect.value;
+            const description = itemDescription.value.trim();
+
+            if (!itemId) return alert("Select item");
+
+            if (!quantity.value || quantity.value <= 0) {
+                return alert("Enter quantity");
+            }
+
+            if (cart.find(x => x.itemId == itemId)) {
+                return alert("Item already added");
+            }
+
+            cart.push({
+                itemId,
+                itemName: opt.dataset.name || opt.text,
+                description: description || '',
+                quantity: Number(quantity.value),
+                unitPrice: Number(unitPrice.value) || 0
+            });
+
+            renderCart();
+
+            itemSelect.value = '';
+            unitPrice.value = '';
+            quantity.value = '';
+            itemDescription.value = '';
+        });
+
+        // ========================
+        // REMOVE ITEM
+        // ========================
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.removeItem');
+            if (!btn) return;
+
+            cart.splice(btn.dataset.index, 1);
+            renderCart();
+        });
+
+        // ========================
+        // RENDER CART
+        // ========================
+        function renderCart() {
+            const tbody = document.querySelector('#itemTable tbody');
+            tbody.innerHTML = '';
+
+            if (!cart.length) {
+                tbody.innerHTML = `<tr><td colspan="6">No items added</td></tr>`;
+                return;
+            }
+
+            cart.forEach((item, i) => {
+            
+                const total = item.quantity * item.unitPrice;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.itemName}</td>
+                        <td>${item.description || ''}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.unitPrice.toFixed(2)}</td>
+                        <td>${total.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm removeItem" data-index="${i}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ========================
+        // LOAD PURCHASE (EDIT)
+        // ========================
+        async function loadPurchase(id) {
+        
+            try {
+                const res = await fetch(`/api/rms/rms-purchase/edit/${id}`);
+                const result = await res.json();
+
+                if (!result.status) return;
+
+                const p = result.data;
+
+                editMode = true;
+                editId = id;
+
+                purchaseNumber.value = p.purchaseNumber || '';
+                supplierName.value = p.supplierName || '';
+                supplierEmail.value = p.supplierEmail || '';
+                purchaseStatus.value = p.purchaseStatus || '';
+                notes.value = p.notes || '';
+
+                cart = (p.items || []).map(i => ({
+                    itemId: i.itemId,
+                    itemName: i.itemName,
+                    description: i.description || '',
+                    quantity: Number(i.quantity) || 0,
+                    unitPrice: Number(i.unitPrice) || 0
+                }));
+
+                renderCart();
+
+            } catch (err) {
+                console.error("Load error:", err);
+            }
+        }
+
+        // ========================
+        // SAVE / UPDATE PURCHASE
+        // ========================
+        document.getElementById('savePurchase').addEventListener('click', async function () {
+        
+            if (!cart.length) return alert("No items added");
+
+            const payload = {
+                purchaseNumber: purchaseNumber.value,
+                supplierName: supplierName.value,
+                supplierEmail: supplierEmail.value,
+                purchaseStatus: purchaseStatus.value,
+                notes: notes.value,
+                items: cart
+            };
+
+            const baseUrl = `${window.location.protocol}//${window.location.host}`;
+            let url = `${baseUrl}/api/rms/rms-purchase/create`;
+            let method = 'POST';
+
+            if (editMode) {
+                url = `${baseUrl}/api/rms/rms-purchase/update/${editId}`;
+                method = 'PUT';
+            }
+
+            console.log('Saving purchase to', url);
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Save response', res.status, res.headers.get('content-type'));
+                const result = await res.json();
+
+                alert(result.message);
+
+                if (result.status) location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert("Request failed");
+            }
+        });
+
+        // ========================
+        // AUTO EDIT (URL ID)
+        // ========================
+        const id = window.location.pathname.split('/').pop();
+        if (!isNaN(id)) loadPurchase(id);
+
+    });

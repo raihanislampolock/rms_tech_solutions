@@ -8,10 +8,15 @@ import { ProviderModel } from "./modules/rbac/user/models/provider.model";
 import { PermissionModel } from "./modules/rbac/permission/modals/permission.model";
 import { EmailConfigModel } from "./modules/it/email-admin/models/email.config.model";
 import { RmsItemsModel } from "./modules/rms/models/rms.items.model";
+import { RmsItemStockModel } from "./modules/rms/models/rms.itemstock.model";
+import { RmsPurchaseModel } from "./modules/rms/models/rms.purchase.model";
+import { RmsPurchaseItemModel } from "./modules/rms/models/rms.purchase.item.model";
+import { RmsStockTransactionModel } from "./modules/rms/models/rms.stock.transaction.model";
 import { RmsQuotationModel } from "./modules/rms/models/rms.quotation.model";
 import { RmsQuotationItemModel } from "./modules/rms/models/rms.quotation.Item.model";
 import { RmsDeliveryModel } from "./modules/rms/models/rms.delivery.model";
 import { RmsDeliveryItemModel } from "./modules/rms/models/rms.delivery.item.model";
+import { RmsStockMovementModel } from "./modules/rms/models/rms.stock-movement.model";
 
 
 const APP_CONFIG: Config = new Config(JSON.parse(fs.readFileSync("config.json").toString()));
@@ -24,8 +29,9 @@ export const AppDataSource = new DataSource({
     username: APP_CONFIG.postgres.dbUser || 'postgres',
     password: APP_CONFIG.postgres.dbPassword || 'secret',
     database: APP_CONFIG.postgres.dbName || 'rms_portal',
-    entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsQuotationModel,
-                RmsQuotationItemModel, RmsDeliveryModel, RmsDeliveryItemModel],
+    entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsItemStockModel, RmsPurchaseModel,
+                RmsPurchaseItemModel, RmsStockTransactionModel, RmsQuotationModel, RmsQuotationItemModel, RmsDeliveryModel, RmsDeliveryItemModel
+                , RmsStockMovementModel],
     synchronize: true, // Automatically sync entity schema (disable in production)
     logging: false,
 });
@@ -75,6 +81,16 @@ const createSequences = async (): Promise<void> => {
         // Create rms_delivery_seq if it doesn't exist
         await AppDataSource.query(`
             CREATE SEQUENCE IF NOT EXISTS rms_delivery_seq
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        `);
+
+        // Create rms_purchase_seq if it doesn't exist
+        await AppDataSource.query(`
+            CREATE SEQUENCE IF NOT EXISTS rms_purchase_seq
             START WITH 1
             INCREMENT BY 1
             NO MINVALUE

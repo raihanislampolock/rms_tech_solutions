@@ -1,0 +1,117 @@
+#add-edit-purchase-modal.modal.fade(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xl
+    .modal-content
+      form#purchase-form(role='form', method='POST')
+
+        // ===== HEADER =====
+        .modal-header
+          h5.modal-title.text-primary RMS Purchase
+          button.close(type='button', data-dismiss='modal')
+            span &times;
+
+        // ===== BODY =====
+        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto;')
+
+          // ===== SECTION 1: BASIC INFO =====
+          h5.mb-3.text-primary Purchase Info
+
+          .row
+            .col-md-4
+              .form-group
+                label Purchase Number
+                input.form-control(type='text', id='purchaseNumber', readonly, placeholder='Auto generated')
+
+            .col-md-4
+              .form-group
+                label Supplier Name
+                input.form-control(type='text', id='supplierName', placeholder='Enter Supplier Name')
+
+            .col-md-4
+              .form-group
+                label Supplier Email
+                input.form-control(type='email', id='supplierEmail', placeholder='Enter Supplier Email')
+
+            .col-md-4
+              .form-group
+                label Purchase Status
+                select.form-control(id='purchaseStatus')
+                  option(value='Pending') Pending
+                  option(value='Ordered') Ordered
+                  option(value='Received') Received
+                  option(value='Cancelled') Cancelled
+
+          .row
+            .col-md-12
+              .form-group
+                label Notes
+                textarea.form-control(id='notes', placeholder='Enter purchase notes')
+
+          hr
+
+          // ===== SECTION 2: ITEM SELECTION =====
+          h5.mb-3.text-primary Item Selection
+
+          .row
+            .col-md-4
+              .form-group
+                label Select Item
+                select.form-control(id='itemSelect')
+                  option(value='' disabled selected) Select Item
+
+                  if items && items.length > 0
+                    each item in items
+                      option(
+                        value=item.id,
+                        data-price=item.itemPrice,
+                        data-name=item.itemName
+                      ) #{item.itemName}
+
+            .col-md-2
+              .form-group
+                label Unit Price
+                input.form-control(type='number', id='unitPrice', readonly)
+
+            .col-md-2
+              .form-group
+                label Quantity
+                input.form-control(type='number', id='quantity', placeholder='Enter Quantity', min='1')
+
+            .col-md-3
+              .form-group
+                label Description
+                input.form-control(type='text', id='itemDescription', placeholder='Enter item description')
+
+            .col-md-1
+              .form-group
+                label &nbsp;
+                button.btn.btn-primary.btn-block(type='button', id='addItem')
+                  i.fa.fa-plus
+                  |  Add
+
+          hr
+
+          // ===== SECTION 3: ITEM TABLE =====
+          h5.mb-3.text-primary Added Items
+
+          table.table.table-bordered.table-striped#itemTable
+            thead
+              tr
+                th Item Name
+                th Description
+                th Quantity
+                th Unit Price
+                th Total
+                th Action
+            tbody
+              tr
+                td.text-center(colspan='6') No item added yet.
+
+        // ===== FOOTER =====
+        .modal-footer
+          button.btn.btn-success(type='button', id='savePurchase')
+            i.fa.fa-save
+            |  Save Purchase
+
+          button.btn.btn-danger(type='button', data-dismiss='modal')
+            i.fa.fa-times
+            |  Cancel

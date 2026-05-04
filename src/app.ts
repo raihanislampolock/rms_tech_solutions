@@ -49,6 +49,11 @@ import { RmsQuotationService } from "./modules/rms/services/rms.quotation.servic
 import { RmsDeliveryController } from "./modules/rms/controllers/rms.delivery.controller";
 import { RmsDeliveryRepository } from "./modules/rms/repositories/rms.delivery.repository";
 import { RmsDeliveryService } from "./modules/rms/services/rms.delivery.service";
+import { RmsPurchaseController } from "./modules/rms/controllers/rms.purchase.controller";
+import { RmsPurchaseService } from "./modules/rms/services/rms.purchase.service";
+import { RmsItemStockController } from "./modules/rms/controllers/rms.itemstock.controller";
+import { RmsItemStockRepository } from "./modules/rms/repositories/rms.itemstock.repository";
+import { RmsItemStockService } from "./modules/rms/services/rms.itemstock.service";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -80,6 +85,8 @@ app.setMenu("main", {
         { name: "Dashboard", path: "/", for: [Role.Admin] },
         { name: "Report", path: "/report/weight-data", for: [Role.Admin, Role.Agent, Role.Customer] },
         { name: "RMS Items", path: "/rms/rms-items", for: [Role.Admin] },
+        { name: "RMS Stock", path: "/rms/rms-stock", for: [Role.Admin] },
+        { name: "RMS Purchases", path: "/rms/rms-purchase", for: [Role.Admin] },
         { name: "RMS Quotations", path: "/rms/rms-quotation", for: [Role.Admin] },
         { name: "RMS Deliveries", path: "/rms/rms-delivery", for: [Role.Admin] },
         { name: "<i class='large material-icons'>admin_panel_settings</i>", path: "/role-permissions", for: [Role.Admin] },
@@ -101,6 +108,7 @@ app.set("EmailConfigRepository", new EmailConfigRepository());
 app.set("RmsItemsRepository", new RmsItemsRepository());
 app.set("RmsQuotationRepository", new RmsQuotationRepository());
 app.set("RmsDeliveryRepository", new RmsDeliveryRepository());
+app.set("RmsItemStockRepository", new RmsItemStockRepository());
 
 
 app.set("SignUpService", new SignUpService(app.get("UserRepository"), AppDataSource));
@@ -112,6 +120,8 @@ app.set("EmailConfigService", new EmailConfigService());
 app.set("RmsItemsService", new RmsItemsService(app.get("RmsItemsRepository")));
 app.set("RmsQuotationService", new RmsQuotationService(app.get("RmsQuotationRepository")));
 app.set("RmsDeliveryService", new RmsDeliveryService(app.get("RmsDeliveryRepository")));
+app.set("RmsPurchaseService", new RmsPurchaseService(app.get("RmsPurchaseRepository")));
+app.set("RmsItemStockService", new RmsItemStockService(app.get("RmsItemStockRepository")));
 
 
 // Initialize and set the mailer to use
@@ -127,6 +137,8 @@ app.registerController(new EmailConfigController());
 app.registerController(new RmsItemsController());
 app.registerController(new RmsQuotationController());
 app.registerController(new RmsDeliveryController());
+app.registerController(new RmsPurchaseController());
+app.registerController(new RmsItemStockController());
 
 // Finally setup the cron jobs
 // cron.schedule("* * * * *", async () => {
