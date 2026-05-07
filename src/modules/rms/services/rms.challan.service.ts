@@ -174,11 +174,11 @@ export class RmsChallanService {
 
     private wrapText(text: string, maxChars: number): string[] {
         if (!text) return [''];
-        
+
         const words = text.split(' ');
         const lines: string[] = [];
         let line = '';
-        
+
         for (const word of words) {
             if ((line + word).length > maxChars) {
                 lines.push(line.trim());
@@ -187,9 +187,9 @@ export class RmsChallanService {
                 line += word + ' ';
             }
         }
-    
+
         if (line.trim()) lines.push(line.trim());
-    
+
         return lines;
     }
 
@@ -197,38 +197,38 @@ export class RmsChallanService {
     public async generatePdf(id: number): Promise<{ pdfBuffer: Buffer }> {
 
         try {
-        
+
             const challan = await this.edit(id);
-        
+
             if (!challan) {
                 throw new Error("Challan not found");
             }
-        
+
             const items = challan.items || [];
-        
+
             const pdfDoc = await PDFDocument.create();
-        
+
             const headerImageBytes = fs.readFileSync('src/public/dist/img/header.png');
             const footerImageBytes = fs.readFileSync('src/public/dist/img/footer.png');
-        
+
             const headerImage = await pdfDoc.embedPng(headerImageBytes);
             const footerImage = await pdfDoc.embedPng(footerImageBytes);
-        
+
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-        
+
             const pageWidth = 595;
             const pageHeight = 842;
-        
+
             const margin = 40;
-        
+
             let page = pdfDoc.addPage([pageWidth, pageHeight]);
             let y = pageHeight - 80;
-        
+
             // =========================
             // HELPERS
             // =========================
-        
+
             const drawText = (text: string, x: number, yPos: number, size = 10, f = font) => {
                 page.drawText(text || '', {
                     x,
@@ -238,33 +238,47 @@ export class RmsChallanService {
                     color: rgb(0, 0, 0)
                 });
             };
-        
-            const wrapText = (text: string, maxWidth: number, font: any, size: number) => {
-                if (!text) return [''];
-            
-                const words = text.split(' ');
+
+            const wrapText = (
+                text: string,
+                maxWidth: number,
+                pdfFont: any,
+                size: number
+            ): string[] => {
+
+                if (!text) return [];
+
+                const words = String(text).split(' ');
                 const lines: string[] = [];
-            
+
                 let line = '';
-            
+
                 for (const word of words) {
+
                     const testLine = line ? `${line} ${word}` : word;
-                
-                    const width = font.widthOfTextAtSize(testLine, size);
-                
+
+                    const width = pdfFont.widthOfTextAtSize(testLine, size);
+
                     if (width > maxWidth) {
-                        lines.push(line);
+
+                        if (line.trim()) {
+                            lines.push(line.trim());
+                        }
+
                         line = word;
+
                     } else {
                         line = testLine;
                     }
                 }
-            
-                if (line) lines.push(line);
-            
+
+                if (line.trim()) {
+                    lines.push(line.trim());
+                }
+
                 return lines;
             };
-        
+
             const addNewPage = () => {
                 page.drawImage(footerImage, {
                     x: margin,
@@ -272,22 +286,22 @@ export class RmsChallanService {
                     width: pageWidth - margin * 2,
                     height: 45
                 });
-            
+
                 page = pdfDoc.addPage([pageWidth, pageHeight]);
                 y = pageHeight - 80;
-            
+
                 page.drawImage(headerImage, {
                     x: 0,
                     y: pageHeight - 110,
                     width: pageWidth,
                     height: 110
                 });
-            
+
                 y -= 60;
-            
+
                 drawTableHeader();
             };
-        
+
             // =========================
             // HEADER
             // =========================
@@ -297,26 +311,26 @@ export class RmsChallanService {
                 width: pageWidth,
                 height: 110
             });
-        
+
             y -= 60;
-        
+
             drawText("DELIVERY CHALLAN", 210, y, 18, bold);
             y -= 25;
-        
+
             drawText(`Challan No: ${challan.challanNumber}`, margin, y, 11, bold);
             drawText(`Company: ${challan.companyName}`, 300, y, 11);
-        
+
             y -= 18;
-        
+
             drawText(`Email: ${challan.companyEmail || ''}`, margin, y);
             drawText(`Status: ${challan.challanStatus}`, 300, y);
-        
+
             y -= 25;
-        
+
             // =========================
             // TABLE STRUCTURE
             // =========================
-        
+
             const col = {
                 sl: margin,
                 item: margin + 30,
@@ -340,7 +354,7 @@ export class RmsChallanService {
             // =========================
 
             const drawTableHeader = () => {
-            
+
                 // HEADER BACKGROUND
                 page.drawRectangle({
                     x: margin,
@@ -351,11 +365,11 @@ export class RmsChallanService {
                     borderWidth: 1,
                     borderColor: rgb(0.6, 0.6, 0.6)
                 });
-            
+
                 // HEADER COLUMN LINES
                 const headerTop = y + 17;
                 const headerBottom = y - 5;
-            
+
                 const headerColumns = [
                     col.item - 10,
                     col.type - 10,
@@ -363,7 +377,7 @@ export class RmsChallanService {
                     col.qty - 10,
                     col.notes - 10
                 ];
-            
+
                 headerColumns.forEach((xPos) => {
                     page.drawLine({
                         start: { x: xPos, y: headerTop },
@@ -372,7 +386,7 @@ export class RmsChallanService {
                         color: rgb(0.5, 0.5, 0.5)
                     });
                 });
-            
+
                 // HEADER TEXT
                 drawText("SL", col.sl + 8, y, 10, bold);
                 drawText("Item", col.item, y, 10, bold);
@@ -380,7 +394,7 @@ export class RmsChallanService {
                 drawText("Model", col.model, y, 10, bold);
                 drawText("Qty", col.qty, y, 10, bold);
                 drawText("Remarks", col.notes, y, 10, bold);
-            
+
                 y -= 28;
             };
 
@@ -391,47 +405,47 @@ export class RmsChallanService {
             // =========================
 
             items.forEach((item: any, index: number) => {
-            
+
                 const itemLines = wrapText(
                     item.itemName || '',
                     widths.item,
                     font,
                     9
                 );
-            
+
                 const typeLines = wrapText(
                     item.itemType || '',
                     widths.type,
                     font,
                     9
                 );
-            
+
                 const modelLines = wrapText(
                     item.itemModel || '',
                     widths.model,
                     font,
                     9
                 );
-            
+
                 const noteLines = wrapText(
                     item.notes || '',
                     widths.notes,
                     font,
                     9
                 );
-            
+
                 const maxLines = Math.max(
                     itemLines.length,
                     typeLines.length,
                     modelLines.length,
                     noteLines.length
                 );
-            
+
                 const rowHeight = Math.max(maxLines * 12 + 10, 28);
-            
+
                 // PAGE BREAK
                 if (y - rowHeight < 120) {
-                
+
                     // FOOTER BEFORE NEW PAGE
                     page.drawImage(footerImage, {
                         x: 0,
@@ -439,10 +453,10 @@ export class RmsChallanService {
                         width: pageWidth,
                         height: 70
                     });
-                
+
                     // NEW PAGE
                     page = pdfDoc.addPage([pageWidth, pageHeight]);
-                
+
                     // HEADER IMAGE
                     page.drawImage(headerImage, {
                         x: 0,
@@ -450,19 +464,19 @@ export class RmsChallanService {
                         width: pageWidth,
                         height: 110
                     });
-                
+
                     y = pageHeight - 170;
-                
+
                     drawTableHeader();
                 }
-            
+
                 // =========================
                 // ROW BOX
                 // =========================
-            
+
                 const rowTop = y + 10;
                 const rowBottom = y - rowHeight + 5;
-            
+
                 // OUTER BORDER
                 page.drawRectangle({
                     x: margin,
@@ -472,11 +486,11 @@ export class RmsChallanService {
                     borderWidth: 0.7,
                     borderColor: rgb(0.75, 0.75, 0.75)
                 });
-            
+
                 // =========================
                 // COLUMN LINES
                 // =========================
-            
+
                 const columns = [
                     col.item - 10,
                     col.type - 10,
@@ -484,7 +498,7 @@ export class RmsChallanService {
                     col.qty - 10,
                     col.notes - 10
                 ];
-            
+
                 columns.forEach((xPos) => {
                     page.drawLine({
                         start: { x: xPos, y: rowTop },
@@ -493,18 +507,18 @@ export class RmsChallanService {
                         color: rgb(0.8, 0.8, 0.8)
                     });
                 });
-            
+
                 // =========================
                 // TABLE DATA
                 // =========================
-            
+
                 drawText(
                     String(index + 1),
                     col.sl + 8,
                     y,
                     9
                 );
-            
+
                 itemLines.forEach((line, i) => {
                     drawText(
                         line,
@@ -513,7 +527,7 @@ export class RmsChallanService {
                         9
                     );
                 });
-            
+
                 typeLines.forEach((line, i) => {
                     drawText(
                         line,
@@ -522,7 +536,7 @@ export class RmsChallanService {
                         9
                     );
                 });
-            
+
                 modelLines.forEach((line, i) => {
                     drawText(
                         line,
@@ -531,14 +545,14 @@ export class RmsChallanService {
                         9
                     );
                 });
-            
+
                 drawText(
                     String(item.deliveredQuantity || 0),
                     col.qty + 10,
                     y,
                     9
                 );
-            
+
                 noteLines.forEach((line, i) => {
                     drawText(
                         line,
@@ -547,23 +561,23 @@ export class RmsChallanService {
                         9
                     );
                 });
-            
+
                 y -= rowHeight + 6;
             });
-        
+
             // =========================
             // FOOTER SECTION
             // =========================
-        
+
             y -= 30;
-        
+
             drawText("Remarks:", margin, y, 11, bold);
             y -= 18;
-        
+
             drawText(challan.notes || "N/A", margin, y);
-        
+
             y -= 60;
-        
+
             const signatureY = 110;
 
             // TOP LINE
@@ -572,7 +586,7 @@ export class RmsChallanService {
                 end: { x: pageWidth - margin, y: signatureY + 20 },
                 thickness: 1
             });
-            
+
             // TITLES
             drawText(
                 "Prepared By",
@@ -581,7 +595,7 @@ export class RmsChallanService {
                 10,
                 bold
             );
-            
+
             drawText(
                 "Received By",
                 240,
@@ -589,7 +603,7 @@ export class RmsChallanService {
                 10,
                 bold
             );
-            
+
             drawText(
                 "Authorized Signature",
                 400,
@@ -597,24 +611,24 @@ export class RmsChallanService {
                 10,
                 bold
             );
-        
+
             // =========================
             // FOOTER IMAGE
             // =========================
-        
+
             page.drawImage(footerImage, {
                 x: 0,
                 y: 0,
                 width: pageWidth,
                 height: 70
             });
-        
+
             const pdfBytes = await pdfDoc.save();
-        
+
             return {
                 pdfBuffer: Buffer.from(pdfBytes)
             };
-        
+
         } catch (error) {
             console.error("PDF Error:", error);
             throw new Error("Failed to generate PDF");

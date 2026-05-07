@@ -249,20 +249,20 @@ export class RmsDeliveryService {
             };
 
             const drawHeaderFooter = () => {
-            
+
                 // HEADER
                 page.drawImage(headerImage, {
                     x: 0,
                     y: height - HEADER_HEIGHT,
-                    width: width,
+                    width,
                     height: HEADER_HEIGHT,
                 });
-            
+
                 // FOOTER
                 page.drawImage(footerImage, {
                     x: 0,
                     y: 0,
-                    width: width,
+                    width,
                     height: FOOTER_HEIGHT,
                 });
             };
