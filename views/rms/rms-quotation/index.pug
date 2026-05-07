@@ -180,7 +180,9 @@ block content
                                       a(href='#') Action &nbsp;
                                         <i class="fa fa-sort-alpha-asc"></i> 
                                     th
-                                      a(href='#') Quotation PDF 
+                                      a(href='#') Download Quotation PDF
+                                    th
+                                      a(href='#') View Quotation PDF   
                                     th
                                       a(href='#') Email     
                                     th
@@ -318,6 +320,13 @@ block script
                      class="fa fa-file-pdf-o fa-2x"
                      target="_blank"
                      title="Generate PDF">
+                  </a>
+                </td>
+                <td>
+                  <a href="/api/rms/rms-quotation/view-pdf/${q.id}"
+                     class="fa fa-file-pdf-o fa-2x"
+                     target="_blank"
+                     title="View PDF">
                   </a>
                 </td>
                 <td>
@@ -574,7 +583,7 @@ block script
         let dateRange = dateRangeDisplay.textContent.trim();
 
         if (!dateRange) {
-            alert("No date range selected!");
+            swal("Warning", "No date range selected!", "warning");
             return;
         }
 
@@ -607,7 +616,7 @@ block script
               console.error("XHR:", xhr);
               console.error("Status:", status);
               console.error("Error:", err);
-              alert("Failed to download. Please try again.");
+              swal("Error", "Failed to download. Please try again.", "error");
           },
           complete: function () {
               // Restore button state
@@ -658,14 +667,24 @@ block script
           const companyName = e.target.getAttribute('data-company-name');
 
           if (!id || !email) {
-              alert('❌ Email not found for this quotation');
+              swal("Error", "Email not found for this quotation", "error");
               return;
           }
 
           // Confirm before sending
-          if (!confirm(`Send quotation to ${email}?`)) {
-              return;
-          }
+          swal({
+              title: "Send Quotation?",
+              text: `Send quotation to ${email}?`,
+              icon: "question",
+              buttons: {
+                  cancel: "Cancel",
+                  confirm: {
+                      text: "Send",
+                      value: true
+                  }
+              }
+          }).then((willSend) => {
+              if (!willSend) return;
 
           // Show loading state
           const originalClass = e.target.className;
@@ -685,16 +704,17 @@ block script
               e.target.style.cursor = 'pointer';
 
               if (data.status) {
-                  alert('✅ ' + data.message);
+                  swal("Success", data.message, "success");
               } else {
-                  alert('❌ ' + (data.message || 'Failed to send email'));
+                  swal("Error", data.message || 'Failed to send email', "error");
               }
           })
           .catch(error => {
               e.target.className = originalClass;
               e.target.style.cursor = 'pointer';
               console.error('Error:', error);
-              alert('❌ Error sending email: ' + error.message);
+              swal("Error", 'Error sending email: ' + error.message, "error");
+          });
           });
         });
 
@@ -777,10 +797,14 @@ block script
             const selectedOption = itemSelect.options[itemSelect.selectedIndex];
             const itemId = itemSelect.value;
 
-            if (!itemId) return alert('Please select an item first!');
+            if (!itemId) {
+                swal("Warning", "Please select an item first!", "warning");
+                return;
+            }
 
             if (cart.find(i => i.itemId == itemId)) {
-                return alert('Item already added!');
+                swal("Warning", "Item already added!", "warning");
+                return;
             }
 
             const item = {
@@ -918,7 +942,8 @@ block script
         document.getElementById('saveQuotation').addEventListener('click', async function () {
         
             if (!cart.length) {
-                return alert('No items added!');
+                swal("Warning", "No items added!", "warning");
+                return;
             }
 
             const payload = {
@@ -951,7 +976,7 @@ block script
 
                 if (result.status) {
                     swal({
-                        title: editMode ? "Updated successfully" : "Created successfully",
+                        title: editMode ? "Updated Quotation Successfully" : "Created Quotation Successfully",
                         text: result.message || "",
                         icon: "success",
                         button: "OK"
@@ -964,7 +989,7 @@ block script
 
             } catch (err) {
                 console.error(err);
-                alert("Request failed");
+                swal("Error", "Request failed", "error");
             }
         });
 

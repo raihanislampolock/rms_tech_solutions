@@ -22,7 +22,7 @@ export class RmsDeliveryService {
     // ✅ CREATE
     public async create(data: Partial<IRmsDelivery>): Promise<IRmsDelivery> {
         try {
-            return await this.rmsDeliveryRepository.createDelivery(data);
+            return await this.rmsDeliveryRepository.create(data);
         } catch (error) {
             console.error("Error in create delivery service:", error);
             throw new Error("Failed to create delivery");
@@ -150,14 +150,18 @@ export class RmsDeliveryService {
                         i."itemName",' | ',
                         i."itemPrice",' | ',
                         i."itemModel",' | ',
-                        COALESCE(i."itemConfigurations",'')
+                        COALESCE(i."itemConfigurations",''),
+                        ' | Stock: ',
+                        COALESCE(s."availableQuantity", 0)
                     ) AS label,
                     i."itemPrice",
                     i."itemName",
                     i."itemModel",
                     i."itemType",
-                    i."itemConfigurations"
+                    i."itemConfigurations",
+                    COALESCE(s."availableQuantity", 0) as availableStock
                 FROM public.rms_items i
+                LEFT JOIN public.rms_item_stocks s ON i.id = s."itemId"
                 ORDER BY i."itemName"
             `;
 
@@ -196,7 +200,10 @@ export class RmsDeliveryService {
             let page = pdfDoc.addPage();
             let { width, height } = page.getSize();
 
-            let yPosition = height - 120;
+            const HEADER_HEIGHT = 110;
+            const FOOTER_HEIGHT = 70;
+
+            let yPosition = height - HEADER_HEIGHT - 40;
 
             // Clean text function
             const cleanText = (text: any): string => {
@@ -241,23 +248,22 @@ export class RmsDeliveryService {
                 return lines;
             };
 
-            // Header/Footer
             const drawHeaderFooter = () => {
-                const headerHeight = 60;
-                const footerHeight = 50;
-
+            
+                // HEADER
                 page.drawImage(headerImage, {
                     x: 0,
-                    y: height - headerHeight,
-                    width,
-                    height: headerHeight,
+                    y: height - HEADER_HEIGHT,
+                    width: width,
+                    height: HEADER_HEIGHT,
                 });
-
+            
+                // FOOTER
                 page.drawImage(footerImage, {
                     x: 0,
                     y: 0,
-                    width,
-                    height: footerHeight,
+                    width: width,
+                    height: FOOTER_HEIGHT,
                 });
             };
 

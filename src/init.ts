@@ -17,6 +17,10 @@ import { RmsQuotationItemModel } from "./modules/rms/models/rms.quotation.Item.m
 import { RmsDeliveryModel } from "./modules/rms/models/rms.delivery.model";
 import { RmsDeliveryItemModel } from "./modules/rms/models/rms.delivery.item.model";
 import { RmsStockMovementModel } from "./modules/rms/models/rms.stock-movement.model";
+import { RmsChallanModel } from "./modules/rms/models/rms.challan.model";
+import { RmsChallanItemModel } from "./modules/rms/models/rms.challan.item.model";
+import { RmsInvoiceModel } from "./modules/rms/models/rms.invoice.model";
+import { RmsInvoiceItemModel } from "./modules/rms/models/rms.invoice.item.model";
 
 
 const APP_CONFIG: Config = new Config(JSON.parse(fs.readFileSync("config.json").toString()));
@@ -31,7 +35,7 @@ export const AppDataSource = new DataSource({
     database: APP_CONFIG.postgres.dbName || 'rms_portal',
     entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsItemStockModel, RmsPurchaseModel,
                 RmsPurchaseItemModel, RmsStockTransactionModel, RmsQuotationModel, RmsQuotationItemModel, RmsDeliveryModel, RmsDeliveryItemModel
-                , RmsStockMovementModel],
+                , RmsStockMovementModel, RmsChallanModel, RmsChallanItemModel, RmsInvoiceModel, RmsInvoiceItemModel],
     synchronize: true, // Automatically sync entity schema (disable in production)
     logging: false,
 });
@@ -91,6 +95,26 @@ const createSequences = async (): Promise<void> => {
         // Create rms_purchase_seq if it doesn't exist
         await AppDataSource.query(`
             CREATE SEQUENCE IF NOT EXISTS rms_purchase_seq
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        `);
+
+        // Create rms_challan_seq if it doesn't exist
+        await AppDataSource.query(`
+            CREATE SEQUENCE IF NOT EXISTS rms_challan_seq
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        `);
+
+        // Create rms_invoice_seq if it doesn't exist
+        await AppDataSource.query(`
+            CREATE SEQUENCE IF NOT EXISTS rms_invoice_seq
             START WITH 1
             INCREMENT BY 1
             NO MINVALUE

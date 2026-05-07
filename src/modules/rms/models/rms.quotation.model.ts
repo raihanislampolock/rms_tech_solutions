@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique, OneToMany } from "typeorm";
+import { RmsChallanModel } from "./rms.challan.model";
 
 @Entity("rms_quotation")
 export class RmsQuotationModel {
@@ -32,4 +33,7 @@ export class RmsQuotationModel {
 
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
+
+    @OneToMany(() => RmsChallanModel, (challan) => challan.quotation)
+    challans!: RmsChallanModel[];
 }

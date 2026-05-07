@@ -136,9 +136,8 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 i."manufactureOrigin",
                 pi.quantity,
                 pi."unitPrice",
-                pi."totalPrice",
                 pi.notes AS "itemNotes",
-                (pi.quantity * pi."unitPrice"::numeric) AS "calculatedTotal",
+                (pi.quantity * pi."unitPrice"::numeric) AS "totalPrice",
                 u."empId" AS "createdBy",
                 u2."empId" AS "updatedBy",
                 p."createdAt",
@@ -160,15 +159,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
         const data = await AppDataSource.query(query, [...params, limit, offset]);
 
         const countResult = await AppDataSource.query(
-            `SELECT COUNT(*) FROM public.rms_purchases p
-            LEFT JOIN public.rms_purchase_items pi
-                ON p.id = pi."purchaseId"
-            LEFT JOIN public.rms_items i
-                ON pi."itemId" = i.id
-            LEFT JOIN public.users u
-                ON p."createdBy" = u."userId"
-            LEFT JOIN public.users u2
-                ON p."updatedBy" = u2."userId"`
+            `SELECT COUNT(*) FROM public.rms_purchases`
         );
 
         const total = parseInt(countResult[0].count, 10);

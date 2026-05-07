@@ -27,7 +27,7 @@ export const upload = multer({
         if (allowed.test(ext)) {
             cb(null, true);
         } else {
-            cb(new Error("Only PDF, Excel, Images allowed"));
+            cb(new Error("Only PDF, Excel, PNG, JPG, and JPEG files are allowed"));
         }
     }
 });

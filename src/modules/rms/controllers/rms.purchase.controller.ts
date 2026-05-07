@@ -23,6 +23,8 @@ export class RmsPurchaseController extends Controller {
         this.onPut("/api/rms/rms-purchase/update/:id", [upload.single("file")], this.auth.private, this.update);
         this.onGet("/api/rms/rms-purchase/generate-number", [], this.auth.private, this.generateNumber);
         this.onGet("/api/rms/rms-purchase/generate-pdf/:id", [], this.auth.private, this.generatePdf);
+        this.onPost("/api/rms/rms-purchase/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
+
     }
 
     // ===============================
@@ -90,7 +92,7 @@ export class RmsPurchaseController extends Controller {
 
             return resp.status(201).json({
                 status: true,
-                message: "Purchase created successfully"
+                message: ""
             });
 
         } catch (error: any) {
@@ -221,7 +223,7 @@ export class RmsPurchaseController extends Controller {
 
             return resp.json({
                 status: true,
-                message: "Updated successfully"
+                message: ""
             });
 
         } catch (error: any) {
@@ -286,6 +288,64 @@ export class RmsPurchaseController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message
+            });
+        }
+    }
+
+    public async sendEmailWithPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            // ✅ VALIDATION
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid purchase ID"
+                });
+            }
+
+            // Get purchase data
+            const purchase = await this.rmsPurchaseService.edit(id);
+            if (!purchase) {
+                return resp.status(404).json({
+                    status: false,
+                    message: "Purchase not found"
+                });
+            }
+
+            // Check if email exists
+            if (!purchase.supplierEmail) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Supplier email not found"
+                });
+            }
+
+            // Generate PDF
+            const pdfResult = await this.rmsPurchaseService.generatePdf(id);
+
+            // Send email with PDF
+            const PurchaseEmailService = require("../../../utils/purchase-email.service").PurchaseEmailService;
+            const emailService = new PurchaseEmailService();
+
+            await emailService.sendPurchasePdf(
+                purchase.supplierEmail,
+                purchase.supplierName,
+                pdfResult.pdfBuffer,
+                purchase.purchaseNumber
+            );
+
+            return resp.json({
+                status: true,
+                message: `✅ Email sent successfully to ${purchase.supplierEmail}`
+            });
+
+        } catch (error: any) {
+            console.error('Error sending email:', error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message || "Failed to send email"
             });
         }
     }

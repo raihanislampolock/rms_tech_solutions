@@ -6,6 +6,7 @@ import {
 } from "../interfaces/rms.delivery.interface";
 import { RmsDeliveryModel } from "../models/rms.delivery.model";
 import { RmsDeliveryItemModel } from "../models/rms.delivery.item.model";
+import { RmsItemStockModel } from "../models/rms.itemstock.model";
 
 export class RmsDeliveryRepository implements IRmsDeliveryRepository {
 
@@ -13,52 +14,76 @@ export class RmsDeliveryRepository implements IRmsDeliveryRepository {
     private itemRepo = AppDataSource.getRepository(RmsDeliveryItemModel);
 
     // ✅ CREATE (Parent + Items)
-    public async createDelivery(data: Partial<IRmsDelivery>): Promise<IRmsDelivery> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+    public async create(data: Partial<IRmsDelivery>): Promise<IRmsDelivery> {
+        const qr = AppDataSource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
 
         try {
-            // Save delivery
-            const delivery = queryRunner.manager.create(RmsDeliveryModel, {
+            // 👉 1. Save delivery
+            const delivery = qr.manager.create(RmsDeliveryModel, {
                 deliveryNumber: data.deliveryNumber,
                 quotationId: data.quotationId ?? null,
                 companyName: data.companyName,
                 companyEmail: data.companyEmail ?? null,
                 notes: data.notes ?? null,
                 deliveryStatus: data.deliveryStatus ?? 'pending',
-                createdBy: data.createdBy ?? null,
+                createdBy: data.createdBy && !isNaN(Number(data.createdBy)) ? Number(data.createdBy) : null,
             });
 
-            const savedDelivery = await queryRunner.manager.save(delivery);
+            const savedDelivery = await qr.manager.save(delivery);
 
-            // Save items
+            const stockRepo = qr.manager.getRepository(RmsItemStockModel);
+
+            // 👉 2. Save items + STOCK OUT
             if (data.items && data.items.length > 0) {
-                const items = data.items.map(item => ({
-                    deliveryId: savedDelivery.id,
-                    itemId: item.itemId,
-                    deliveredQuantity: item.deliveredQuantity ?? null,
-                    notes: item.notes ?? null,
-                    createdBy: data.createdBy
-                }));
+                for (const item of data.items) {
 
-                const itemEntities = queryRunner.manager.create(RmsDeliveryItemModel, items);
-                await queryRunner.manager.save(itemEntities);
+                    // ✅ Save delivery item
+                    const entity = qr.manager.create(RmsDeliveryItemModel, {
+                        deliveryId: savedDelivery.id,
+                        itemId: item.itemId,
+                        deliveredQuantity: item.deliveredQuantity ?? 0,
+                        notes: item.notes ?? null,
+                        createdBy: data.createdBy && !isNaN(Number(data.createdBy)) ? Number(data.createdBy) : null
+                    });
+
+                    await qr.manager.save(entity);
+
+                    // ✅ STOCK OUT
+                    const stock = await stockRepo.findOne({
+                        where: { itemId: item.itemId }
+                    });
+
+                    if (!stock) {
+                        throw new Error(`Stock not found for item ${item.itemId}`);
+                    }
+
+                    if (stock.availableQuantity < (item.deliveredQuantity || 0)) {
+                        throw new Error(`Not enough stock for item ${item.itemId}`);
+                    }
+
+                    stock.onHandQuantity -= item.deliveredQuantity || 0;
+                    stock.availableQuantity -= item.deliveredQuantity || 0;
+
+                    await stockRepo.save(stock);
+                }
             }
 
-            await queryRunner.commitTransaction();
+            await qr.commitTransaction();
 
             return {
                 ...savedDelivery,
-                items: data.items || []
-            };
+                items: data.items || [],
+                deliveryStatus: (savedDelivery.deliveryStatus || 'pending') as "pending" | "delivered" | "cancelled"
+            } as IRmsDelivery;
 
         } catch (error) {
-            await queryRunner.rollbackTransaction();
+            await qr.rollbackTransaction();
             console.error("Create delivery failed:", error);
             throw error;
         } finally {
-            await queryRunner.release();
+            await qr.release();
         }
     }
 
@@ -174,54 +199,89 @@ export class RmsDeliveryRepository implements IRmsDeliveryRepository {
         data: Partial<IRmsDelivery>,
         items: IRmsDeliveryItem[]
     ): Promise<any> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+
+        const qr = AppDataSource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
 
         try {
-            // Update delivery
-            await queryRunner.manager.update(RmsDeliveryModel, id, {
-                deliveryNumber: data.deliveryNumber,
-                quotationId: data.quotationId ?? undefined,
-                companyName: data.companyName,
-                companyEmail: data.companyEmail ?? undefined,
-                notes: data.notes ?? undefined,
-                deliveryStatus: data.deliveryStatus ?? undefined,
-                updatedBy: data.updatedBy ?? undefined
+            const stockRepo = qr.manager.getRepository(RmsItemStockModel);
+
+            // 👉 1. GET OLD ITEMS
+            const oldItems = await qr.manager.find(RmsDeliveryItemModel, {
+                where: { deliveryId: id }
             });
 
-            // Delete old items
-            await queryRunner.manager.delete(RmsDeliveryItemModel, {
-                deliveryId: id
-            });
+            // 👉 2. REVERSE OLD STOCK
+            for (const old of oldItems) {
+                const stock = await stockRepo.findOne({
+                    where: { itemId: old.itemId }
+                });
 
-            // Insert new items
-            if (items && items.length > 0) {
-                const newItems = items.map(item => ({
-                    deliveryId: id,
-                    itemId: item.itemId,
-                    deliveredQuantity: item.deliveredQuantity ?? null,
-                    notes: item.notes ?? null,
-                    createdBy: data.updatedBy
-                }));
+                if (stock) {
+                    stock.onHandQuantity += old.deliveredQuantity || 0;
+                    stock.availableQuantity += old.deliveredQuantity || 0;
 
-                const entities = queryRunner.manager.create(RmsDeliveryItemModel, newItems);
-                await queryRunner.manager.save(entities);
+                    await stockRepo.save(stock);
+                }
             }
 
-            await queryRunner.commitTransaction();
+            // 👉 3. DELETE OLD ITEMS
+            await qr.manager.delete(RmsDeliveryItemModel, { deliveryId: id });
+
+            // 👉 4. UPDATE DELIVERY
+            await qr.manager.update(RmsDeliveryModel, id, {
+                companyName: data.companyName,
+                companyEmail: data.companyEmail,
+                notes: data.notes,
+                deliveryStatus: data.deliveryStatus,
+                updatedBy: data.updatedBy
+            });
+
+            // 👉 5. INSERT NEW ITEMS + STOCK OUT AGAIN
+            for (const item of items) {
+
+                const entity = qr.manager.create(RmsDeliveryItemModel, {
+                    deliveryId: id,
+                    itemId: item.itemId,
+                    deliveredQuantity: item.deliveredQuantity || 0,
+                    notes: item.notes ?? null,
+                    createdBy: data.updatedBy
+                });
+
+                await qr.manager.save(entity);
+
+                const stock = await stockRepo.findOne({
+                    where: { itemId: item.itemId }
+                });
+
+                if (!stock) {
+                    throw new Error(`Stock not found for item ${item.itemId}`);
+                }
+
+                if (stock.availableQuantity < (item.deliveredQuantity || 0)) {
+                    throw new Error(`Not enough stock for item ${item.itemId}`);
+                }
+
+                stock.onHandQuantity -= item.deliveredQuantity || 0;
+                stock.availableQuantity -= item.deliveredQuantity || 0;
+
+                await stockRepo.save(stock);
+            }
+
+            await qr.commitTransaction();
 
             return {
                 status: true,
-                message: "Updated successfully"
+                message: "Delivery updated successfully"
             };
 
         } catch (error) {
-            await queryRunner.rollbackTransaction();
+            await qr.rollbackTransaction();
             console.error("Update delivery failed:", error);
             throw error;
         } finally {
-            await queryRunner.release();
+            await qr.release();
         }
     }
 

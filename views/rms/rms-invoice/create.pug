@@ -1,0 +1,238 @@
+extends ../../layout
+
+block style
+  link(rel='stylesheet', href='/plugins/select2/css/select2.min.css')
+  link(rel='stylesheet', href='/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')
+
+block content
+  .content-wrapper
+    section.content-header
+      .container-fluid
+        .row.mb-2
+          .col-sm-6
+            h1 Create Invoice
+          .col-sm-6
+            ol.breadcrumb.float-sm-right
+              li.breadcrumb-item
+                a(href='/rms/rms-invoice') Invoice Management
+              li.breadcrumb-item.active Create Invoice
+
+    section.content
+      .container-fluid
+        .row
+          .col-12
+            .card
+              .card-header
+                h3.card-title Create New Invoice
+              .card-body
+                form#invoiceForm
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='invoiceNumber') Invoice Number *
+                        input.form-control#invoiceNumber(type='text', name='invoiceNumber', required, readonly)
+                    .col-md-6
+                      .form-group
+                        label(for='companyName') Company Name *
+                        input.form-control#companyName(type='text', name='companyName', required)
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='companyEmail') Company Email
+                        input.form-control#companyEmail(type='email', name='companyEmail')
+                    .col-md-6
+                      .form-group
+                        label(for='invoiceStatus') Status
+                        select.form-control#invoiceStatus(name='invoiceStatus')
+                          option(value='pending') Pending
+                          option(value='paid') Paid
+                          option(value='cancelled') Cancelled
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for='taxAmount') Tax Amount
+                        input.form-control#taxAmount(type='number', name='taxAmount', step='0.01', min='0', value='0')
+                    .col-md-6
+                      .form-group
+                        label(for='discountAmount') Discount Amount
+                        input.form-control#discountAmount(type='number', name='discountAmount', step='0.01', min='0', value='0')
+                  .form-group
+                    label(for='notes') Notes
+                    textarea.form-control#notes(name='notes', rows='3')
+
+                  // Items Section
+                  .form-group
+                    label Items *
+                    .table-responsive
+                      table.table.table-bordered#itemsTable
+                        thead
+                          tr
+                            th Item
+                            th Quantity
+                            th Unit Price
+                            th Total Price
+                            th Notes
+                            th
+                        tbody
+                          tr.item-row
+                            td
+                              select.form-control.item-select(name='itemId[]', required)
+                                option(value='') Select Item
+                                each item in items
+                                  option(value=item.id)= item.label
+                            td
+                              input.form-control.quantity-input(type='number', name='quantity[]', min='0', step='1', required)
+                            td
+                              input.form-control.unit-price-input(type='number', name='unitPrice[]', min='0', step='0.01', required)
+                            td
+                              input.form-control.total-price-input(type='number', name='totalPrice[]', min='0', step='0.01', readonly)
+                            td
+                              input.form-control.notes-input(type='text', name='notes[]', placeholder='Optional notes')
+                            td
+                              button.btn.btn-danger.btn-sm.remove-item(type='button')
+                                i.fas.fa-trash
+                    button.btn.btn-info.btn-sm#addItemBtn(type='button')
+                      i.fas.fa-plus
+                      |  Add Item
+
+                  .form-group
+                    .float-right
+                      a.btn.btn-secondary(href='/rms/rms-invoice') Cancel
+                      button.btn.btn-primary#createSubmitBtn(type='submit') Create Invoice
+
+block script
+  script.
+    // Make items data available to JavaScript
+    window.invoiceItems = !{JSON.stringify(items)};
+  script(src='/plugins/select2/js/select2.full.min.js')
+
+  script.
+    $(document).ready(function() {
+        // Initialize Select2
+        $('.item-select').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select an item',
+            allowClear: true
+        });
+
+        // Generate invoice number on company name change
+        $('#companyName').on('input', function() {
+            const companyName = $(this).val();
+            if (companyName.length >= 2) {
+                $.get('/api/rms/rms-invoice/generate-ref', { companyName })
+                    .done(function(response) {
+                        if (response.status) {
+                            $('#invoiceNumber').val(response.invoiceNumber);
+                        }
+                    });
+            }
+        });
+
+        // Calculate total price when quantity or unit price changes
+        $(document).on('input', '.quantity-input, .unit-price-input', function() {
+            const row = $(this).closest('tr');
+            const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+            const unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
+            const totalPrice = quantity * unitPrice;
+            row.find('.total-price-input').val(totalPrice.toFixed(2));
+        });
+
+        // Add item row
+        $('#addItemBtn').on('click', function() {
+            const itemOptions = !{JSON.stringify(items)}.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+            const rowHtml = `
+                <tr class="item-row">
+                    <td>
+                        <select class="form-control item-select" name="itemId[]" required>
+                            <option value="">Select Item</option>
+                            ${itemOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input class="form-control quantity-input" type="number" name="quantity[]" min="0" step="1" required>
+                    </td>
+                    <td>
+                        <input class="form-control unit-price-input" type="number" name="unitPrice[]" min="0" step="0.01" required>
+                    </td>
+                    <td>
+                        <input class="form-control total-price-input" type="number" name="totalPrice[]" min="0" step="0.01" readonly>
+                    </td>
+                    <td>
+                        <input class="form-control notes-input" type="text" name="notes[]" placeholder="Optional notes">
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-item" type="button">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#itemsTable tbody').append(rowHtml);
+            $('.item-select').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select an item',
+                allowClear: true
+            });
+        });
+
+        // Remove item row
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // Create invoice
+        $('#invoiceForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = {
+                invoiceNumber: formData.get('invoiceNumber'),
+                companyName: formData.get('companyName'),
+                companyEmail: formData.get('companyEmail'),
+                invoiceStatus: formData.get('invoiceStatus'),
+                taxAmount: parseFloat(formData.get('taxAmount') || '0'),
+                discountAmount: parseFloat(formData.get('discountAmount') || '0'),
+                notes: formData.get('notes'),
+                items: []
+            };
+
+            // Collect items
+            const itemIds = formData.getAll('itemId[]');
+            const quantities = formData.getAll('quantity[]');
+            const unitPrices = formData.getAll('unitPrice[]');
+            const totalPrices = formData.getAll('totalPrice[]');
+            const notes = formData.getAll('notes[]');
+
+            for (let i = 0; i < itemIds.length; i++) {
+                if (itemIds[i]) {
+                    data.items.push({
+                        itemId: parseInt(itemIds[i]),
+                        quantity: parseInt(quantities[i]) || 0,
+                        unitPrice: parseFloat(unitPrices[i]) || 0,
+                        totalPrice: parseFloat(totalPrices[i]) || 0,
+                        notes: notes[i] || null
+                    });
+                }
+            }
+
+            $.ajax({
+                url: '/rms/rms-invoice/create',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.status) {
+                        toastr.success(response.message);
+                        setTimeout(() => {
+                            window.location.href = '/rms/rms-invoice';
+                        }, 1000);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error('Failed to create invoice');
+                }
+            });
+        });
+    });

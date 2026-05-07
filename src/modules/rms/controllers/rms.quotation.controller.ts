@@ -20,6 +20,7 @@ export class RmsQuotationController extends Controller {
         this.onPut("/api/rms/rms-quotation/update/:id", [], this.auth.private, this.update);
         this.onGet("/api/rms/rms-quotation/generate-ref", [], this.auth.private, this.generateRef);
         this.onGet("/api/rms/rms-quotation/generate-pdf/:id", [], this.auth.private, this.generatePdf);
+        this.onGet("/api/rms/rms-quotation/view-pdf/:id", [], this.auth.private, this.viewPdf);
         this.onPost("/api/rms/rms-quotation/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
     }
 
@@ -73,7 +74,7 @@ export class RmsQuotationController extends Controller {
 
             return resp.status(201).json({
                 status: true,
-                message: "Quotation created successfully"
+                message: ""
             });
 
         } catch (error: any) {
@@ -172,7 +173,7 @@ export class RmsQuotationController extends Controller {
 
             return resp.json({
                 status: true,
-                message: "Updated successfully"
+                message: ""
             });
 
         } catch (error: any) {
@@ -288,6 +289,33 @@ export class RmsQuotationController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message || "Failed to send email"
+            });
+        }
+    }
+
+    public async viewPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid quotation ID"
+                });
+            }
+
+            const result = await this.rmsQuotationService.generatePdf(id);
+
+            resp.setHeader('Content-Type', 'application/pdf');
+            resp.setHeader('Content-Disposition', `inline; filename=quotation-${id}.pdf`);
+            return resp.send(result.pdfBuffer);
+
+        } catch (error: any) {
+            console.error(error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message
             });
         }
     }

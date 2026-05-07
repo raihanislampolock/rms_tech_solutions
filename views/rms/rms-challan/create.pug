@@ -1,0 +1,136 @@
+#add-edit-challan-modal.modal.fade(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xl
+    .modal-content
+      form#challanForm(role='form', method='POST')
+
+        // ===== HEADER =====
+        .modal-header
+          h5.modal-title.text-primary RMS Challan
+          button.close(type='button', data-dismiss='modal')
+            span &times;
+
+        // ===== BODY =====
+        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto;')
+
+          // ===== SECTION 1: BASIC INFO =====
+          h5.mb-3.text-primary Challan Info
+          .row
+            .col-md-4
+              .form-group
+                label Challan Number
+                input.form-control(
+                  type='text',
+                  id='challanNumber',
+                  name='challanNumber',
+                  placeholder='Auto generated on save',
+                  readonly
+                )
+
+            .col-md-4
+              .form-group
+                label Company Name
+                input.form-control(
+                  type='text',
+                  id='companyName',
+                  name='companyName',
+                  placeholder='Enter Company Name'
+                )
+
+            .col-md-4
+              .form-group
+                label Company Email
+                input.form-control(
+                  type='email',
+                  id='companyEmail',
+                  name='companyEmail',
+                  placeholder='Enter Company Email'
+                )
+
+          .row
+            .col-md-4
+              .form-group
+                label Status
+                select.form-control(id='challanStatus', name='challanStatus')
+                  option(value='pending') Pending
+                  option(value='delivered') Delivered
+                  option(value='cancelled') Cancelled
+
+            .col-md-8
+              .form-group
+                label Notes
+                textarea.form-control(id='notes', name='notes')
+
+          hr
+
+          // ===== SECTION 2: ITEM SELECTION =====
+          h5.mb-3.text-primary Item Selection
+
+          .row
+            .col-md-4
+              .form-group
+                label Select Item
+                select.form-control(id='itemSelect', style='width:100%')
+                  option(value='' disabled selected) Select Item
+                  if items && items.length > 0
+                    each item in items
+                      option(
+                        value=item.id,
+                        data-name=item.itemName,
+                        data-stock=item.availableStock,
+                        data-price=item.itemPrice,
+                        data-model=item.itemModel,
+                        data-type=item.itemType,
+                        data-config=item.itemConfigurations
+                      ) #{item.itemName}
+
+            .col-md-3
+              .form-group
+                label Available Stock
+                input.form-control(type='text', id='itemStock', readonly)
+
+            .col-md-3
+              .form-group
+                label Delivered Quantity
+                input.form-control(
+                  type='number',
+                  id='deliveredQuantity',
+                  placeholder='Enter Quantity',
+                  min='1'
+                )
+
+            .col-md-2
+              .form-group
+                label &nbsp;
+                button.btn.btn-primary.btn-block(
+                  type='button',
+                  id='addItem'
+                )
+                  i.fa.fa-plus
+                  |  Add Item
+
+          hr
+
+          // ===== SECTION 3: ITEM TABLE =====
+          h5.mb-3.text-primary Added Items
+
+          table.table.table-bordered.table-striped#itemTable
+            thead
+              tr
+                th Item Name
+                th Stock
+                th Delivered Quantity
+                th Notes
+                th Action
+            tbody
+              tr
+                td.text-center(colspan='5') No item added yet.
+
+        // ===== FOOTER =====
+        .modal-footer
+          button.btn.btn-success(type='button', id='saveChallan')
+            i.fa.fa-save
+            |  Save Challan
+
+          button.btn.btn-danger(type='button', data-dismiss='modal')
+            i.fa.fa-times
+            |  Cancel

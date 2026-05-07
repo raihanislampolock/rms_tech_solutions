@@ -2,54 +2,55 @@ export interface IRmsDeliveryItem {
     id?: number;
     deliveryId?: number;
     itemId: number;
-    deliveredQuantity?: number;
+    deliveredQuantity: number; // ✅ REQUIRED (important)
     notes?: string;
     createdBy?: number;
     createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export interface IRmsDelivery {
     id?: number;
     deliveryNumber: string;
-    quotationId?: number;
+    // 🔥 Mode control
+    deliveryMode?: "direct" | "quotation";
+    quotationId?: number; // required only if quotation mode
     companyName: string;
     companyEmail?: string;
     notes?: string;
-    deliveryStatus?: string;
+    deliveryStatus: "pending" | "delivered" | "cancelled";
     createdBy?: number;
     updatedBy?: number;
     createdAt?: Date;
     updatedAt?: Date;
-    items?: IRmsDeliveryItem[];
+    items: IRmsDeliveryItem[]; // ✅ REQUIRED
 }
 
 export interface IRmsDeliveryRepository {
-    createDelivery(data: Partial<IRmsDelivery>): Promise<IRmsDelivery>;
-    getAll(searchStr: string, page: number, limit: number): Promise<{
-        data: IRmsDelivery[];
-        total: number;
-        totalPages: number;
-        currentPage: number;
-    }>;
-    edit(id: number): Promise<IRmsDelivery | null>;
-    update(id: number, data: Partial<IRmsDelivery>, items: IRmsDeliveryItem[]): Promise<any>;
-    getDataByQuotationId(quotationId: number): Promise<any>;
-    delete(id: number): Promise<boolean>;
-}
 
-export interface IRmsDeliveryService {
     create(data: Partial<IRmsDelivery>): Promise<IRmsDelivery>;
-    getAll(searchStr: string, page: number, limit: number): Promise<{
+
+    getAll(
+        searchStr: string,
+        page: number,
+        limit: number
+    ): Promise<{
         data: IRmsDelivery[];
         total: number;
         totalPages: number;
         currentPage: number;
     }>;
+
     edit(id: number): Promise<IRmsDelivery | null>;
-    update(id: number, data: Partial<IRmsDelivery>, items: IRmsDeliveryItem[]): Promise<any>;
-    getItemDropdown(): Promise<{ id: string; label: string }[]>;
-    generateDeliveryNumber(companyName: string): Promise<string>;
-    generatePdf(id: number): Promise<{ pdfBuffer: Buffer; emailSent?: boolean }>;
-    createFromQuotation(quotationId: number, userId?: number): Promise<IRmsDelivery>;
+
+    update(
+        id: number,
+        data: Partial<IRmsDelivery>,
+        items: IRmsDeliveryItem[]
+    ): Promise<any>;
+
     delete(id: number): Promise<boolean>;
+
+    // 🔥 From quotation
+    getDataByQuotationId(quotationId: number): Promise<any>;
 }

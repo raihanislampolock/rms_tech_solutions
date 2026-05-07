@@ -191,8 +191,8 @@ export class RmsQuotationService {
 
             // ================= HEADER / FOOTER =================
             const drawHeaderFooter = () => {
-                const headerHeight = 60;
-                const footerHeight = 50;
+                const headerHeight = 100;
+                const footerHeight = 70;
 
                 page.drawImage(headerImage, {
                     x: 0,

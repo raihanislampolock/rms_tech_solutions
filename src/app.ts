@@ -54,6 +54,12 @@ import { RmsPurchaseService } from "./modules/rms/services/rms.purchase.service"
 import { RmsItemStockController } from "./modules/rms/controllers/rms.itemstock.controller";
 import { RmsItemStockRepository } from "./modules/rms/repositories/rms.itemstock.repository";
 import { RmsItemStockService } from "./modules/rms/services/rms.itemstock.service";
+import { RmsChallanController } from "./modules/rms/controllers/rms.challan.controller";
+import { RmsChallanRepository } from "./modules/rms/repositories/rms.challan.repository";
+import { RmsChallanService } from "./modules/rms/services/rms.challan.service";
+import { RmsInvoiceController } from "./modules/rms/controllers/rms.invoice.controller";
+import { RmsInvoiceRepository } from "./modules/rms/repositories/rms.invoice.repository";
+import { RmsInvoiceService } from "./modules/rms/services/rms.invoice.service";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -89,6 +95,8 @@ app.setMenu("main", {
         { name: "RMS Purchases", path: "/rms/rms-purchase", for: [Role.Admin] },
         { name: "RMS Quotations", path: "/rms/rms-quotation", for: [Role.Admin] },
         { name: "RMS Deliveries", path: "/rms/rms-delivery", for: [Role.Admin] },
+        { name: "RMS Challans", path: "/rms/rms-challan", for: [Role.Admin] },
+        { name: "RMS Invoices", path: "/rms/rms-invoice", for: [Role.Admin] },
         { name: "<i class='large material-icons'>admin_panel_settings</i>", path: "/role-permissions", for: [Role.Admin] },
         { name: "<i class='large material-icons'>people</i>", path: "/users", for: [Role.Admin] },
         { name: "<i class='large material-icons'>security</i>", path: "/password/change", for: [Role.Admin] },
@@ -108,6 +116,8 @@ app.set("EmailConfigRepository", new EmailConfigRepository());
 app.set("RmsItemsRepository", new RmsItemsRepository());
 app.set("RmsQuotationRepository", new RmsQuotationRepository());
 app.set("RmsDeliveryRepository", new RmsDeliveryRepository());
+app.set("RmsChallanRepository", new RmsChallanRepository());
+app.set("RmsInvoiceRepository", new RmsInvoiceRepository());
 app.set("RmsItemStockRepository", new RmsItemStockRepository());
 
 
@@ -120,6 +130,8 @@ app.set("EmailConfigService", new EmailConfigService());
 app.set("RmsItemsService", new RmsItemsService(app.get("RmsItemsRepository")));
 app.set("RmsQuotationService", new RmsQuotationService(app.get("RmsQuotationRepository")));
 app.set("RmsDeliveryService", new RmsDeliveryService(app.get("RmsDeliveryRepository")));
+app.set("RmsChallanService", new RmsChallanService(app.get("RmsChallanRepository")));
+app.set("RmsInvoiceService", new RmsInvoiceService(app.get("RmsInvoiceRepository")));
 app.set("RmsPurchaseService", new RmsPurchaseService(app.get("RmsPurchaseRepository")));
 app.set("RmsItemStockService", new RmsItemStockService(app.get("RmsItemStockRepository")));
 
@@ -137,6 +149,8 @@ app.registerController(new EmailConfigController());
 app.registerController(new RmsItemsController());
 app.registerController(new RmsQuotationController());
 app.registerController(new RmsDeliveryController());
+app.registerController(new RmsChallanController());
+app.registerController(new RmsInvoiceController());
 app.registerController(new RmsPurchaseController());
 app.registerController(new RmsItemStockController());
 

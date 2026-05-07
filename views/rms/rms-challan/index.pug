@@ -134,7 +134,7 @@ block style
 block content
     section.content-header
       h1.text-lg.font-weight-bold.mb-3
-        | RMS Purchase Dashboard
+        | RMS Challan Dashboard
 
       ol.breadcrumb
         li
@@ -143,10 +143,10 @@ block content
         li
             strong(style="color: #580db4") RMS TecH Solutions
         li
-            strong(style="color: #580db4") RMS Purchase
+            strong(style="color: #580db4") RMS Challan
         li
-          a(href='/rms/rms-purchase')
-            strong(style="color: #580db4") Purchase Dashboard
+          a(href='/rms/rms-challan')
+            strong(style="color: #580db4") Challan Dashboard
         
     section.content
         .row
@@ -162,7 +162,7 @@ block content
                          button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
                           span.fa.fa-search      
                     .pull-left 
-                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-purchase-modal') 
+                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-challan-modal') 
                             span.fa.fa-plus                                   
                     .pull-right
                         span.title-filter(style='display:flex;align-items:center') Show:
@@ -178,28 +178,26 @@ block content
                                 tr
                                     th
                                       a(href='#') Action &nbsp;
+                                        i.fa.fa-sort-alpha-asc 
+                                    th
+                                      a(href='#') Download Challan PDF &nbsp;
                                         i.fa.fa-sort-alpha-asc
                                     th
-                                      a(href='#') PR PDF &nbsp;
-                                        i.fa.fa-sort-alpha-asc
-                                    th
-                                      a(href='#') PR Email &nbsp;
+                                      a(href='#') View Challan PDF &nbsp;
                                         i.fa.fa-sort-alpha-asc    
                                     th
-                                      a(href='#') Purchase PDF &nbsp;
-                                        i.fa.fa-sort-alpha-asc    
+                                      a(href='#') Challan Email &nbsp;
+                                        i.fa.fa-sort-alpha-asc           
                                     th
-                                      a(href='#') Purchase Number
+                                      a(href='#') Challan Number
                                     th
-                                      a(href='#') Supplier Name
+                                      a(href='#') Company Name
                                     th
-                                      a(href='#') Supplier Email
+                                      a(href='#') Status
                                     th
-                                      a(href='#') Purchase Status
+                                      a(href='#') Remarks
                                     th
-                                      a(href='#') Notes
-                                    th
-                                      a(href='#') View Items
+                                      a(href='#') Items     
                                     th
                                       a(href='#') Created By
                                     th
@@ -208,9 +206,9 @@ block content
                                       a(href='#') Created Date
                                     th
                                       a(href='#') Updated Date         
-                            tbody#purchaseTableBody
+                            tbody#challanTableBody
                                 tr
-                                    td.text-center(colspan='19') No data to display. Use the search filters above to load data.
+                                    td.text-center(colspan='10') No data to display. Use the search filters above to load data.
 
 
                 .box-footer.clearfix
@@ -218,17 +216,18 @@ block content
                         span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
                     ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
 
-    include ./create                  
+    include ./create
+    //- include ./challan-modal  
 
 block script
   link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
-  
+
   script.
     document.addEventListener('DOMContentLoaded', function() {
-      const tableBody = document.getElementById('purchaseTableBody');
+      const tableBody = document.getElementById('challanTableBody');
       const paginationContainer = document.getElementById('paginationContainer');
       let search = document.getElementById('search');
       const searchBtn = document.getElementById('searchBtn');
@@ -258,10 +257,10 @@ block script
       const selectedRows = new Set();
       const selectedData = [];
 
-      async function fetchPurchase(page = 1, search = '', dateRange='', limit = 10) {
+      async function fetchChallan(page = 1, search = '', dateRange='', limit = 10) {
         tableBody.innerHTML = `<tr><td colspan="19" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #8A2061;"></i></td></tr>`;
         try {
-          const response = await fetch(`/api/rms/rms-purchase/all?page=${page}&search=${search}&limit=${limit}`);
+          const response = await fetch(`/api/rms/rms-challan/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();
 
           if (data?.data?.length > 0) {
@@ -271,16 +270,15 @@ block script
                   if (!grouped[row.id]) {
                       grouped[row.id] = {
                           id: row.id,
-                          files: row.files,
-                          purchaseNumber: row.purchaseNumber,
-                          supplierName: row.supplierName,
-                          supplierEmail: row.supplierEmail,
-                          purchaseStatus: row.purchaseStatus,
+                          challanNumber: row.challanNumber,
+                          companyName: row.companyName,
+                          companyEmail: row.companyEmail,
+                          challanStatus: row.challanStatus,
                           notes: row.notes,
                           createdBy: row.createdBy,
                           updatedBy: row.updatedBy,
-                          createdAt: row.createdAt,
-                          updatedAt: row.updatedAt,
+                          created_at: row.created_at,
+                          updated_at: row.updated_at,
                           items: []
                       };
                   }
@@ -291,134 +289,111 @@ block script
                       itemModel: row.itemModel,
                       itemConfigurations: row.itemConfigurations,
                       itemPrice: row.itemPrice,
-                      unitPrice: row.unitPrice,
-                      quantity: row.quantity,
-                      unitPrice: row.unitPrice,
-                      totalPrice: row.totalPrice,
-                      files: row.files
+                      deliveredQuantity: row.deliveredQuantity,
+                      notes: row.notes
                   });
               });
 
               // =========================
               // ✅ RENDER GROUPED UI
               // =========================
-              tableBody.innerHTML = Object.values(grouped).map(p => {
+              tableBody.innerHTML = Object.values(grouped).map(c => {
               
-                  const totalQty = p.items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
-                  const totalUnite = p.items.reduce((sum, i) => sum + (Number(i.unitPrice) || 0), 0);
-                  const totalBuy = p.items.reduce((sum, i) => sum + (Number(i.totalPrice) || 0), 0);
+                  const totalQty = c.items.reduce((sum, i) => sum + (Number(i.deliveredQuantity) || 0), 0);
 
                   const format = (num) => Number(num || 0).toLocaleString();
 
                   return `
 
-                  <!-- MAIN PURCHASE ROW -->
+                  <!-- MAIN CHALLAN ROW -->
                   <tr style="background:#f5f5f5;font-weight:bold;">
 
                       <td>
                           <a href="#"
-                             class="editPurchase fa fa-edit"
-                             data-purchase-id="${p.id}"
+                             class="editChallan fa fa-edit"
+                             data-challan-id="${c.id}"
                              data-toggle="modal"
-                             data-target="#add-edit-purchase-modal">
+                             data-target="#add-edit-challan-modal">
                           </a>
                       </td>
 
                       <td>
-                          <a href="/api/rms/rms-purchase/generate-pdf/${p.id}"
+                          <a href="/api/rms/rms-challan/generate-pdf/${c.id}"
                              class="fa fa-file-pdf-o fa-2x"
                              target="_blank"
                              title="Generate PDF">
                           </a>
                       </td>
+                      <td>    
+                          <a href="/api/rms/rms-challan/view-pdf/${c.id}"
+                             class="fa fa-file-pdf-o fa-2x"
+                             target="_blank"
+                             title="View PDF">
+                          </a>
+                      </td>
 
                       <td>
                         <a href="#"
-                           class="sendPurchaseEmail fa fa-envelope fa-2x"
-                           data-purchase-id="${p.id}"
-                           data-supplier-email="${p.supplierEmail}"
-                           data-supplier-name="${p.supplierName}"
+                           class="sendChallanEmail fa fa-envelope fa-2x"
+                           data-challan-id="${c.id}"
+                           data-company-email="${c.companyEmail}"
+                           data-company-name="${c.companyName}"
                            title="Send via Email">
                         </a>
                       </td>
 
-                      <td>
-                        ${
-                          p.files
-                            ? (
-                                p.files.match(/\.(jpg|jpeg|png|webp|gif)$/i)
-                                  ? `<a href="/${p.files}" target="_blank">
-                                       <img src="/${p.files}" 
-                                            style="width:60px;height:60px;object-fit:cover;border-radius:5px;" />
-                                     </a>`
-                                  : p.files.match(/\.pdf$/i)
-                                    ? `<a href="/${p.files}" target="_blank" title="View PDF">
-                                         <i class="fa fa-file-pdf-o fa-2x" style="color:red;"></i>
-                                       </a>`
-                                    : `<a href="/${p.files}" target="_blank">View File</a>`
-                              )
-                            : 'No File'
-                        }
-                      </td>
-
-                      <td>${p.purchaseNumber ?? ''}</td>
-                      <td>${p.supplierName ?? ''}</td>
-                      <td>${p.supplierEmail ?? ''}</td>
-                      <td>${p.purchaseStatus ?? ''}</td>
-                      <td>${p.notes ?? ''}</td>
+                      <td>${c.challanNumber ?? ''}</td>
+                      <td>${c.companyName ?? ''}</td>
+                      <td><span class="badge badge-${c.challanStatus === 'delivered' ? 'success' : c.challanStatus === 'pending' ? 'warning' : 'danger'}">${c.challanStatus ?? ''}</span></td>
+                      <td>${c.notes ?? ''}</td>
 
                       <!-- View Items -->
                       <td>
-                          <button class="btn btn-sm btn-info toggleItems" data-id="${p.id}">
-                              View Items (${p.items.length})
+                          <button class="btn btn-sm btn-info toggleItems" data-id="${c.id}">
+                              View Items (${c.items.length})
                           </button>
                       </td>
 
-                      <td>${p.createdBy ?? ''}</td>
-                      <td>${p.updatedBy ?? ''}</td>
-                      <td>${p.createdAt ?? ''}</td>
-                      <td>${p.updatedAt ?? ''}</td>
+                      <td>${c.createdBy ?? ''}</td>
+                      <td>${c.updatedBy ?? ''}</td>
+                      <td>${new Date(c.created_at).toLocaleDateString() ?? ''}</td>
+                      <td>${new Date(c.updated_at).toLocaleDateString() ?? ''}</td>
 
                   </tr>
 
                   <!-- ITEMS ROW -->
-                  <tr id="items-${p.id}" style="display:none;">
+                  <tr id="items-${c.id}" style="display:none;">
                       <td colspan="12">
                           <table class="table table-bordered">
 
                               <thead style="background:#580db4;color:white;">
                                   <tr>
                                       <th>Item</th>
-                                      <th>Description</th>
                                       <th>Type</th>
                                       <th>Model</th>
                                       <th>Spec</th>
-                                      <th>Qty</th>
-                                      <th>Unit Price</th>
-                                      <th>Total Price</th>
+                                      <th>Delivered Qty</th>
+                                      <th>Notes</th>
                                   </tr>
                               </thead>
 
                               <tbody>
-                                  ${p.items.map(i => `
+                                  ${c.items.map(i => `
                                       <tr>
                                           <td>${i.itemName ?? ''}</td>
-                                          <td>${i.description ?? ''}</td>
                                           <td>${i.itemType ?? ''}</td>
                                           <td>${i.itemModel ?? ''}</td>
                                           <td>${i.itemConfigurations ?? ''}</td>
-                                          <td>${i.quantity ?? ''}</td>
-                                          <td>${i.unitPrice ?? ''}</td>
-                                          <td>${i.totalPrice ?? ''}</td>
+                                          <td>${i.deliveredQuantity ?? ''}</td>
+                                          <td>${i.notes ?? ''}</td>
                                       </tr>
                                   `).join('')}
 
                                   <!-- TOTAL ROW -->
                                   <tr style="background:#e8f5e9;font-weight:bold;">
-                                      <td colspan="5" style="text-align:right;">TOTAL</td>
+                                      <td colspan="4" style="text-align:right;">TOTAL DELIVERED</td>
                                       <td>${format(totalQty)}</td>
-                                      <td>${format(totalUnite)}</td>
-                                      <td>${format(totalBuy)}</td>
+                                      <td></td>
                                   </tr>
 
                               </tbody>
@@ -447,11 +422,11 @@ block script
           }
 
           // Generate pagination buttons
-          const totalPages = Math.ceil(data.totalRecords / limit);
+          const totalPages = Math.ceil(data.total / limit);
           renderPagination(totalPages, page);
 
         } catch (error) {
-          console.error('Error fetching reports:', error);
+          console.error('Error fetching challans:', error);
           tableBody.innerHTML = `<tr><td colspan="18" class="text-center">Error loading data</td></tr>`;
           document.querySelector('#title-filter').textContent = 'Error loading entries';
         }
@@ -531,7 +506,7 @@ block script
         let currentSearch = search.value;
         dateRange = dateRangeInput.value;
         currentPage = page;
-        fetchPurchase(currentPage, currentSearch, dateRange, limit);
+        fetchChallan(currentPage, currentSearch, dateRange, limit);
       }
 
       // Event listener for pagination links
@@ -551,7 +526,7 @@ block script
         selectedData.length = 0;
         currentSearch = search.value;
         dateRange = dateRangeInput.value;
-        fetchPurchase(1, currentSearch, dateRange, limit);
+        fetchChallan(1, currentSearch, dateRange, limit);
       });
       
       limitSelect.addEventListener('change', () => {
@@ -559,7 +534,20 @@ block script
         currentSearch = search.value;
         dateRange = dateRangeInput.value;
         currentPage = 1;
-        fetchPurchase(currentPage, currentSearch, dateRange, limit);
+        fetchChallan(currentPage, currentSearch, dateRange, limit);
+      });
+
+      // Toggle items row visibility when user clicks "View Items"
+      tableBody.addEventListener('click', function(event) {
+        const btn = event.target.closest('.toggleItems');
+        if (!btn) return;
+        event.preventDefault();
+
+        const id = btn.dataset.id;
+        const itemsRow = document.getElementById(`items-${id}`);
+        if (!itemsRow) return;
+
+        itemsRow.style.display = itemsRow.style.display === 'none' || itemsRow.style.display === '' ? 'table-row' : 'none';
       });
 
       function updateSelectedData(rowId, email, mrno, patientName) {
@@ -653,235 +641,172 @@ block script
 
     });      
 
-      fetchPurchase(currentPage, currentSearch, dateRangeInput.value, limit);
+      fetchChallan(currentPage, currentSearch, dateRangeInput.value, limit);
     });
 
     document.addEventListener('DOMContentLoaded', function () {
 
+        // ========================
+        // STATE
+        // ========================
         let cart = [];
         let editMode = false;
         let editId = null;
-
-        document.addEventListener('click', function (e) {
-          if (!e.target.classList.contains('sendPurchaseEmail')) return;
-
-          e.preventDefault();
-
-          const id = Number(e.target.getAttribute('data-purchase-id'));
-          const email = e.target.getAttribute('data-supplier-email');
-          const companyName = e.target.getAttribute('data-supplier-name');
-
-          if (!id || !email) {
-              swal("Error", "Email not found for this purchase", "error");
-              return;
-          }
-
-          // Confirm before sending
-          swal({
-              title: "Send Purchase?",
-              text: `Send purchase to ${email}?`,
-              icon: "question",
-              buttons: {
-                  cancel: "Cancel",
-                  confirm: {
-                      text: "Send",
-                      value: true
-                  }
-              }
-          }).then((willSend) => {
-              if (!willSend) return;
-
-          // Show loading state
-          const originalClass = e.target.className;
-          e.target.className = 'fa fa-spinner fa-spin fa-2x';
-          e.target.style.cursor = 'not-allowed';
-
-          // Send email via API
-          fetch(`/api/rms/rms-purchase/send-email/${id}`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          })
-          .then(response => response.json())
-          .then(data => {
-              e.target.className = originalClass;
-              e.target.style.cursor = 'pointer';
-
-              if (data.status) {
-                  swal("Success", data.message, "success");
-              } else {
-                  swal("Error", data.message || 'Failed to send email', "error");
-              }
-          })
-          .catch(error => {
-              e.target.className = originalClass;
-              e.target.style.cursor = 'pointer';
-              console.error('Error:', error);
-              swal("Error", 'Error sending email: ' + error.message, "error");
-          });
-          });
-        });
-
+    
+        // ========================
+        // ELEMENTS
+        // ========================
         const itemSelect = document.getElementById('itemSelect');
-        const unitPrice = document.getElementById('unitPrice');
-        const quantity = document.getElementById('quantity');
-        const itemDescription = document.getElementById('itemDescription');
-
-        const purchaseNumber = document.getElementById('purchaseNumber');
-        const supplierName = document.getElementById('supplierName');
-        const supplierEmail = document.getElementById('supplierEmail');
-        const purchaseStatus = document.getElementById('purchaseStatus');
+        const deliveredQuantity = document.getElementById('deliveredQuantity');
+        const itemStock = document.getElementById('itemStock');
+    
+        const challanNumber = document.getElementById('challanNumber');
+        const companyName = document.getElementById('companyName');
+        const companyEmail = document.getElementById('companyEmail');
+        const challanStatus = document.getElementById('challanStatus');
         const notes = document.getElementById('notes');
-        const purchaseFile = document.getElementById('purchaseFile');
-        const existingPurchaseFile = document.getElementById('existingPurchaseFile');
-        let existingFilePath = '';
-        const addPurchaseBtn = document.querySelector("[data-target='#add-edit-purchase-modal']");
-
-        async function generatePurchaseNumber() {
-            try {
-                const res = await fetch('/api/rms/rms-purchase/generate-number');
-                const result = await res.json();
-                if (result?.status && result.purchaseNumber) {
-                    purchaseNumber.value = result.purchaseNumber;
-                }
-            } catch (err) {
-                console.error('Purchase number generation failed:', err);
-            }
-        }
-
-        addPurchaseBtn?.addEventListener('click', function () {
+    
+        const modal = $('#add-edit-challan-modal');
+    
+        // ========================
+        // RESET FORM
+        // ========================
+        function resetForm() {
+            cart = [];
             editMode = false;
             editId = null;
-            cart = [];
-            renderCart();
-            purchaseNumber.value = '';
-            supplierName.value = '';
-            supplierEmail.value = '';
-            purchaseStatus.value = 'Pending';
+    
+            challanNumber.value = '';
+            companyName.value = '';
+            companyEmail.value = '';
+            challanStatus.value = 'pending';
             notes.value = '';
-            existingFilePath = '';
-            if (existingPurchaseFile) {
-                existingPurchaseFile.innerHTML = '<small>No file uploaded</small>';
-            }
-            if (purchaseFile) {
-                purchaseFile.value = '';
-            }
-            generatePurchaseNumber();
-        });
-
+    
+            itemSelect.value = '';
+            deliveredQuantity.value = '';
+            itemStock.value = '';
+    
+            renderCart();
+        }
+    
         // ========================
-        // EDIT CLICK
-        // ========================
-        document.addEventListener('click', function (e) {
-            const btn = e.target.closest('[data-purchase-id]');
-            if (!btn) return;
-
-            e.preventDefault();
-
-            const id = Number(btn.dataset.purchaseId);
-            if (!id || isNaN(id)) return;
-
-            loadPurchase(id);
-        });
-
-        // ========================
-        // TOGGLE ITEMS
-        // ========================
-        document.addEventListener('click', function (e) {
-            const btn = e.target.closest('.toggleItems');
-            if (!btn) return;
-
-            const row = document.getElementById(`items-${btn.dataset.id}`);
-            if (!row) return;
-
-            row.style.display = row.style.display === 'table-row' ? 'none' : 'table-row';
-        });
-
-        // ========================
-        // ITEM CHANGE
+        // SHOW STOCK ON SELECT
         // ========================
         itemSelect?.addEventListener('change', function () {
             const opt = this.options[this.selectedIndex];
-            if (!opt?.value) return;
-
-            unitPrice.value = opt.dataset.price || '';
+            itemStock.value = opt.dataset.stock || 0;
         });
-
+    
+        // ========================
+        // MODAL OPEN → AUTO GENERATE CHALLAN NUMBER
+        // ========================
+        modal.on('shown.bs.modal', async function () {
+        
+            if (!editMode) {
+                resetForm();
+    
+                challanNumber.value = "Generating...";
+    
+                try {
+                    const res = await fetch(`/api/rms/rms-challan/generate-ref?companyName=TEMP`);
+                    const data = await res.json();
+    
+                    if (data?.status && data?.challanNumber) {
+                        challanNumber.value = data.challanNumber;
+                    } else {
+                        challanNumber.value = '';
+                    }
+    
+                } catch (err) {
+                    console.error("REF ERROR:", err);
+                    challanNumber.value = '';
+                }
+            }
+        });
+    
         // ========================
         // ADD ITEM
         // ========================
-        document.getElementById('addItem').addEventListener('click', function () {
+        document.getElementById('addItem')?.addEventListener('click', function () {
         
             const opt = itemSelect.options[itemSelect.selectedIndex];
             const itemId = itemSelect.value;
-            const description = itemDescription.value.trim();
-
-            if (!itemId) {
-                swal("Warning", "Select item", "warning");
-                return;
-            }
-
-            if (!quantity.value || quantity.value <= 0) {
-                swal("Warning", "Enter quantity", "warning");
-                return;
-            }
-
-            if (cart.find(x => x.itemId == itemId)) {
-                swal("Warning", "Item already added", "warning");
-                return;
-            }
-
+    
+            const stock = Number(opt.dataset.stock || 0);
+            const qty = Number(deliveredQuantity.value);
+    
+            if (!itemId) return swal("Warning", "Select item", "warning");
+            if (!qty || qty <= 0) return swal("Warning", "Enter quantity", "warning");
+            if (qty > stock) return swal("Warning", "Quantity exceeds stock", "warning");
+            if (cart.find(x => x.itemId == itemId)) return swal("Warning", "Already added", "warning");
+    
             cart.push({
                 itemId,
                 itemName: opt.dataset.name || opt.text,
-                description: description || '',
-                quantity: Number(quantity.value),
-                unitPrice: Number(unitPrice.value) || 0
+                availableStock: stock,
+                deliveredQuantity: qty,
+                notes: ''
             });
-
+    
             renderCart();
-
+    
             itemSelect.value = '';
-            unitPrice.value = '';
-            quantity.value = '';
-            itemDescription.value = '';
+            deliveredQuantity.value = '';
+            itemStock.value = '';
         });
-
+    
         // ========================
         // REMOVE ITEM
         // ========================
         document.addEventListener('click', function (e) {
             const btn = e.target.closest('.removeItem');
             if (!btn) return;
-
+    
             cart.splice(btn.dataset.index, 1);
             renderCart();
         });
-
+    
         // ========================
-        // RENDER CART
+        // UPDATE NOTES
+        // ========================
+        document.addEventListener('input', function (e) {
+            if (!e.target.classList.contains('noteInput')) return;
+    
+            const index = e.target.dataset.index;
+            if (cart[index]) {
+                cart[index].notes = e.target.value;
+            }
+        });
+    
+        // ========================
+        // RENDER TABLE
         // ========================
         function renderCart() {
             const tbody = document.querySelector('#itemTable tbody');
             tbody.innerHTML = '';
-
+    
             if (!cart.length) {
-                tbody.innerHTML = `<tr><td colspan="6">No items added</td></tr>`;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">No item added yet.</td>
+                    </tr>
+                `;
                 return;
             }
-
+    
             cart.forEach((item, i) => {
-            
-                const total = item.quantity * item.unitPrice;
-
                 tbody.innerHTML += `
                     <tr>
                         <td>${item.itemName}</td>
-                        <td>${item.description || ''}</td>
-                        <td>${item.quantity}</td>
-                        <td>${item.unitPrice.toFixed(2)}</td>
-                        <td>${total.toFixed(2)}</td>
+                        <td>${item.availableStock}</td>
+                        <td>${item.deliveredQuantity}</td>
+                        <td>
+                            <input type="text"
+                                   class="form-control noteInput"
+                                   data-index="${i}"
+                                   value="${item.notes || ''}"
+                                   placeholder="Optional note">
+                        </td>
                         <td>
                             <button class="btn btn-danger btn-sm removeItem" data-index="${i}">
                                 <i class="fa fa-trash"></i>
@@ -891,115 +816,107 @@ block script
                 `;
             });
         }
-
+    
         // ========================
-        // LOAD PURCHASE (EDIT)
+        // LOAD EDIT
         // ========================
-        async function loadPurchase(id) {
-        
+        async function loadChallan(id) {
             try {
-                const res = await fetch(`/api/rms/rms-purchase/edit/${id}`);
+                const res = await fetch(`/api/rms/rms-challan/edit/${id}`);
                 const result = await res.json();
-
+    
                 if (!result.status) return;
-
-                const p = result.data;
-
+    
+                const c = result.data;
+    
                 editMode = true;
                 editId = id;
-
-                purchaseNumber.value = p.purchaseNumber || '';
-                supplierName.value = p.supplierName || '';
-                supplierEmail.value = p.supplierEmail || '';
-                purchaseStatus.value = p.purchaseStatus || '';
-                notes.value = p.notes || '';
-                existingFilePath = p.files || '';
-                if (existingPurchaseFile) {
-                    existingPurchaseFile.innerHTML = existingFilePath
-                        ? `<a href="/${existingFilePath}" target="_blank">View current file</a>`
-                        : '<small>No file uploaded</small>';
-                }
-
-                cart = (p.items || []).map(i => ({
+    
+                challanNumber.value = c.challanNumber || '';
+                companyName.value = c.companyName || '';
+                companyEmail.value = c.companyEmail || '';
+                challanStatus.value = c.challanStatus || '';
+                notes.value = c.notes || '';
+    
+                cart = (c.items || []).map(i => ({
                     itemId: i.itemId,
                     itemName: i.itemName,
-                    description: i.description || '',
-                    quantity: Number(i.quantity) || 0,
-                    unitPrice: Number(i.unitPrice) || 0
+                    availableStock: Number(i.availableStock || 0),
+                    deliveredQuantity: Number(i.deliveredQuantity),
+                    notes: i.notes || ''
                 }));
-
+    
                 renderCart();
-
+    
             } catch (err) {
-                console.error("Load error:", err);
+                console.error(err);
             }
         }
-
+    
         // ========================
-        // SAVE / UPDATE PURCHASE
+        // SAVE
         // ========================
-        document.getElementById('savePurchase').addEventListener('click', async function () {
+        document.getElementById('saveChallan')?.addEventListener('click', async function () {
         
-            if (!cart.length) {
-            swal("Warning", "No items added", "warning");
-            return;
-        }
-
-            const formData = new FormData();
-            formData.append('purchaseNumber', purchaseNumber.value);
-            formData.append('supplierName', supplierName.value);
-            formData.append('supplierEmail', supplierEmail.value);
-            formData.append('purchaseStatus', purchaseStatus.value);
-            formData.append('notes', notes.value);
-            formData.append('items', JSON.stringify(cart));
-
-            if (purchaseFile?.files?.[0]) {
-                formData.append('file', purchaseFile.files[0]);
-            }
-
-            const baseUrl = `${window.location.protocol}//${window.location.host}`;
-            let url = `${baseUrl}/api/rms/rms-purchase/create`;
+            if (!cart.length) return swal("Warning", "No items added", "warning");
+    
+            const payload = {
+                challanNumber: challanNumber.value,
+                companyName: companyName.value,
+                companyEmail: companyEmail.value,
+                challanStatus: challanStatus.value,
+                notes: notes.value,
+                items: cart
+            };
+    
+            let url = `/api/rms/rms-challan/create`;
             let method = 'POST';
-
+    
             if (editMode) {
-                url = `${baseUrl}/api/rms/rms-purchase/update/${editId}`;
+                url = `/api/rms/rms-challan/update/${editId}`;
                 method = 'PUT';
             }
-
-            console.log('Saving purchase to', url);
-
+    
             try {
                 const res = await fetch(url, {
                     method,
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
-
-                console.log('Save response', res.status, res.headers.get('content-type'));
+    
                 const result = await res.json();
-
+    
                 if (result.status) {
-                    swal({
-                        title: editMode ? "Updated Purchase Successfully" : "Created Purchase Successfully",
-                        text: result.message || "",
-                        icon: "success",
-                        button: "OK"
-                    }).then(() => {
-                        window.location.reload();
-                    });
+                    swal("Success", result.message, "success")
+                        .then(() => window.location.reload());
                 } else {
-                    swal("Error", result.message || "Failed to save purchase", "error");
+                    swal("Error", result.message, "error");
                 }
-
+    
             } catch (err) {
                 console.error(err);
                 swal("Error", "Request failed", "error");
             }
         });
-
         // ========================
-        // AUTO EDIT (URL ID)
+        // CLICK EDIT BUTTON
         // ========================
-        const id = window.location.pathname.split('/').pop();
-        if (!isNaN(id)) loadPurchase(id);
+        document.addEventListener('click', async function (e) {
+        
+            const btn = e.target.closest('.editChallan');
+            if (!btn) return;
 
+            e.preventDefault();
+
+            const id = btn.dataset.challanId;
+
+            if (!id) {
+                swal("Error", "Invalid Challan ID", "error");
+                return;
+            }
+
+            await loadChallan(id);
+
+            $('#add-edit-challan-modal').modal('show');
+        });
     });
