@@ -292,9 +292,9 @@ export class RmsChallanRepository implements IRmsChallanRepository {
                     challanId: id,
                     itemId: item.itemId,
                     deliveredQuantity: item.deliveredQuantity ?? 0,
-                    notes: item.notes ?? null,
-                    createdBy: data.updatedBy
-                });
+                    notes: item.notes ?? undefined,
+                    createdBy: data.updatedBy ?? undefined
+                } as DeepPartial<RmsChallanItemModel>);
 
                 await qr.manager.save(entity);
 
@@ -354,7 +354,7 @@ export class RmsChallanRepository implements IRmsChallanRepository {
         }
     }
 
-    // ✅ GET DATA BY QUOTATION ID
+    // ✅ GET DATA BY QUOTATION ID OR REF NUMBER
     public async getDataByQuotationId(refNumber: string): Promise<any> {
         const query = `
             SELECT
@@ -362,15 +362,26 @@ export class RmsChallanRepository implements IRmsChallanRepository {
                 q."refNumber",
                 q."companyName",
                 q."companyEmail",
+                q.subject,
+                q.discriptions,
                 qi."itemId",
                 qi.quarterly,
-                i."itemName"
+                qi."rmsPrice",
+                i."itemName",
+                i."itemPrice",
+                i."itemModel",
+                i."itemType",
+                i."itemConfigurations",
+                COALESCE(ris."availableQuantity", 0) AS "availableStock"
             FROM public.rms_quotation q
             JOIN public.rms_quotation_items qi
                 ON q.id = qi."quotationId"
             JOIN public.rms_items i
                 ON qi."itemId" = i.id
-            WHERE q."refNumber" = $1
+            LEFT JOIN public.rms_item_stocks ris
+                ON i.id = ris."itemId"
+            WHERE q.id::text = $1
+               OR q."refNumber" = $1
         `;
 
         return await AppDataSource.query(query, [refNumber]);

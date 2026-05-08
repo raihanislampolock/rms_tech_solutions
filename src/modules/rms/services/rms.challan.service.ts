@@ -90,8 +90,9 @@ export class RmsChallanService {
 
             const challanItems: IRmsChallanItem[] = quotationData.map((item: any) => ({
                 itemId: item.itemId,
-                deliveredQuantity: item.quarterly, // Default to quoted quantity
-                createdBy: userId
+                deliveredQuantity: Number(item.quarterly || 0),
+                notes: '',
+                createdBy: userId ? String(userId) : 'system'
             }));
 
             const challan = await this.create({
@@ -99,6 +100,7 @@ export class RmsChallanService {
                 quotationId: quotation.id,
                 companyName: quotation.companyName,
                 companyEmail: quotation.companyEmail,
+                notes: quotation.discriptions || undefined,
                 challanStatus: 'pending',
                 createdBy: userId ? String(userId) : 'system',
                 items: challanItems
@@ -109,6 +111,36 @@ export class RmsChallanService {
             console.error("Error creating challan from quotation:", error);
             throw new Error("Failed to create challan from quotation");
         }
+    }
+
+    public async getQuotationForChallan(refNumber: string): Promise<any> {
+        const quotationData = await this.rmsChallanRepository.getDataByQuotationId(refNumber);
+
+        if (!quotationData.length) {
+            throw new Error("Quotation not found");
+        }
+
+        const firstRow = quotationData[0];
+
+        return {
+            quotationId: firstRow.id,
+            refNumber: firstRow.refNumber,
+            companyName: firstRow.companyName,
+            companyEmail: firstRow.companyEmail,
+            subject: firstRow.subject,
+            discriptions: firstRow.discriptions,
+            items: quotationData.map((item: any) => ({
+                itemId: item.itemId,
+                itemName: item.itemName,
+                itemType: item.itemType,
+                itemModel: item.itemModel,
+                itemConfigurations: item.itemConfigurations,
+                itemPrice: item.itemPrice,
+                deliveredQuantity: Number(item.quarterly || 0),
+                availableStock: Number(item.availableStock || 0),
+                notes: ''
+            }))
+        };
     }
 
     // ✅ DELETE

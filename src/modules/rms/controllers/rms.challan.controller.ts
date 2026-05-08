@@ -17,6 +17,7 @@ export class RmsChallanController extends Controller {
         this.onGet("/rms/rms-challan/create", [], this.auth.private, this.createPage);
         this.onPost("/api/rms/rms-challan/create", [], this.auth.private, this.create);
         this.onPost("/rms/rms-challan/create-from-quotation/:refNumber", [], this.auth.private, this.createFromQuotation);
+        this.onGet("/api/rms/rms-challan/load-from-quotation/:refNumber", [], this.auth.private, this.loadFromQuotation);
         this.onGet("/api/rms/rms-challan/all", [], this.auth.private, this.getAll);
         this.onGet("/api/rms/rms-challan/edit/:id", [], this.auth.private, this.edit);
         this.onPut("/api/rms/rms-challan/update/:id", [], this.auth.private, this.update);
@@ -123,6 +124,25 @@ export class RmsChallanController extends Controller {
 
         } catch (error: any) {
 
+            return resp.status(500).json({
+                status: false,
+                message: error.message
+            });
+        }
+    }
+
+    // Load quotation without creating challan
+    public async loadFromQuotation(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const refNumber = req.params.refNumber;
+            const data = await this.rmsChallanService.getQuotationForChallan(refNumber);
+
+            return resp.status(200).json({
+                status: true,
+                data
+            });
+
+        } catch (error: any) {
             return resp.status(500).json({
                 status: false,
                 message: error.message

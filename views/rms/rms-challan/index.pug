@@ -153,7 +153,7 @@ block content
           .col-md-12.col-xs-12
              .box.box-parrot
                 .box-header.with-border
-                    .pull-left
+                    .pull-left(style='margin-right:10px;')
                         span.title-filter(style='display:flex;align-items:center;') Search:
                          input.form-control.input-sm(type='text', placeholder='Enter search by Name,', name='search' autocomplete='off' style='margin-left:10px' id='search')
                          button.btn.btn-sm.btn-default.btn-filter.date-range-btn#daterange-btn(type="button" style='display:none;')
@@ -161,12 +161,17 @@ block content
                             input#date-range-input(type="hidden" name="" value="")
                          button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
                           span.fa.fa-search      
+                    .btn-group(role='group' aria-label='Challan Actions' style='margin-left:20px')
+                    .pull-left(style='margin-right:10px;') 
+                      //- Direct Create
+                      button.btn.btn-primary.btn-sm(type='button' data-toggle='modal' data-target='#add-edit-challan-modal')
+                        span.fa.fa-plus.mr-1
+                        |  Direct Create
                     .pull-left 
-                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-challan-modal') 
-                            span.fa.fa-plus 
-                    .pull-left 
-                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#createQuotationChallanModal') 
-                            span.fa.fa-plus                                           
+                      //- Create from Quotation
+                      button.btn.btn-info.btn-sm(type='button' data-toggle='modal' data-target='#createQuotationChallanModal')
+                        span.fa.fa-file-text-o.mr-1
+                        |  From Quotation                                          
                     .pull-right
                         span.title-filter(style='display:flex;align-items:center') Show:
                             select.form-control.input-filter.input-sm(id='limitSelect')
@@ -664,7 +669,7 @@ block script
         const itemStock = document.getElementById('itemStock');
     
         const challanNumber = document.getElementById('challanNumber');
-        const companyName = document.getElementById('companyName');
+        const quotationId = document.getElementById('quotationId');
         const companyEmail = document.getElementById('companyEmail');
         const challanStatus = document.getElementById('challanStatus');
         const notes = document.getElementById('notes');
@@ -680,12 +685,7 @@ block script
             editId = null;
     
             challanNumber.value = '';
-            companyName.value = '';
-            companyEmail.value = '';
-            challanStatus.value = 'pending';
-            notes.value = '';
-    
-            itemSelect.value = '';
+            quotationId.value = '';
             deliveredQuantity.value = '';
             itemStock.value = '';
     
@@ -865,6 +865,7 @@ block script
     
             const payload = {
                 challanNumber: challanNumber.value,
+                quotationId: Number(quotationId.value) || undefined,
                 companyName: companyName.value,
                 companyEmail: companyEmail.value,
                 challanStatus: challanStatus.value,
@@ -922,105 +923,90 @@ block script
 
             $('#add-edit-challan-modal').modal('show');
         });
-    });
 
-    // ========================
-    // LOAD QUOTATION → CHALLAN
-    // ========================
+        // ========================
+        // LOAD QUOTATION → CHALLAN
 
-    document.getElementById('loadQuotationForChallan')
-    ?.addEventListener('click', async function () {
-    
-        const refNumber =
-            document.getElementById('searchQuotationId').value;
-
-        if (!refNumber) {
-            return swal("Warning", "Enter quotation number", "warning");
-        }
-
-        try {
+        document.getElementById('loadQuotationForChallan')
+        ?.addEventListener('click', async function () {
         
-            const res = await fetch(
-                `/rms/rms-challan/create-from-quotation/${encodeURIComponent(refNumber)}`,
-                {
-                    method: 'POST'
-                }
-            );
+            const refNumber =
+                document.getElementById('searchQuotationId').value;
 
-            const result = await res.json();
-
-            console.log(result);
-
-            if (!result.status) {
-                return swal("Error", result.message, "error");
+            if (!refNumber) {
+                return swal("Warning", "Enter quotation number", "warning");
             }
 
-            const quotation = result.data;
-
-            // ========================
-            // RESET
-            // ========================
-
-            resetForm();
-
-            editMode = false;
-            editId = null;
-
-            // ========================
-            // BASIC INFO
-            // ========================
-
-            companyName.value =
-                quotation.companyName || '';
-
-            companyEmail.value =
-                quotation.companyEmail || '';
-
-            challanStatus.value = 'pending';
-
-            challanNumber.value =
-                quotation.challanNumber || '';
-
-            // ========================
-            // LOAD ITEMS INTO CART
-            // ========================
-
-            cart = (quotation.items || []).map(item => ({
+            try {
             
-                itemId: item.itemId,
+                const res = await fetch(
+                    `/api/rms/rms-challan/load-from-quotation/${encodeURIComponent(refNumber)}`
+                );
 
-                itemName: item.itemName,
+                const result = await res.json();
 
-                availableStock: Number(item.availableStock || 0),
+                console.log(result);
 
-                deliveredQuantity: Number(item.deliveredQuantity || 0),
+                if (!result.status) {
+                    return swal("Error", result.message, "error");
+                }
 
-                notes: item.notes || ''
+                const quotation = result.data;
 
-            }));
+                // ========================
+                // RESET
+                // ========================
 
-            // ========================
-            // RENDER
-            // ========================
+                resetForm();
 
-            renderCart();
+                editMode = true;
+                editId = null;
 
-            // ========================
-            // CLOSE SEARCH MODAL
-            // ========================
+                // ========================
+                // BASIC INFO
+                // ========================
 
-            $('#createQuotationChallanModal').modal('hide');
+                quotationId.value = quotation.quotationId || '';
+                companyName.value = quotation.companyName || '';
+                companyEmail.value = quotation.companyEmail || '';
+                challanStatus.value = 'pending';
+                challanNumber.value = quotation.challanNumber || '';
 
-            // ========================
-            // OPEN EXISTING MODAL
-            // ========================
+                // ========================
+                // LOAD ITEMS INTO CART
+                // ========================
 
-            $('#add-edit-challan-modal').modal('show');
+                cart = (quotation.items || []).map(item => ({
+                    itemId: item.itemId,
+                    itemName: item.itemName,
+                    availableStock: Number(item.availableStock || 0),
+                    deliveredQuantity: Number(item.deliveredQuantity || 0),
+                    notes: item.notes || ''
+                }));
 
-        } catch (err) {
-        
-            console.error(err);
+                // ========================
+                // RENDER
+                // ========================
 
-            swal("Error", "Failed to load quotation", "error");
-        }
+                renderCart();
+
+                // ========================
+                // CLOSE SEARCH MODAL
+                // ========================
+
+                $('#createQuotationChallanModal').modal('hide');
+
+                // ========================
+                // OPEN EXISTING MODAL
+                // ========================
+
+                $('#add-edit-challan-modal').modal('show');
+
+            } catch (err) {
+            
+                console.error(err);
+
+                swal("Error", "Failed to load quotation", "error");
+            }
+        });
     });
