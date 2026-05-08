@@ -16,7 +16,7 @@ export class RmsChallanController extends Controller {
         this.onGet("/rms/rms-challan", [], this.auth.private, this.index);
         this.onGet("/rms/rms-challan/create", [], this.auth.private, this.createPage);
         this.onPost("/api/rms/rms-challan/create", [], this.auth.private, this.create);
-        this.onPost("/rms/rms-challan/create-from-quotation/:quotationId", [], this.auth.private, this.createFromQuotation);
+        this.onPost("/rms/rms-challan/create-from-quotation/:refNumber", [], this.auth.private, this.createFromQuotation);
         this.onGet("/api/rms/rms-challan/all", [], this.auth.private, this.getAll);
         this.onGet("/api/rms/rms-challan/edit/:id", [], this.auth.private, this.edit);
         this.onPut("/api/rms/rms-challan/update/:id", [], this.auth.private, this.update);
@@ -110,31 +110,22 @@ export class RmsChallanController extends Controller {
 
     // Create from quotation
     public async createFromQuotation(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
-        try {
-            const quotationId = Number(req.params.quotationId);
-            const userId = req.user?.userId ? Number(req.user.userId) : undefined;
+            try {
 
-            if (!quotationId || isNaN(quotationId)) {
-                return resp.status(400).json({
-                    status: false,
-                    message: "Invalid quotation ID"
-                });
-            }
+            const refNumber = req.params.refNumber;
 
-            const challan = await this.rmsChallanService.createFromQuotation(quotationId, userId);
+            const data = await this.rmsChallanService.createFromQuotation(refNumber);
 
-            return resp.status(201).json({
+            return resp.status(200).json({
                 status: true,
-                message: "Challan created from quotation successfully",
-                data: challan
+                data
             });
 
         } catch (error: any) {
-            console.error(error);
+
             return resp.status(500).json({
                 status: false,
-                message: "Create from quotation failed",
-                data: error.message
+                message: error.message
             });
         }
     }

@@ -52,5 +52,5 @@ export interface IRmsChallanRepository {
     delete(id: number): Promise<boolean>;
 
     // 🔥 From quotation
-    getDataByQuotationId(quotationId: number): Promise<any>;
+    getDataByQuotationId(refNumber: string): Promise<any>;
 }

@@ -77,9 +77,9 @@ export class RmsChallanService {
     }
 
     // ✅ CREATE FROM QUOTATION
-    public async createFromQuotation(quotationId: number, userId?: number): Promise<IRmsChallan> {
+    public async createFromQuotation(refNumber: string, userId?: number): Promise<IRmsChallan> {
         try {
-            const quotationData = await this.rmsChallanRepository.getDataByQuotationId(quotationId);
+            const quotationData = await this.rmsChallanRepository.getDataByQuotationId(refNumber);
 
             if (!quotationData.length) {
                 throw new Error("Quotation not found");
@@ -90,13 +90,13 @@ export class RmsChallanService {
 
             const challanItems: IRmsChallanItem[] = quotationData.map((item: any) => ({
                 itemId: item.itemId,
-                deliveredQuantity: item.quotedQuantity, // Default to quoted quantity
+                deliveredQuantity: item.quarterly, // Default to quoted quantity
                 createdBy: userId
             }));
 
             const challan = await this.create({
                 challanNumber,
-                quotationId,
+                quotationId: quotation.id,
                 companyName: quotation.companyName,
                 companyEmail: quotation.companyEmail,
                 challanStatus: 'pending',

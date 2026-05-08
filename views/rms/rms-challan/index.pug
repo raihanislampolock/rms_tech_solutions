@@ -163,7 +163,10 @@ block content
                           span.fa.fa-search      
                     .pull-left 
                         button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-challan-modal') 
-                            span.fa.fa-plus                                   
+                            span.fa.fa-plus 
+                    .pull-left 
+                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#createQuotationChallanModal') 
+                            span.fa.fa-plus                                           
                     .pull-right
                         span.title-filter(style='display:flex;align-items:center') Show:
                             select.form-control.input-filter.input-sm(id='limitSelect')
@@ -217,7 +220,7 @@ block content
                     ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
 
     include ./create
-    //- include ./challan-modal  
+    include ./qcreate
 
 block script
   link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
@@ -919,4 +922,105 @@ block script
 
             $('#add-edit-challan-modal').modal('show');
         });
+    });
+
+    // ========================
+    // LOAD QUOTATION → CHALLAN
+    // ========================
+
+    document.getElementById('loadQuotationForChallan')
+    ?.addEventListener('click', async function () {
+    
+        const refNumber =
+            document.getElementById('searchQuotationId').value;
+
+        if (!refNumber) {
+            return swal("Warning", "Enter quotation number", "warning");
+        }
+
+        try {
+        
+            const res = await fetch(
+                `/rms/rms-challan/create-from-quotation/${encodeURIComponent(refNumber)}`,
+                {
+                    method: 'POST'
+                }
+            );
+
+            const result = await res.json();
+
+            console.log(result);
+
+            if (!result.status) {
+                return swal("Error", result.message, "error");
+            }
+
+            const quotation = result.data;
+
+            // ========================
+            // RESET
+            // ========================
+
+            resetForm();
+
+            editMode = false;
+            editId = null;
+
+            // ========================
+            // BASIC INFO
+            // ========================
+
+            companyName.value =
+                quotation.companyName || '';
+
+            companyEmail.value =
+                quotation.companyEmail || '';
+
+            challanStatus.value = 'pending';
+
+            challanNumber.value =
+                quotation.challanNumber || '';
+
+            // ========================
+            // LOAD ITEMS INTO CART
+            // ========================
+
+            cart = (quotation.items || []).map(item => ({
+            
+                itemId: item.itemId,
+
+                itemName: item.itemName,
+
+                availableStock: Number(item.availableStock || 0),
+
+                deliveredQuantity: Number(item.deliveredQuantity || 0),
+
+                notes: item.notes || ''
+
+            }));
+
+            // ========================
+            // RENDER
+            // ========================
+
+            renderCart();
+
+            // ========================
+            // CLOSE SEARCH MODAL
+            // ========================
+
+            $('#createQuotationChallanModal').modal('hide');
+
+            // ========================
+            // OPEN EXISTING MODAL
+            // ========================
+
+            $('#add-edit-challan-modal').modal('show');
+
+        } catch (err) {
+        
+            console.error(err);
+
+            swal("Error", "Failed to load quotation", "error");
+        }
     });

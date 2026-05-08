@@ -355,24 +355,24 @@ export class RmsChallanRepository implements IRmsChallanRepository {
     }
 
     // ✅ GET DATA BY QUOTATION ID
-    public async getDataByQuotationId(quotationId: number): Promise<any> {
+    public async getDataByQuotationId(refNumber: string): Promise<any> {
         const query = `
             SELECT
+                q.id,
                 q."refNumber",
                 q."companyName",
                 q."companyEmail",
                 qi."itemId",
-                qi."quotedQuantity",
-                i."itemName",
-                i."itemPrice",
-                i."itemModel",
-                i."itemConfigurations"
+                qi.quarterly,
+                i."itemName"
             FROM public.rms_quotation q
-            JOIN public.rms_quotation_items qi ON q.id = qi."quotationId"
-            JOIN public.rms_items i ON qi."itemId" = i.id
-            WHERE q.id = $1
+            JOIN public.rms_quotation_items qi
+                ON q.id = qi."quotationId"
+            JOIN public.rms_items i
+                ON qi."itemId" = i.id
+            WHERE q."refNumber" = $1
         `;
 
-        return await AppDataSource.query(query, [quotationId]);
+        return await AppDataSource.query(query, [refNumber]);
     }
 }
