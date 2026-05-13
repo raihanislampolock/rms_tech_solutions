@@ -6,6 +6,8 @@ import {
 } from "../interfaces/rms.invoice.interface";
 import { RmsInvoiceModel } from "../models/rms.invoice.model";
 import { RmsInvoiceItemModel } from "../models/rms.invoice.item.model";
+import { RmsItemStockModel } from "../models/rms.itemstock.model";
+import { DeepPartial } from "typeorm";
 
 export class RmsInvoiceRepository implements IRmsInvoiceRepository {
 
@@ -13,68 +15,174 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
     private itemRepo = AppDataSource.getRepository(RmsInvoiceItemModel);
 
     // ✅ CREATE (Parent + Items)
-    public async create(data: Partial<IRmsInvoice>): Promise<IRmsInvoice> {
+    public async create(
+        data: Partial<IRmsInvoice>,
+        updateStock: boolean = true
+    ): Promise<IRmsInvoice> {
         const qr = AppDataSource.createQueryRunner();
+
         await qr.connect();
         await qr.startTransaction();
 
         try {
-            // Calculate totals
-            let totalAmount = 0;
-            if (data.items) {
-                data.items.forEach(item => {
-                    item.totalPrice = (item.quantity || 0) * (item.unitPrice || 0);
-                    totalAmount += item.totalPrice;
-                });
-            }
-
-            // 👉 1. Save invoice
-            const invoice = qr.manager.create(RmsInvoiceModel, {
-                invoiceNumber: data.invoiceNumber,
-                quotationId: data.quotationId ?? null,
-                challanId: data.challanId ?? null,
-                companyName: data.companyName,
-                companyEmail: data.companyEmail ?? null,
-                notes: data.notes ?? null,
+            // ========================
+            // 1. CREATE INVOICE HEADER
+            // ========================
+            const invoiceData: DeepPartial<RmsInvoiceModel> = {
+                invoiceNumber: data.invoiceNumber!,
+                quotationId: data.quotationId
+                    ? Number(data.quotationId)
+                    : undefined,
+                challanId: data.challanId
+                    ? Number(data.challanId)
+                    : undefined,
+                companyName: data.companyName!,
+                companyEmail: data.companyEmail ?? undefined,
+                notes: data.notes ?? undefined,
                 invoiceStatus: data.invoiceStatus ?? 'pending',
-                totalAmount,
-                taxAmount: data.taxAmount ?? 0,
-                discountAmount: data.discountAmount ?? 0,
-                createdBy: data.createdBy && !isNaN(Number(data.createdBy)) ? Number(data.createdBy) : null,
-            });
+                taxAmount: Number(data.taxAmount || 0),
+                discountAmount: Number(data.discountAmount || 0),
 
-            const savedInvoice = await qr.manager.save(invoice);
+                // Support both totalAmount and grandTotal
+                totalAmount: Number(
+                    data.totalAmount || data.grandTotal || 0
+                ),
 
-            // 👉 2. Save items
+                createdBy: data.createdBy
+            };
+
+            const invoiceEntity = qr.manager.create(
+                RmsInvoiceModel,
+                invoiceData
+            );
+
+            const savedInvoice = await qr.manager.save(
+                RmsInvoiceModel,
+                invoiceEntity
+            );
+
+            // ========================
+            // 2. HANDLE ITEMS + STOCK
+            // ========================
+            const savedItems: IRmsInvoiceItem[] = [];
+            const stockRepo = qr.manager.getRepository(
+                RmsItemStockModel
+            );
+
             if (data.items && data.items.length > 0) {
                 for (const item of data.items) {
-                    const entity = qr.manager.create(RmsInvoiceItemModel, {
+                    const qty = Number(item.quantity || 0);
+
+                    // ========================
+                    // VALIDATION
+                    // ========================
+                    if (!item.itemId) {
+                        throw new Error("Item ID is required");
+                    }
+
+                    if (qty <= 0) {
+                        throw new Error(
+                            `Invalid quantity for item ${item.itemId}`
+                        );
+                    }
+
+                    // ========================
+                    // STOCK CHECK (OPTIONAL)
+                    // ========================
+                    let stock: RmsItemStockModel | null = null;
+
+                    if (updateStock) {
+                        stock = await stockRepo.findOne({
+                            where: {
+                                itemId: Number(item.itemId)
+                            }
+                        });
+
+                        if (!stock) {
+                            throw new Error(
+                                `Stock not found for item ${item.itemId}`
+                            );
+                        }
+
+                        if (stock.availableQuantity < qty) {
+                            throw new Error(
+                                `Not enough stock for item ${item.itemId}. Available: ${stock.availableQuantity}, Required: ${qty}`
+                            );
+                        }
+                    }
+
+                    // ========================
+                    // CREATE INVOICE ITEM
+                    // ========================
+                    const itemData: DeepPartial<RmsInvoiceItemModel> = {
                         invoiceId: savedInvoice.id,
-                        itemId: item.itemId,
-                        quantity: item.quantity ?? 0,
-                        unitPrice: item.unitPrice ?? 0,
-                        totalPrice: item.totalPrice ?? 0,
-                        notes: item.notes ?? null,
-                        createdBy: data.createdBy && !isNaN(Number(data.createdBy)) ? Number(data.createdBy) : null
+                        itemId: Number(item.itemId),
+                        quantity: qty,
+                        unitPrice: Number(item.unitPrice || 0),
+                        totalPrice: Number(item.totalPrice || 0),
+                        itemDiscountAmount: Number(
+                            item.itemDiscountAmount || 0
+                        ),
+                        notes: item.notes ?? undefined,
+                        createdBy: data.createdBy
+                    };
+
+                    const itemEntity = qr.manager.create(
+                        RmsInvoiceItemModel,
+                        itemData
+                    );
+
+                    const savedItem = await qr.manager.save(
+                        RmsInvoiceItemModel,
+                        itemEntity
+                    );
+
+                    savedItems.push({
+                        id: savedItem.id,
+                        invoiceId: savedInvoice.id,
+                        itemId: Number(item.itemId),
+                        quantity: qty,
+                        unitPrice: Number(item.unitPrice || 0),
+                        totalPrice: Number(item.totalPrice || 0),
+                        itemDiscountAmount: Number(
+                            item.itemDiscountAmount || 0
+                        ),
+                        notes: item.notes ?? undefined
                     });
 
-                    await qr.manager.save(entity);
+                    // ========================
+                    // STOCK OUT (OPTIONAL)
+                    // ========================
+                    if (updateStock && stock) {
+                        stock.onHandQuantity -= qty;
+                        stock.availableQuantity -= qty;
+
+                        await stockRepo.save(stock);
+                    }
                 }
             }
 
+            // ========================
+            // 3. COMMIT TRANSACTION
+            // ========================
             await qr.commitTransaction();
 
             return {
                 ...savedInvoice,
-                items: data.items || [],
-                invoiceStatus: (savedInvoice.invoiceStatus || 'pending') as "pending" | "cancelled" | "paid"
+                items: savedItems
             } as IRmsInvoice;
 
         } catch (error) {
+            // ========================
+            // ROLLBACK
+            // ========================
             await qr.rollbackTransaction();
             console.error("Create invoice failed:", error);
             throw error;
         } finally {
+            // ========================
+            // RELEASE QUERY RUNNER
+            // ========================
             await qr.release();
         }
     }
@@ -94,40 +202,34 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
         }
 
         const query = `
-            SELECT
+             SELECT
                 i.id,
                 i."invoiceNumber",
-                i."quotationId",
-                i."challanId",
                 i."companyName",
                 i."companyEmail",
-                i.notes,
                 i."invoiceStatus",
-                i."totalAmount",
-                i."taxAmount",
-                i."discountAmount",
-                i."createdBy",
-                i."created_at",
-                i."updated_at",
-                COALESCE(json_agg(
-                    json_build_object(
-                        'id', ii.id,
-                        'invoiceId', ii."invoiceId",
-                        'itemId', ii."itemId",
-                        'quantity', ii."quantity",
-                        'unitPrice', ii."unitPrice",
-                        'totalPrice', ii."totalPrice",
-                        'notes', ii.notes,
-                        'createdBy', ii."createdBy",
-                        'createdAt', ii."created_at",
-                        'updatedAt', ii."updated_at"
-                    )
-                ) FILTER (WHERE ii.id IS NOT NULL), '[]') AS items
+                i.notes as "invoiceNotes",
+                ii."itemId",
+                ii."quantity" as "deliveredQuantity",
+                ii."unitPrice",
+                ii."totalPrice",
+                ii.notes as "itemNotes",
+                it."itemName",
+                it."itemType",
+                it."itemModel",
+                it."itemConfigurations",
+                i."createdAt",
+                i."updatedAt",
+                u.username,
+                u."empId" as "createdBy",
+                u2."empId" as "updatedBy"
             FROM public.rms_invoices i
             LEFT JOIN public.rms_invoice_items ii ON i.id = ii."invoiceId"
+            LEFT JOIN public.rms_items it ON ii."itemId" = it.id
+            LEFT JOIN public.users u ON i."createdBy" = u."userId"
+            LEFT JOIN public.users u2 ON i."updatedBy" = u2."userId"
             ${whereSQL}
-            GROUP BY i.id
-            ORDER BY i."created_at" DESC
+            ORDER BY i."createdAt" DESC
             LIMIT $${params.length + 1} OFFSET $${params.length + 2}
         `;
 
@@ -159,54 +261,82 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
 
     // ✅ EDIT
     public async edit(id: number): Promise<IRmsInvoice | null> {
+
         const query = `
             SELECT
                 i.id,
                 i."invoiceNumber",
-                i."quotationId",
-                i."challanId",
                 i."companyName",
                 i."companyEmail",
-                i.notes,
                 i."invoiceStatus",
-                i."totalAmount",
+                i.notes as "invoiceNotes",
                 i."taxAmount",
                 i."discountAmount",
-                i."createdBy",
-                i."created_at",
-                i."updated_at",
-                COALESCE(json_agg(
-                    json_build_object(
-                        'id', ii.id,
-                        'invoiceId', ii."invoiceId",
-                        'itemId', ii."itemId",
-                        'quantity', ii."quantity",
-                        'unitPrice', ii."unitPrice",
-                        'totalPrice', ii."totalPrice",
-                        'notes', ii.notes,
-                        'createdBy', ii."createdBy",
-                        'createdAt', ii."created_at",
-                        'updatedAt', ii."updated_at",
-                        'itemName', it."itemName",
-                        'itemPrice', it."itemPrice",
-                        'itemModel', it."itemModel",
-                        'itemConfigurations', it."itemConfigurations"
-                    )
-                ) FILTER (WHERE ii.id IS NOT NULL), '[]') AS items
+                ii."itemId",
+                ii."quantity",
+                ii."unitPrice",
+                ii."totalPrice",
+                ii."itemDiscountAmount",
+                ii.notes as "itemNotes",
+                it."itemName",
+                it."itemType",
+                it."itemModel",
+                it."itemConfigurations",
+                i."createdAt",
+                i."updatedAt",
+                u.username,
+                u."empId" as "createdBy",
+                u2."empId" as "updatedBy"
             FROM public.rms_invoices i
             LEFT JOIN public.rms_invoice_items ii ON i.id = ii."invoiceId"
             LEFT JOIN public.rms_items it ON ii."itemId" = it.id
+            LEFT JOIN public.users u ON i."createdBy" = u."userId"
+            LEFT JOIN public.users u2 ON i."updatedBy" = u2."userId"
             WHERE i.id = $1
-            GROUP BY i.id
         `;
 
         const result = await AppDataSource.query(query, [id]);
 
-        if (result.length === 0) {
-            return null;
+        if (!result.length) return null;
+
+        const invoice: any = {
+            id: result[0].id,
+            invoiceNumber: result[0].invoiceNumber,
+            companyName: result[0].companyName,
+            companyEmail: result[0].companyEmail,
+            invoiceStatus: result[0].invoiceStatus,
+            invoiceNotes: result[0].invoiceNotes,
+            taxAmount: result[0].taxAmount,
+            discountAmount: result[0].discountAmount,
+            createdAt: result[0].createdAt,
+            updatedAt: result[0].updatedAt,
+            username: result[0].username,
+            createdBy: result[0].createdBy,
+            updatedBy: result[0].updatedBy,
+            items: []
+        };
+
+        console.log(invoice.taxAmount);
+
+        for (const row of result) {
+            if (row.itemId) {
+                invoice.items.push({
+                    itemId: row.itemId,
+                    itemName: row.itemName,
+                    itemType: row.itemType,
+                    itemModel: row.itemModel,
+                    itemConfigurations: row.itemConfigurations,
+                    quantity: row.quantity,
+                    unitPrice: row.unitPrice,
+                    totalPrice: row.totalPrice,
+                    itemDiscountAmount: row.itemDiscountAmount,
+                    itemDiscountPercent: row.itemDiscountPercent,
+                    itemNotes: row.itemNotes
+                });
+            }
         }
 
-        return result[0];
+        return invoice;
     }
 
     // ✅ UPDATE
@@ -253,7 +383,7 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
                     quantity: item.quantity ?? 0,
                     unitPrice: item.unitPrice ?? 0,
                     totalPrice: item.totalPrice ?? 0,
-                    notes: item.notes ?? null,
+                    notes: item.notes ?? undefined,
                     createdBy: data.updatedBy
                 });
 
@@ -273,72 +403,65 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
         }
     }
 
-    // ✅ DELETE
-    public async delete(id: number): Promise<boolean> {
-        const qr = AppDataSource.createQueryRunner();
-        await qr.connect();
-        await qr.startTransaction();
-
-        try {
-            // Delete items and invoice
-            await qr.manager.delete(RmsInvoiceItemModel, { invoiceId: id });
-            await qr.manager.delete(RmsInvoiceModel, id);
-
-            await qr.commitTransaction();
-
-            return true;
-
-        } catch (error) {
-            await qr.rollbackTransaction();
-            console.error("Delete invoice failed:", error);
-            throw error;
-        } finally {
-            await qr.release();
-        }
-    }
 
     // ✅ GET DATA BY QUOTATION ID
-    public async getDataByQuotationId(quotationId: number): Promise<any> {
+    public async getDataByQuotationId(refNumber: string): Promise<any> {
         const query = `
             SELECT
+                q.id,
                 q."refNumber",
                 q."companyName",
                 q."companyEmail",
+                q.subject,
+                q.discriptions,
                 qi."itemId",
-                qi."quotedQuantity",
-                qi."quotedPrice",
+                qi.quarterly,
+                qi."rmsPrice",
                 i."itemName",
                 i."itemPrice",
                 i."itemModel",
-                i."itemConfigurations"
-            FROM public.rms_quotations q
-            JOIN public.rms_quotation_items qi ON q.id = qi."quotationId"
-            JOIN public.rms_items i ON qi."itemId" = i.id
-            WHERE q.id = $1
+                i."itemType",
+                i."itemConfigurations",
+                COALESCE(ris."availableQuantity", 0) AS "availableStock"
+            FROM public.rms_quotation q
+            JOIN public.rms_quotation_items qi
+                ON q.id = qi."quotationId"
+            JOIN public.rms_items i
+                ON qi."itemId" = i.id
+            LEFT JOIN public.rms_item_stocks ris
+                ON i.id = ris."itemId"
+            WHERE q.id::text = $1
+               OR q."refNumber" = $1
         `;
 
-        return await AppDataSource.query(query, [quotationId]);
+        return await AppDataSource.query(query, [refNumber]);
     }
 
     // ✅ GET DATA BY CHALLAN ID
-    public async getDataByChallanId(challanId: number): Promise<any> {
+    public async getDataByChallanNumber(challanNumber: string): Promise<any> {
         const query = `
-            SELECT
+            select
+                c.id,
                 c."challanNumber",
                 c."companyName",
                 c."companyEmail",
+                c."challanStatus",
+                c."quotationId",
                 ci."itemId",
                 ci."deliveredQuantity",
                 i."itemName",
                 i."itemPrice",
                 i."itemModel",
-                i."itemConfigurations"
-            FROM public.rms_challans c
-            JOIN public.rms_challan_items ci ON c.id = ci."challanId"
-            JOIN public.rms_items i ON ci."itemId" = i.id
-            WHERE c.id = $1
+                i."itemType",
+                i."itemConfigurations",
+                COALESCE(rs."availableQuantity", 0) AS "availableStock"
+                from public.rms_challans c
+                left join public.rms_challan_items ci on c.id = ci."challanId"
+                left join public.rms_items i on ci."itemId" = i.id
+                left join public.rms_item_stocks rs on i.id = rs."itemId"
+            WHERE c."challanNumber" = $1
         `;
 
-        return await AppDataSource.query(query, [challanId]);
+        return await AppDataSource.query(query, [challanNumber]);
     }
 }

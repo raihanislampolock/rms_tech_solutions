@@ -354,7 +354,7 @@ block script
       let limit = limitSelect.value;
 
       async function fetchItems(page = 1, search = '', limit = 10) {
-        tableBody.innerHTML = `<tr><td colspan="12" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #8A2061;"></i></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="12" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
         try {
           const response = await fetch(`/api/rms/rms-items/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();

@@ -1,238 +1,196 @@
-extends ../../layout
+#add-edit-invoice-modal.modal.fade(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xxl(style='max-width: 95%; width: 95%;')
+    .modal-content
 
-block style
-  link(rel='stylesheet', href='/plugins/select2/css/select2.min.css')
-  link(rel='stylesheet', href='/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')
+      form#invoiceForm(role='form', method='POST')
 
-block content
-  .content-wrapper
-    section.content-header
-      .container-fluid
-        .row.mb-2
-          .col-sm-6
-            h1 Create Invoice
-          .col-sm-6
-            ol.breadcrumb.float-sm-right
-              li.breadcrumb-item
-                a(href='/rms/rms-invoice') Invoice Management
-              li.breadcrumb-item.active Create Invoice
+        // ===============================
+        // HEADER
+        // ===============================
+        .modal-header.bg-primary.text-white
+          h5.modal-title RMS Invoice
+          button.close.text-white(type='button', data-dismiss='modal')
+            span &times;
 
-    section.content
-      .container-fluid
-        .row
-          .col-12
-            .card
-              .card-header
-                h3.card-title Create New Invoice
-              .card-body
-                form#invoiceForm
-                  .row
-                    .col-md-6
-                      .form-group
-                        label(for='invoiceNumber') Invoice Number *
-                        input.form-control#invoiceNumber(type='text', name='invoiceNumber', required, readonly)
-                    .col-md-6
-                      .form-group
-                        label(for='companyName') Company Name *
-                        input.form-control#companyName(type='text', name='companyName', required)
-                  .row
-                    .col-md-6
-                      .form-group
-                        label(for='companyEmail') Company Email
-                        input.form-control#companyEmail(type='email', name='companyEmail')
-                    .col-md-6
-                      .form-group
-                        label(for='invoiceStatus') Status
-                        select.form-control#invoiceStatus(name='invoiceStatus')
-                          option(value='pending') Pending
-                          option(value='paid') Paid
-                          option(value='cancelled') Cancelled
-                  .row
-                    .col-md-6
-                      .form-group
-                        label(for='taxAmount') Tax Amount
-                        input.form-control#taxAmount(type='number', name='taxAmount', step='0.01', min='0', value='0')
-                    .col-md-6
-                      .form-group
-                        label(for='discountAmount') Discount Amount
-                        input.form-control#discountAmount(type='number', name='discountAmount', step='0.01', min='0', value='0')
+        // ===============================
+        // BODY
+        // ===============================
+        .modal-body.scrollable-area(style='max-height:80vh; overflow-y:auto;')
+
+          // =========================================================
+          // INVOICE INFO
+          // =========================================================
+          .card.shadow-sm.mb-4
+            .card-header.bg-light
+              h5.mb-0.text-primary Invoice Information
+
+            .card-body
+              .row
+                .col-md-4
                   .form-group
-                    label(for='notes') Notes
-                    textarea.form-control#notes(name='notes', rows='3')
+                    label Invoice Number
+                    input.form-control#invoiceNumber(type='text', name='invoiceNumber', readonly)
 
-                  // Items Section
+                    input(type='hidden', id='quotationId', name='quotationId')
+
+                .col-md-4
                   .form-group
-                    label Items *
-                    .table-responsive
-                      table.table.table-bordered#itemsTable
-                        thead
-                          tr
-                            th Item
-                            th Quantity
-                            th Unit Price
-                            th Total Price
-                            th Notes
-                            th
-                        tbody
-                          tr.item-row
-                            td
-                              select.form-control.item-select(name='itemId[]', required)
-                                option(value='') Select Item
-                                each item in items
-                                  option(value=item.id)= item.label
-                            td
-                              input.form-control.quantity-input(type='number', name='quantity[]', min='0', step='1', required)
-                            td
-                              input.form-control.unit-price-input(type='number', name='unitPrice[]', min='0', step='0.01', required)
-                            td
-                              input.form-control.total-price-input(type='number', name='totalPrice[]', min='0', step='0.01', readonly)
-                            td
-                              input.form-control.notes-input(type='text', name='notes[]', placeholder='Optional notes')
-                            td
-                              button.btn.btn-danger.btn-sm.remove-item(type='button')
-                                i.fas.fa-trash
-                    button.btn.btn-info.btn-sm#addItemBtn(type='button')
-                      i.fas.fa-plus
-                      |  Add Item
+                    label Company Name
+                    input.form-control#companyName(type='text', name='companyName')
 
+                .col-md-4
                   .form-group
-                    .float-right
-                      a.btn.btn-secondary(href='/rms/rms-invoice') Cancel
-                      button.btn.btn-primary#createSubmitBtn(type='submit') Create Invoice
+                    label Company Email
+                    input.form-control#companyEmail(type='email', name='companyEmail')
 
-block script
-  script.
-    // Make items data available to JavaScript
-    window.invoiceItems = !{JSON.stringify(items)};
-  script(src='/plugins/select2/js/select2.full.min.js')
+              .row
+                .col-md-4
+                  .form-group
+                    label Invoice Status
+                    select.form-control#invoiceStatus(name='invoiceStatus')
+                      option(value='pending') Pending
+                      option(value='paid') Paid
+                      option(value='cancelled') Cancelled
 
-  script.
-    $(document).ready(function() {
-        // Initialize Select2
-        $('.item-select').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Select an item',
-            allowClear: true
-        });
+                .col-md-8
+                  .form-group
+                    label Notes
+                    textarea.form-control#notes(name='notes', rows='2')
 
-        // Generate invoice number on company name change
-        $('#companyName').on('input', function() {
-            const companyName = $(this).val();
-            if (companyName.length >= 2) {
-                $.get('/api/rms/rms-invoice/generate-ref', { companyName })
-                    .done(function(response) {
-                        if (response.status) {
-                            $('#invoiceNumber').val(response.invoiceNumber);
-                        }
-                    });
-            }
-        });
+          // =========================================================
+          // ITEM SELECTION
+          // =========================================================
+          .card.shadow-sm.mb-4
+            .card-header.bg-light
+              h5.mb-0.text-primary Item Selection
 
-        // Calculate total price when quantity or unit price changes
-        $(document).on('input', '.quantity-input, .unit-price-input', function() {
-            const row = $(this).closest('tr');
-            const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
-            const unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
-            const totalPrice = quantity * unitPrice;
-            row.find('.total-price-input').val(totalPrice.toFixed(2));
-        });
+            .card-body
+              .row
 
-        // Add item row
-        $('#addItemBtn').on('click', function() {
-            const itemOptions = !{JSON.stringify(items)}.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
-            const rowHtml = `
-                <tr class="item-row">
-                    <td>
-                        <select class="form-control item-select" name="itemId[]" required>
-                            <option value="">Select Item</option>
-                            ${itemOptions}
-                        </select>
-                    </td>
-                    <td>
-                        <input class="form-control quantity-input" type="number" name="quantity[]" min="0" step="1" required>
-                    </td>
-                    <td>
-                        <input class="form-control unit-price-input" type="number" name="unitPrice[]" min="0" step="0.01" required>
-                    </td>
-                    <td>
-                        <input class="form-control total-price-input" type="number" name="totalPrice[]" min="0" step="0.01" readonly>
-                    </td>
-                    <td>
-                        <input class="form-control notes-input" type="text" name="notes[]" placeholder="Optional notes">
-                    </td>
-                    <td>
-                        <button class="btn btn-danger btn-sm remove-item" type="button">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            $('#itemsTable tbody').append(rowHtml);
-            $('.item-select').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Select an item',
-                allowClear: true
-            });
-        });
+                .col-md-3
+                  .form-group
+                    label Select Item
+                    select.form-control#itemSelect
+                      option(value='' selected disabled) Select Item
+                      if items && items.length > 0
+                        each item in items
+                          option(
+                            value=item.id,
+                            data-name=item.itemName,
+                            data-stock=item.availableStock,
+                            data-price=item.itemPrice
+                          ) #{item.itemName}
 
-        // Remove item row
-        $(document).on('click', '.remove-item', function() {
-            $(this).closest('tr').remove();
-        });
+                .col-md-2
+                  .form-group
+                    label Stock
+                    input.form-control#itemStock(type='text', readonly)
 
-        // Create invoice
-        $('#invoiceForm').on('submit', function(e) {
-            e.preventDefault();
+                .col-md-2
+                  .form-group
+                    label Qty
+                    input.form-control#deliveredQuantity(type='number', min='1', value='1')
 
-            const formData = new FormData(this);
-            const data = {
-                invoiceNumber: formData.get('invoiceNumber'),
-                companyName: formData.get('companyName'),
-                companyEmail: formData.get('companyEmail'),
-                invoiceStatus: formData.get('invoiceStatus'),
-                taxAmount: parseFloat(formData.get('taxAmount') || '0'),
-                discountAmount: parseFloat(formData.get('discountAmount') || '0'),
-                notes: formData.get('notes'),
-                items: []
-            };
+                .col-md-2
+                  .form-group
+                    label Unit Price
+                    input.form-control#unitPrice(type='number', min='0', step='0.01')
 
-            // Collect items
-            const itemIds = formData.getAll('itemId[]');
-            const quantities = formData.getAll('quantity[]');
-            const unitPrices = formData.getAll('unitPrice[]');
-            const totalPrices = formData.getAll('totalPrice[]');
-            const notes = formData.getAll('notes[]');
+                .col-md-1
+                  .form-group
+                    label Disc %
+                    input.form-control#itemDiscountPercent(type='number', min='0', step='0.01', value='0')
 
-            for (let i = 0; i < itemIds.length; i++) {
-                if (itemIds[i]) {
-                    data.items.push({
-                        itemId: parseInt(itemIds[i]),
-                        quantity: parseInt(quantities[i]) || 0,
-                        unitPrice: parseFloat(unitPrices[i]) || 0,
-                        totalPrice: parseFloat(totalPrices[i]) || 0,
-                        notes: notes[i] || null
-                    });
-                }
-            }
+                .col-md-2
+                  .form-group
+                    label Item Total
+                    input.form-control#itemTotal(type='number', readonly, step='0.01')
 
-            $.ajax({
-                url: '/rms/rms-invoice/create',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function(response) {
-                    if (response.status) {
-                        toastr.success(response.message);
-                        setTimeout(() => {
-                            window.location.href = '/rms/rms-invoice';
-                        }, 1000);
-                    } else {
-                        toastr.error(response.message);
-                    }
-                },
-                error: function(xhr) {
-                    toastr.error('Failed to create invoice');
-                }
-            });
-        });
-    });
+              .row.mt-2
+                .col-md-12
+                  button.btn.btn-primary.float-right#addItem(type='button')
+                    i.fa.fa-plus.mr-1
+                    | Add Item
+
+          // =========================================================
+          // ITEMS TABLE
+          // =========================================================
+          .card.shadow-sm.mb-4
+            .card-header.bg-light
+              h5.mb-0.text-primary Added Items
+
+            .card-body
+              .table-responsive
+                table.table.table-bordered.table-striped#itemTable
+                  thead.thead-light
+                    tr
+                      th Item
+                      th.text-center Stock
+                      th.text-center Qty
+                      th.text-right Unit Price
+                      th.text-right Item Disc %
+                      th.text-right Item Disc Amt
+                      th.text-right Total
+                      th Notes
+                      th Action
+
+                  tbody
+                    tr
+                      td.text-center(colspan='9') No item added yet.
+
+          // =========================================================
+          // SUMMARY
+          // =========================================================
+          .card.shadow-sm
+            .card-header.bg-light
+              h5.mb-0.text-primary Invoice Summary
+
+            .card-body
+              .row
+
+                .col-md-3
+                  .form-group
+                    label Overall Tax %
+                    input.form-control#taxAmount(type='number', min='0', step='0.01', value='0')
+
+                .col-md-3
+                  .form-group
+                    label Overall Discount %
+                    input.form-control#discountAmount(type='number', min='0', step='0.01', value='0')
+
+                .col-md-2
+                  .form-group
+                    label Subtotal
+                    input.form-control#subtotal(type='text', readonly, value='0.00')
+
+                .col-md-2
+                  .form-group
+                    label Tax Value
+                    input.form-control#taxValue(type='text', readonly, value='0.00')
+
+                .col-md-2
+                  .form-group
+                    label Discount Value
+                    input.form-control#discountValue(type='text', readonly, value='0.00')
+
+              .row
+                .col-md-12
+                  .alert.alert-success.text-right.mb-0
+                    h4.mb-0
+                      | Grand Total:
+                      strong.ml-2
+                        span#grandTotalDisplay 0.00
+
+                  input(type='hidden', id='grandTotal', name='grandTotal')
+
+        // ===============================
+        // FOOTER
+        // ===============================
+        .modal-footer
+          button.btn.btn-success#saveInvoice(type='button')
+            i.fa.fa-save.mr-1
+            | Save Invoice
+
+          button.btn.btn-secondary(type='button', data-dismiss='modal')
+            i.fa.fa-times.mr-1
+            | Cancel

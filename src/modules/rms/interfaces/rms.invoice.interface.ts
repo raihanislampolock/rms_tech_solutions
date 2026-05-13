@@ -2,11 +2,16 @@ export interface IRmsInvoiceItem {
     id?: number;
     invoiceId?: number;
     itemId: number;
+    itemName?: string;
+    itemType?: string;
+    itemModel?: string;
+    itemConfigurations?: string;
     quantity: number;
     unitPrice: number;
     totalPrice: number;
+    itemDiscountAmount?: number;
     notes?: string;
-    createdBy?: number;
+    createdBy?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -23,8 +28,10 @@ export interface IRmsInvoice {
     totalAmount?: number;
     taxAmount?: number;
     discountAmount?: number;
-    createdBy?: number;
-    updatedBy?: number;
+    grandTotal?: number;
+    username?: string;
+    createdBy?: string;
+    updatedBy?: string;
     createdAt?: Date;
     updatedAt?: Date;
     items: IRmsInvoiceItem[];
@@ -53,9 +60,7 @@ export interface IRmsInvoiceRepository {
         items: IRmsInvoiceItem[]
     ): Promise<any>;
 
-    delete(id: number): Promise<boolean>;
+    getDataByQuotationId(refNumber: string): Promise<any>;
 
-    getDataByQuotationId(quotationId: number): Promise<any>;
-
-    getDataByChallanId(challanId: number): Promise<any>;
+    getDataByChallanNumber(challanNumber: string): Promise<any>;
 }

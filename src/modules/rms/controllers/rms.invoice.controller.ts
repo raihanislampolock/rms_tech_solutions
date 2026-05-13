@@ -15,15 +15,16 @@ export class RmsInvoiceController extends Controller {
     public onRegister(): void {
         this.onGet("/rms/rms-invoice", [], this.auth.private, this.index);
         this.onGet("/rms/rms-invoice/create", [], this.auth.private, this.createPage);
-        this.onPost("/rms/rms-invoice/create", [], this.auth.private, this.create);
-        this.onPost("/rms/rms-invoice/create-from-quotation/:quotationId", [], this.auth.private, this.createFromQuotation);
-        this.onPost("/rms/rms-invoice/create-from-challan/:challanId", [], this.auth.private, this.createFromChallan);
+        this.onPost("/api/rms/rms-invoice/create", [], this.auth.private, this.create);
+        this.onGet("/api/rms/rms-invoice/load-from-quotation/:refNumber", [], this.auth.private, this.loadFromQuotation);
+        this.onGet("/api/rms/rms-invoice/load-from-challan/:challanNumber", [], this.auth.private, this.createFromChallan);
         this.onGet("/api/rms/rms-invoice/all", [], this.auth.private, this.getAll);
         this.onGet("/api/rms/rms-invoice/edit/:id", [], this.auth.private, this.edit);
         this.onPut("/api/rms/rms-invoice/update/:id", [], this.auth.private, this.update);
-        this.onDelete("/api/rms/rms-invoice/delete/:id", [], this.auth.private, this.delete);
         this.onGet("/api/rms/rms-invoice/generate-ref", [], this.auth.private, this.generateRef);
         this.onGet("/api/rms/rms-invoice/generate-pdf/:id", [], this.auth.private, this.generatePdf);
+        this.onGet("/api/rms/rms-invoice/view-pdf/:id", [], this.auth.private, this.viewPdf);
+        this.onPost("/api/rms/rms-invoice/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
     }
 
     // Page
@@ -83,7 +84,7 @@ export class RmsInvoiceController extends Controller {
                 });
             }
 
-            const createdBy = req.user?.userId ? Number(req.user.userId) : undefined;
+            const createdBy = req.user?.userId || 'system';
 
             await this.rmsInvoiceService.create({
                 invoiceNumber,
@@ -114,64 +115,21 @@ export class RmsInvoiceController extends Controller {
         }
     }
 
-    // Create from quotation
-    public async createFromQuotation(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
-        try {
-            const quotationId = Number(req.params.quotationId);
-            const userId = req.user?.userId ? Number(req.user.userId) : undefined;
-
-            if (!quotationId || isNaN(quotationId)) {
-                return resp.status(400).json({
-                    status: false,
-                    message: "Invalid quotation ID"
-                });
-            }
-
-            const invoice = await this.rmsInvoiceService.createFromQuotation(quotationId, userId);
-
-            return resp.status(201).json({
-                status: true,
-                message: "Invoice created from quotation successfully",
-                data: invoice
-            });
-
-        } catch (error: any) {
-            console.error(error);
-            return resp.status(500).json({
-                status: false,
-                message: "Create from quotation failed",
-                data: error.message
-            });
-        }
-    }
-
     // Create from challan
     public async createFromChallan(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
         try {
-            const challanId = Number(req.params.challanId);
-            const userId = req.user?.userId ? Number(req.user.userId) : undefined;
+            const challanNumber = req.params.challanNumber;
+            const data = await this.rmsInvoiceService.createFromChallan(challanNumber);
 
-            if (!challanId || isNaN(challanId)) {
-                return resp.status(400).json({
-                    status: false,
-                    message: "Invalid challan ID"
-                });
-            }
-
-            const invoice = await this.rmsInvoiceService.createFromChallan(challanId, userId);
-
-            return resp.status(201).json({
+            return resp.status(200).json({
                 status: true,
-                message: "Invoice created from challan successfully",
-                data: invoice
+                data
             });
 
         } catch (error: any) {
-            console.error(error);
             return resp.status(500).json({
                 status: false,
-                message: "Create from challan failed",
-                data: error.message
+                message: error.message
             });
         }
     }
@@ -247,7 +205,7 @@ export class RmsInvoiceController extends Controller {
                 items
             } = req.body;
 
-            const updatedBy = req.user?.userId ? Number(req.user.userId) : undefined;
+            const updatedBy = req.user?.userId || 'system';
 
             await this.rmsInvoiceService.update(
                 id,
@@ -279,41 +237,19 @@ export class RmsInvoiceController extends Controller {
         }
     }
 
-    // Delete
-    public async delete(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
-        try {
-            const id = Number(req.params.id);
-
-            const success = await this.rmsInvoiceService.delete(id);
-
-            if (success) {
-                return resp.json({
-                    status: true,
-                    message: "Deleted successfully"
-                });
-            } else {
-                return resp.status(500).json({
-                    status: false,
-                    message: "Delete failed"
-                });
-            }
-
-        } catch (error: any) {
-            return resp.status(500).json({
-                status: false,
-                message: error.message
-            });
-        }
-    }
-
     // Generate ref
-    public async generateRef(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+    public async generateRef(req: HttpRequest, resp: HttpResponse) {
         try {
+            console.log("GENERATE REF HIT");
+
             const companyName = req.query.companyName || "TEMP";
 
-            const invoiceNumber = await this.rmsInvoiceService.generateInvoiceNumber(
-                String(companyName)
-            );
+            const invoiceNumber =
+                await this.rmsInvoiceService.generateInvoiceNumber(
+                    String(companyName)
+                );
+
+            console.log("INVOICE GENERATED:", invoiceNumber);
 
             return resp.json({
                 status: true,
@@ -321,6 +257,9 @@ export class RmsInvoiceController extends Controller {
             });
 
         } catch (error: any) {
+
+            console.error("GENERATE REF ERROR:", error);
+
             return resp.status(500).json({
                 status: false,
                 message: error.message
@@ -349,6 +288,109 @@ export class RmsInvoiceController extends Controller {
 
         } catch (error: any) {
             console.error(error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message
+            });
+        }
+    }
+
+    public async viewPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid invoice ID"
+                });
+            }
+
+            const result = await this.rmsInvoiceService.generatePdf(id);
+
+            resp.setHeader('Content-Type', 'application/pdf');
+            resp.setHeader('Content-Disposition', `inline; filename=invoice-${id}.pdf`);
+            return resp.send(result.pdfBuffer);
+
+        } catch (error: any) {
+            console.error(error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message
+            });
+        }
+    }
+
+    public async sendEmailWithPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            // ✅ VALIDATION
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid invoice ID"
+                });
+            }
+
+            // Get invoice data
+            const invoice = await this.rmsInvoiceService.edit(id);
+            if (!invoice) {
+                return resp.status(404).json({
+                    status: false,
+                    message: "Invoice not found"
+                });
+            }
+
+            // Check if email exists
+            if (!invoice.companyEmail) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Company email not found"
+                });
+            }
+
+            // Generate PDF
+            const pdfResult = await this.rmsInvoiceService.generatePdf(id);
+
+            // Send email with PDF
+            const InvoiceEmailService = require("../../../utils/invoice-email.service").InvoiceEmailService;
+            const emailService = new InvoiceEmailService();
+
+            await emailService.sendInvoicePdf(
+                invoice.companyEmail,
+                invoice.companyName,
+                pdfResult.pdfBuffer,
+                invoice.invoiceNumber
+            );
+
+            return resp.json({
+                status: true,
+                message: `✅ Email sent successfully to ${invoice.companyEmail}`
+            });
+
+        } catch (error: any) {
+            console.error('Error sending email:', error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message || "Failed to send email"
+            });
+        }
+    }
+
+    public async loadFromQuotation(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const refNumber = req.params.refNumber;
+            const data = await this.rmsInvoiceService.getQuotationForInvoice(refNumber);
+
+            return resp.status(200).json({
+                status: true,
+                data
+            });
+
+        } catch (error: any) {
             return resp.status(500).json({
                 status: false,
                 message: error.message

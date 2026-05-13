@@ -1,0 +1,31 @@
+#createChallanInvoiceModal.modal.fade
+  .modal-dialog.modal-dialog-centered
+    .modal-content
+
+      .modal-header
+        h5.modal-title Create Invoice From Challan
+
+      .modal-body
+
+        .form-group
+          label Challan Ref# or ID
+
+          input.form-control(
+            type='text',
+            id='searchChallanId',
+            placeholder='Enter challan ref or ID'
+          )
+
+      .modal-footer
+
+        button.btn.btn-primary(
+          type='button',
+          id='loadChallanForInvoice'
+        )
+          i.fa.fa-search
+          |  Load
+
+        button.btn.btn-danger(
+          type='button',
+          data-dismiss='modal'
+        ) Cancel

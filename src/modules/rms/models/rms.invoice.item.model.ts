@@ -21,11 +21,14 @@ export class RmsInvoiceItemModel {
     @Column({ name: "totalPrice", type: "decimal", precision: 10, scale: 2, nullable: true })
     totalPrice?: number;
 
+    @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+    itemDiscountAmount?: number;
+
     @Column({ name: "notes", type: "text", nullable: true })
     notes?: string;
 
-    @Column({ name: "createdBy", type: "int", nullable: true })
-    createdBy?: number;
+    @Column({ name: "createdBy", type: "varchar", length: 255, nullable: true })
+    createdBy?: string;
 
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;

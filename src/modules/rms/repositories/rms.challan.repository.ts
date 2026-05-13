@@ -146,7 +146,9 @@ export class RmsChallanRepository implements IRmsChallanRepository {
                 c."quotationId",
                 c."companyName",
                 c."companyEmail",
-                c.notes,
+                c.notes as "challanNotes",
+                ci.notes as "itemNotes",
+                ci."itemId",
                 c."challanStatus",
                 i."itemName",
                 i."itemPrice",
@@ -155,8 +157,10 @@ export class RmsChallanRepository implements IRmsChallanRepository {
                 i."manufactureOrigin",
                 i."itemModel",
                 i.files,
+                ris."availableQuantity" as "availableStock",
                 ci."deliveredQuantity",
                 u."empId" as "createdBy",
+                u.username,
                 u2."empId" as "updatedBy",
                 c."created_at",
                 c."updated_at"
@@ -165,6 +169,7 @@ export class RmsChallanRepository implements IRmsChallanRepository {
             LEFT JOIN public.rms_items i ON ci."itemId" = i.id
             LEFT JOIN public.users u on c."createdBy" = u."userId"
             LEFT JOIN public.users u2 on c."updatedBy" = u2."userId"
+            LEFT JOIN public.rms_item_stocks ris on ci."itemId" = ris."itemId"
             ${whereSQL}
             ORDER BY c."created_at" DESC
             LIMIT $${params.length + 1} OFFSET $${params.length + 2}

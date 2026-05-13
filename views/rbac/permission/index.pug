@@ -4,7 +4,7 @@ block style
   link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
   style.
     .selected-row {
-      background-color: #8A2061 !important;
+      background-color: #580db4 !important;
       color: white !important;
     }
 
@@ -27,7 +27,7 @@ block style
 
     .form-group input:focus,
     .form-group textarea:focus {
-        border-color: #8A2061;
+        border-color: #580db4;
         box-shadow: 0 0 4px rgba(138, 32, 97, 0.6);
     }
 
@@ -50,7 +50,7 @@ block style
     .form-group textarea:not(:placeholder-shown) + label {
         top: -0.6rem; /* Move the label to the top padding */
         font-size: 0.8rem;
-        color: #8A2061;
+        color: #580db4;
         padding: 0 5px; /* Keeps label inside */
     }
 
@@ -72,7 +72,7 @@ block style
         height: 2rem;
         margin: 0;
         cursor: pointer;
-        accent-color: #8A2061;
+        accent-color: #580db4;
     }
 
     .form-check-label {
@@ -98,7 +98,7 @@ block style
         font-size: 12px;
         line-height: 1.5;
         border-radius: 3px;
-        background-color: #8A2061;
+        background-color: #580db4;
         color: white;
         border: none;
     }
@@ -131,7 +131,7 @@ block style
     }
 
     #tableHead {
-      background-color: #8A2061;
+      background-color: #580db4;
       color: white;
     }
 
@@ -259,10 +259,10 @@ block content
     ol.breadcrumb
       li
         a(href='/dashboard')
-          strong(style="color: #8A2061") Dashboard 
+          strong(style="color: #580db4") Dashboard 
       li
         a(href='/permission')
-          strong(style="color: #8A2061") Permission
+          strong(style="color: #580db4") Permission
   section.content
     .row
       .col-md-12.col-xs-12
@@ -329,7 +329,7 @@ block script
       let limit = limitSelect.value;
 
       async function fetchPermission(page = 1, search = '', limit = 10) {
-        tableBody.innerHTML = `<tr><td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #8A2061;"></i></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
         try {
           const response = await fetch(`/api/permissions/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();

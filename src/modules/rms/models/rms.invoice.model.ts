@@ -37,11 +37,11 @@ export class RmsInvoiceModel {
     @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
     discountAmount?: number;
 
-    @Column({ type: "int", nullable: true })
-    createdBy?: number;
+    @Column({ type: "varchar", length: 255, nullable: true })
+    createdBy?: string;
 
-    @Column({ type: "int", nullable: true })
-    updatedBy?: number;
+    @Column({ type: "varchar", length: 255, nullable: true })
+    updatedBy?: string;
 
     @CreateDateColumn()
     createdAt!: Date;

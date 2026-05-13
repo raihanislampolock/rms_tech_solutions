@@ -1,503 +1,1740 @@
 extends ../../layout
-
 block style
-  link(rel='stylesheet', href='/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')
-  link(rel='stylesheet', href='/plugins/datatables-responsive/css/responsive.bootstrap4.min.css')
-  link(rel='stylesheet', href='/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')
-  link(rel='stylesheet', href='/plugins/select2/css/select2.min.css')
-  link(rel='stylesheet', href='/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')
+  style.
+    .selected-row {
+      background-color: #580db4 !important;
+      color: white !important;
+    }
+    
+    .select-report {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    #tableHead {
+      background-color: #580db4;
+      color: white;
+    }
+    
+    /* =========================
+       FORM CHECK
+       ========================= */
+    .form-check {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem 1rem 0.3rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: none;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    }
+    
+    .form-check-input {
+      width: 2rem;
+      height: 2rem;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #580db4;
+    }
+    
+    .form-check-label {
+      font-size: 1rem;
+      color: #555;
+      cursor: pointer;
+      margin-left: 0.1rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* =========================
+       MODAL WIDTH
+       ========================= */
+    #add-edit-quotation-modal .modal-dialog {
+      max-width: 60%;
+      width: auto;
+    }
+    
+    /* =========================
+       SERVICE TABLE
+       ========================= */
+    #serviceTable {
+      font-size: 16px;
+    }
+    
+    #serviceTable th,
+    #serviceTable td {
+      padding: 10px 14px;
+    }
+    
+    #serviceTable tfoot td {
+      font-size: 15px;
+      font-weight: 400;
+    }
+    
+    /* =========================
+       SELECT BOX (FIX UI)
+       ========================= */
+    select {
+      color: #580db4;
+      background-color: #fff;
+    }
+    
+    /* IMPORTANT: Fix invisible dropdown items */
+    select option {
+      color: #580db4 !important;
+      background-color: #fff !important;
+    }
+    
+    /* =========================
+       SELECT2 (SAFE KEEP IF USED ELSEWHERE)
+       ========================= */
+    .select2-container--default .select2-selection--single {
+      height: 38px !important;
+      line-height: 38px !important;
+      background-color: #fff !important;
+      border: 1px solid #ced4da !important;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      color: #333 !important;
+      line-height: 36px !important;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 36px !important;
+    }
+    
+    /* =========================
+       DROPDOWN VISIBILITY FIX
+       ========================= */
+    #itemSelect {
+      color: #000 !important;
+    }
+    
+    /* Fix dropdown hidden text issue */
+    select option {
+      color: #000 !important;
+    }
+    
+    /* Ensure modal does not break dropdown */
+    .modal {
+      overflow: visible !important;
+    }
+
 
 block content
-  .content-wrapper
     section.content-header
-      .container-fluid
-        .row.mb-2
-          .col-sm-6
-            h1 Invoice Management
-          .col-sm-6
-            ol.breadcrumb.float-sm-right
-              li.breadcrumb-item
-                a(href='/dashboard') Home
-              li.breadcrumb-item.active Invoice Management
+      h1.text-lg.font-weight-bold.mb-3
+        | RMS Invoice Dashboard
 
+      ol.breadcrumb
+        li
+          a(href='/dashboard')
+            strong(style="color: #580db4") Dashboard 
+        li
+            strong(style="color: #580db4") RMS TecH Solutions
+        li
+            strong(style="color: #580db4") RMS Invoice 
+        li
+          a(href='/rms/rms-invoice')
+            strong(style="color: #580db4") Invoice Dashboard
+        
     section.content
-      .container-fluid
         .row
-          .col-12
-            .card
-              .card-header
-                h3.card-title Invoices
-                .card-tools
-                  a.btn.btn-success.btn-sm(href='/rms/rms-invoice/create')
-                    i.fas.fa-plus
-                    |  Create Invoice
-                  button.btn.btn-primary.btn-sm#createFromQuotationBtn(type='button', data-toggle='modal', data-target='#quotationModal')
-                    i.fas.fa-file-import
-                    |  Create from Quotation
-                  button.btn.btn-info.btn-sm#createFromChallanBtn(type='button', data-toggle='modal', data-target='#challanModal')
-                    i.fas.fa-file-invoice
-                    |  Create from Challan
+          .col-md-12.col-xs-12
+             .box.box-parrot
+                .box-header.with-border
+                    .pull-left(style='margin-right:10px;')
+                        span.title-filter(style='display:flex;align-items:center;') Search:
+                         input.form-control.input-sm(type='text', placeholder='Enter search by Name,', name='search' autocomplete='off' style='margin-left:10px' id='search')
+                         button.btn.btn-sm.btn-default.btn-filter.date-range-btn#daterange-btn(type="button" style='display:none;')
+                            span#date-range-display Select date range
+                            input#date-range-input(type="hidden" name="" value="")
+                         button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
+                          span.fa.fa-search      
+                    .btn-group(role='group' aria-label='Invoice Actions' style='margin-left:20px')
+                    .pull-left(style='margin-right:10px;') 
+                      //- Direct Create
+                      button.btn.btn-primary.btn-sm(type='button' data-toggle='modal' data-target='#add-edit-invoice-modal')
+                        span.fa.fa-plus.mr-1
+                        |  Direct Invoice
+                    .pull-left 
+                      //- Create from Quotation
+                      button.btn.btn-info.btn-sm(type='button' data-toggle='modal' data-target='#createQuotationInvoiceModal')
+                        span.fa.fa-file-text-o.mr-1
+                        |  From Quotation
+                    .pull-left 
+                      //- Create from Challan
+                      button.btn.btn-info.btn-sm(type='button' data-toggle='modal' data-target='#createChallanInvoiceModal')
+                        span.fa.fa-file-text-o.mr-1
+                        |  From Challan                                            
+                    .pull-right
+                        span.title-filter(style='display:flex;align-items:center') Show:
+                            select.form-control.input-filter.input-sm(id='limitSelect')
+                                option 10
+                                option 25
+                                option 50
+                                option 100                                
+                .box-body
+                    .table.table-responsive
+                        table.table.table-striped.table-hover
+                            thead
+                                tr
+                                    th
+                                      a(href='#') Action &nbsp;
+                                        i.fa.fa-sort-alpha-asc 
+                                    th
+                                      a(href='#') Download Invoice PDF &nbsp;
+                                        i.fa.fa-sort-alpha-asc
+                                    th
+                                      a(href='#') View Invoice PDF &nbsp;
+                                        i.fa.fa-sort-alpha-asc    
+                                    th
+                                      a(href='#') Invoice Email &nbsp;
+                                        i.fa.fa-sort-alpha-asc           
+                                    th
+                                      a(href='#') Invoice Number
+                                    th
+                                      a(href='#') Company Name
+                                    th
+                                      a(href='#') Status
+                                    th
+                                      a(href='#') Remarks
+                                    th
+                                      a(href='#') Items
+                                    th
+                                      a(href='#') Created By
+                                    th
+                                      a(href='#') Updated By
+                                    th
+                                      a(href='#') Created Date
+                                    th
+                                      a(href='#') Updated Date         
+                            tbody#invoiceTableBody
+                                tr
+                                    td.text-center(colspan='10') No data to display. Use the search filters above to load data.
 
-              .card-body
-                table#invoiceTable.table.table-bordered.table-striped
-                  thead
-                    tr
-                      th Invoice Number
-                      th Company Name
-                      th Total Amount
-                      th Status
-                      th Created Date
-                      th Actions
-                  tbody
 
-        // Edit Modal
-        #editModal.modal.fade(tabindex='-1', role='dialog')
-          .modal-dialog.modal-lg(role='document')
-            .modal-content
-              .modal-header
-                h4.modal-title Edit Invoice
-                button.close(type='button', data-dismiss='modal')
-                  span &times;
-              form#editInvoiceForm
-                input#editId(type='hidden', name='id')
-                .modal-body
-                  .row
-                    .col-md-6
-                      .form-group
-                        label(for='editInvoiceNumber') Invoice Number *
-                        input.form-control#editInvoiceNumber(type='text', name='invoiceNumber', required)
-                    .col-md-6
-                      .form-group
-                        label(for='editCompanyName') Company Name *
-                        input.form-control#editCompanyName(type='text', name='companyName', required)
-                  .row
-                    .col-md-6
-                      .form-group
-                        label(for='editCompanyEmail') Company Email
-                        input.form-control#editCompanyEmail(type='email', name='companyEmail')
-                    .col-md-6
-                      .form-group
-                        label(for='editInvoiceStatus') Status
-                        select.form-control#editInvoiceStatus(name='invoiceStatus')
-                          option(value='pending') Pending
-                          option(value='paid') Paid
-                          option(value='cancelled') Cancelled
-                  .row
-                    .col-md-6
-                      .form-group
-                        label(for='editTaxAmount') Tax Amount
-                        input.form-control#editTaxAmount(type='number', name='taxAmount', step='0.01', min='0')
-                    .col-md-6
-                      .form-group
-                        label(for='editDiscountAmount') Discount Amount
-                        input.form-control#editDiscountAmount(type='number', name='discountAmount', step='0.01', min='0')
-                  .form-group
-                    label(for='editNotes') Notes
-                    textarea.form-control#editNotes(name='notes', rows='3')
+                .box-footer.clearfix
+                    .pull-left
+                        span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
+                    ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
 
-                  // Items Section
-                  .form-group
-                    label Items *
-                    .table-responsive
-                      table.table.table-bordered#editItemsTable
-                        thead
-                          tr
-                            th Item
-                            th Quantity
-                            th Unit Price
-                            th Total Price
-                            th Notes
-                            th
-                        tbody
-                .modal-footer
-                  button.btn.btn-secondary(type='button', data-dismiss='modal') Close
-                  button.btn.btn-primary#editSubmitBtn(type='submit') Update Invoice
-
-        // Quotation Modal
-        #quotationModal.modal.fade(tabindex='-1', role='dialog')
-          .modal-dialog.modal-lg(role='document')
-            .modal-content
-              .modal-header
-                h4.modal-title Create Invoice from Quotation
-                button.close(type='button', data-dismiss='modal')
-                  span &times;
-              .modal-body
-                .form-group
-                  label(for='quotationSearch') Search Quotation
-                  input.form-control#quotationSearch(type='text', placeholder='Enter quotation number or company name')
-                .table-responsive
-                  table.table.table-bordered#quotationTable(style='display: none;')
-                    thead
-                      tr
-                        th Quotation Number
-                        th Company Name
-                        th Date
-                        th Actions
-                    tbody
-              .modal-footer
-                button.btn.btn-secondary(type='button', data-dismiss='modal') Close
-
-        // Challan Modal
-        #challanModal.modal.fade(tabindex='-1', role='dialog')
-          .modal-dialog.modal-lg(role='document')
-            .modal-content
-              .modal-header
-                h4.modal-title Create Invoice from Challan
-                button.close(type='button', data-dismiss='modal')
-                  span &times;
-              .modal-body
-                .form-group
-                  label(for='challanSearch') Search Challan
-                  input.form-control#challanSearch(type='text', placeholder='Enter challan number or company name')
-                .table-responsive
-                  table.table.table-bordered#challanTable(style='display: none;')
-                    thead
-                      tr
-                        th Challan Number
-                        th Company Name
-                        th Date
-                        th Actions
-                    tbody
-              .modal-footer
-                button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+    include ./create
+    include ./qcreate
+    include ./ccreate
 
 block script
-  script.
-    // Make items data available to JavaScript
-    window.invoiceItems = !{JSON.stringify(items)};
-  script(src='/plugins/datatables/jquery.dataTables.min.js')
-  script(src='/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')
-  script(src='/plugins/datatables-responsive/js/dataTables.responsive.min.js')
-  script(src='/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')
-  script(src='/plugins/datatables-buttons/js/dataTables.buttons.min.js')
-  script(src='/plugins/datatables-buttons/js/buttons.bootstrap4.min.js')
-  script(src='/plugins/select2/js/select2.full.min.js')
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
 
   script.
-    $(document).ready(function() {
-        // Initialize DataTable
-        const table = $('#invoiceTable').DataTable({
-            ajax: {
-                url: '/api/rms/rms-invoice/all',
-                type: 'GET'
-            },
-            columns: [
-                { data: 'invoiceNumber' },
-                { data: 'companyName' },
-                {
-                    data: 'totalAmount',
-                    render: function(data) {
-                        return data ? `$${parseFloat(data).toFixed(2)}` : '$0.00';
-                    }
-                },
-                {
-                    data: 'invoiceStatus',
-                    render: function(data) {
-                        const statusClass = data === 'paid' ? 'success' :
-                                          data === 'pending' ? 'warning' : 'danger';
-                        return `<span class="badge badge-${statusClass}">${data}</span>`;
-                    }
-                },
-                {
-                    data: 'created_at',
-                    render: function(data) {
-                        return new Date(data).toLocaleDateString();
-                    }
-                },
-                {
-                    data: 'id',
-                    orderable: false,
-                    render: function(data, type, row) {
-                        return `
-                            <button class="btn btn-sm btn-info edit-btn" data-id="${data}">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button class="btn btn-sm btn-success pdf-btn" data-id="${data}">
-                                <i class="fas fa-download"></i> PDF
-                            </button>
-                            <button class="btn btn-sm btn-danger delete-btn" data-id="${data}">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        `;
-                    }
-                }
-            ],
-            responsive: true,
-            pageLength: 25
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('invoiceTableBody');
+      const paginationContainer = document.getElementById('paginationContainer');
+      let search = document.getElementById('search');
+      const searchBtn = document.getElementById('searchBtn');
+      const limitSelect = document.getElementById('limitSelect');
+      const dateRangeDisplay = document.querySelector('#date-range-display');
+      const dateRangeInput = document.getElementById('date-range-input');
+
+      const updateMargin = () => {
+        if (dateRangeDisplay.textContent.trim() === "Select date range") {
+        dateRangeDisplay.style.marginRight = "70px";
+        } else {
+        dateRangeDisplay.style.marginRight = "0";
+        }
+      };
+
+        // Initial check
+        updateMargin();
+
+        // Observe changes in text content
+        const observer = new MutationObserver(updateMargin);
+        observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
+
+      let currentPage = 1;
+      let currentSearch = '';
+      let limit = limitSelect.value;
+      let dateRange = '';
+      const selectedRows = new Set();
+      const selectedData = [];
+
+      async function fetchInvoice(page = 1, search = '', dateRange='', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="19" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
+        try {
+          const response = await fetch(`/api/rms/rms-invoice/all?page=${page}&search=${search}&limit=${limit}`);
+          const data = await response.json();
+
+          if (data?.data?.length > 0) {
+              const grouped = {};
+
+              data.data.forEach(row => {
+                  if (!grouped[row.id]) {
+                      grouped[row.id] = {
+                          id: row.id,
+                          invoiceNumber: row.invoiceNumber,
+                          companyName: row.companyName,
+                          companyEmail: row.companyEmail,
+                          invoiceStatus: row.invoiceStatus,
+                          invoiceNotes: row.invoiceNotes,
+                          createdBy: row.createdBy,
+                          updatedBy: row.updatedBy,
+                          createdAt: row.createdAt,
+                          updatedAt: row.updatedAt,
+                          items: []
+                      };
+                  }
+
+                  grouped[row.id].items.push({
+                      itemName: row.itemName,
+                      itemType: row.itemType,
+                      itemModel: row.itemModel,
+                      itemConfigurations: row.itemConfigurations,
+                      itemPrice: row.itemPrice,
+                      deliveredQuantity: row.deliveredQuantity,
+                      unitPrice: Number(row.unitPrice || 0),          // ✅ ADD
+                      totalPrice: Number(row.totalPrice || 0),        // ✅ ADD
+                      itemDiscountAmount: Number(row.itemDiscountAmount || 0), // optional
+                      itemNotes: row.itemNotes
+                  });
+              });
+
+              // =========================
+              // ✅ RENDER GROUPED UI
+              // =========================
+              tableBody.innerHTML = Object.values(grouped).map(c => {
+              
+                  const totalQty = c.items.reduce((sum, i) => sum + (Number(i.deliveredQuantity) || 0), 0);
+
+                  const format = (num) => Number(num || 0).toLocaleString();
+
+                  return `
+
+                  <!-- MAIN Invoice ROW -->
+                  <tr style="background:#f5f5f5;font-weight:bold;">
+
+                      <td>
+                          <a href="#"
+                             class="editInvoice fa fa-edit"
+                             data-invoice-id="${c.id}"
+                             data-toggle="modal"
+                             data-target="#add-edit-invoice-modal">
+                          </a>
+                      </td>
+
+                      <td>
+                          <a href="/api/rms/rms-invoice/generate-pdf/${c.id}"
+                             class="fa fa-file-pdf-o fa-2x"
+                             target="_blank"
+                             title="Generate PDF">
+                          </a>
+                      </td>
+                      <td>    
+                          <a href="/api/rms/rms-invoice/view-pdf/${c.id}"
+                             class="fa fa-file-pdf-o fa-2x"
+                             target="_blank"
+                             title="View PDF">
+                          </a>
+                      </td>
+
+                      <td>
+                        <a href="#"
+                           class="sendInvoiceEmail fa fa-envelope fa-2x"
+                           data-invoice-id="${c.id}"
+                           data-company-email="${c.companyEmail}"
+                           data-company-name="${c.companyName}"
+                           title="Send via Email">
+                        </a>
+                      </td>
+
+                      <td>${c.invoiceNumber ?? ''}</td>
+                      <td>${c.companyName ?? ''}</td>
+                      <td><span class="badge badge-${c.invoiceStatus === 'delivered' ? 'success' : c.invoiceStatus === 'pending' ? 'warning' : 'danger'}">${c.invoiceStatus ?? ''}</span></td>
+                      <td>${c.invoiceNotes ?? ''}</td>
+
+                      <!-- View Items -->
+                      <td>
+                          <button class="btn btn-sm btn-info toggleItems" data-id="${c.id}">
+                              View Items (${c.items.length})
+                          </button>
+                      </td>
+
+                      <td>${c.createdBy ?? ''}</td>
+                      <td>${c.updatedBy ?? ''}</td>
+                      <td>${new Date(c.createdAt).toLocaleDateString() ?? ''}</td>
+                      <td>${new Date(c.updatedAt).toLocaleDateString() ?? ''}</td>
+
+                  </tr>
+
+                  <!-- ITEMS ROW -->
+                  <tr id="items-${c.id}" style="display:none;">
+                      <td colspan="12">
+                          <table class="table table-bordered">
+
+                              <thead style="background:#580db4;color:white;">
+                                  <tr>
+                                      <th>Item</th>
+                                      <th>Type</th>
+                                      <th>Model</th>
+                                      <th>Spec</th>
+                                      <th>Delivered Qty</th>
+                                      <th>Unit Price</th>
+                                      <th>Total Price</th>
+                                      <th>Discount</th>
+                                      <th>Notes</th>
+                                  </tr>
+                              </thead>
+
+                              <tbody>
+                                  ${c.items.map(i => `
+                                      <tr>
+                                          <td>${i.itemName ?? ''}</td>
+                                          <td>${i.itemType ?? ''}</td>
+                                          <td>${i.itemModel ?? ''}</td>
+                                          <td>${i.itemConfigurations ?? ''}</td>
+                                          <td>${i.deliveredQuantity ?? ''}</td>
+                                          <td>${Number(i.unitPrice).toFixed(2)}</td>
+                                          <td>${Number(i.totalPrice).toFixed(2)}</td>
+                                          <td>${Number(i.itemDiscountAmount || 0).toFixed(2)}</td>
+                                          <td>${i.notes ?? ''}</td>
+                                      </tr>
+                                  `).join('')}
+
+                                  <!-- TOTAL ROW -->
+                                  <tr style="background:#e8f5e9;font-weight:bold;">
+                                      <td colspan="4" style="text-align:right;">TOTAL DELIVERED</td>
+                                      <td>${format(totalQty)}</td>
+                                      <td></td>
+                                  </tr>
+
+                              </tbody>
+                          </table>
+                      </td>
+                  </tr>
+
+                  `;
+              }).join('');
+
+            selectedRows.forEach((id) => {
+              const row = tableBody.querySelector(`[data-id="${id}"]`);
+              if (row) row.classList.add('selected-row');
+          });
+
+          const totalRecords = data.total;
+          const startRecord = (currentPage - 1) * limit + 1;
+          const endRecord = Math.min(currentPage * limit, totalRecords);
+
+          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+
+          } else {
+            tableBody.innerHTML = `<tr><td colspan="19" class="text-center">No data found</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries to display';
+            return;
+          }
+
+          // Generate pagination buttons
+          const totalPages = Math.ceil(data.total / limit);
+          renderPagination(totalPages, page);
+
+        } catch (error) {
+          console.error('Error fetching invoices:', error);
+          tableBody.innerHTML = `<tr><td colspan="18" class="text-center">Error loading data</td></tr>`;
+          document.querySelector('#title-filter').textContent = 'Error loading entries';
+        }
+      }
+
+      function renderPagination(totalPages, currentPage) {
+        paginationContainer.innerHTML = ""
+
+        const maxVisiblePages = 5
+        const firstPages = 2
+        const lastPages = 2
+
+        // Helper function to create pagination link
+        const createPageLink = (page, isActive = false) => {
+          const pageItem = document.createElement("li")
+          if (isActive) pageItem.classList.add("active")
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
+          paginationContainer.appendChild(pageItem)
+        }
+
+        // Show "Previous" button if not on first page
+        if (currentPage > 1) {
+          const prevItem = document.createElement("li")
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}">« Previous</a>`
+          paginationContainer.appendChild(prevItem)
+        }
+
+        // For small number of pages, show all pages without ellipsis
+        if (totalPages <= maxVisiblePages) {
+          for (let i = 1; i <= totalPages; i++) {
+            createPageLink(i, i === currentPage)
+          }
+        } else {
+          // Show first page
+          createPageLink(1, currentPage === 1)
+
+          // Calculate range of pages to show around current page
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
+
+          // Adjust range if current page is near the end
+          if (rangeEnd === totalPages - 1) {
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+          }
+
+          // Show ellipsis after first page if needed
+          if (rangeStart > 2) {
+            paginationContainer.innerHTML += `<li><span>...</span></li>`
+          }
+
+          // Show pages in range
+          for (let i = rangeStart; i <= rangeEnd; i++) {
+            createPageLink(i, i === currentPage)
+          }
+
+          // Show ellipsis before last page if needed
+          if (rangeEnd < totalPages - 1) {
+            paginationContainer.innerHTML += `<li><span>...</span></li>`
+          }
+
+          // Show last page if not already shown
+          if (totalPages > 1) {
+            createPageLink(totalPages, currentPage === totalPages)
+          }
+        }
+
+        // Show "Next" button if not on last page
+        if (currentPage < totalPages) {
+          const nextItem = document.createElement("li")
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}">Next »</a>`
+          paginationContainer.appendChild(nextItem)
+        }
+      }
+
+       // Update page and fetch data
+      function updatePage(page) {
+        let currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        currentPage = page;
+        fetchInvoice(currentPage, currentSearch, dateRange, limit);
+      }
+
+      // Event listener for pagination links
+      paginationContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('pagination-link')) {
+          event.preventDefault();
+          const page = parseInt(event.target.getAttribute('data-page'), 10);
+          if (!isNaN(page)) {
+            updatePage(page);
+          }
+        }
+      });
+
+      // Search and limit event listeners
+      searchBtn.addEventListener('click', () => {
+        selectedRows.clear();
+        selectedData.length = 0;
+        currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        fetchInvoice(1, currentSearch, dateRange, limit);
+      });
+      
+      limitSelect.addEventListener('change', () => {
+        limit = limitSelect.value;
+        currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        currentPage = 1;
+        fetchInvoice(currentPage, currentSearch, dateRange, limit);
+      });
+
+      // Toggle items row visibility when user clicks "View Items"
+      tableBody.addEventListener('click', function(event) {
+        const btn = event.target.closest('.toggleItems');
+        if (!btn) return;
+        event.preventDefault();
+
+        const id = btn.dataset.id;
+        const itemsRow = document.getElementById(`items-${id}`);
+        if (!itemsRow) return;
+
+        itemsRow.style.display = itemsRow.style.display === 'none' || itemsRow.style.display === '' ? 'table-row' : 'none';
+      });
+
+      function updateSelectedData(rowId, email, mrno, patientName) {
+          if (add) {
+            selectedData.push({ id: rowId, email, mrno, patientName });
+          } else {
+            const index = selectedData.findIndex(item => item.id === rowId);
+            if (index !== -1) selectedData.splice(index, 1);
+          } 
+      }
+
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      
+      // Initialize the daterangepicker
+      $('#daterange-btn').daterangepicker({
+        startDate: yesterday,
+        endDate: today,
+        ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        locale: {
+          format: 'MMMM DD, YYYY'
+        }
+      }, function(start, end, label) {
+        const startDate = start.format('MMMM DD, YYYY');
+        const endDate = end.format('MMMM DD, YYYY');
+        
+        dateRangeDisplay.innerText = `${startDate} - ${endDate}`;
+        dateRangeInput.value = `${startDate} - ${endDate}`;
+      });
+
+      const initialStart = moment(yesterday).format('MMMM DD, YYYY');
+      const initialEnd = moment(today).format('MMMM DD, YYYY');
+      dateRangeDisplay.innerText = `${initialStart} - ${initialEnd}`;
+      dateRangeInput.value = `${initialStart} - ${initialEnd}`;
+
+      $('.btn-download').on('click', function () {
+        const dateRangeDisplay = document.querySelector('#date-range-display');
+        const $downloadBtn = $(".btn-download");
+        const originalText = $downloadBtn.html();
+        let dateRange = dateRangeDisplay.textContent.trim();
+
+        if (!dateRange) {
+            swal("Warning", "No date range selected!", "warning");
+            return;
+        }
+
+        $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
+
+        $.ajax({
+          url: `/api/callcenter/service-status/export-excel?`, // Move dateRange to query param
+          method: "GET", // ✅ MUST match controller
+          xhrFields: { responseType: "blob" },
+          success: function (blob, status, xhr) {
+              const contentDisposition = xhr.getResponseHeader("Content-Disposition");
+              let filename = "X_Ray_Tracker.xlsx";
+              if (contentDisposition) {
+                  const match = contentDisposition.match(/filename="(.+)"/);
+                  if (match && match.length > 1) {
+                      filename = match[1];
+                  }
+              }
+
+              const blobUrl = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = blobUrl;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+          },
+          error: function (xhr, status, err) {
+              console.error("XHR:", xhr);
+              console.error("Status:", status);
+              console.error("Error:", err);
+              swal("Error", "Failed to download. Please try again.", "error");
+          },
+          complete: function () {
+              // Restore button state
+              $downloadBtn.prop("disabled", false).html(originalText);
+          }
+      });
+
+    });      
+
+      fetchInvoice(currentPage, currentSearch, dateRangeInput.value, limit);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // ========================
+        // STATE
+        // ========================
+        let cart = [];
+        let editMode = false;
+        let quotationMode = false;
+        let editId = null;
+
+        // ========================
+        // ELEMENTS
+        // ========================
+        const itemSelect = document.getElementById('itemSelect');
+        const itemStock = document.getElementById('itemStock');
+        const quantity = document.getElementById('deliveredQuantity');
+        const unitPriceInput = document.getElementById('unitPrice');
+        const itemDiscountPercentInput = document.getElementById('itemDiscountPercent');
+        const itemTotalInput = document.getElementById('itemTotal');
+
+        const invoiceNumber = document.getElementById('invoiceNumber');
+        const quotationId = document.getElementById('quotationId');
+        const companyName = document.getElementById('companyName');
+        const companyEmail = document.getElementById('companyEmail');
+        const invoiceStatus = document.getElementById('invoiceStatus');
+        const notes = document.getElementById('notes');
+
+        const taxAmount = document.getElementById('taxAmount');
+        const discountAmount = document.getElementById('discountAmount');
+
+        const subtotalInput = document.getElementById('subtotal');
+        const grandTotalInput = document.getElementById('grandTotal');
+        const grandTotalDisplay = document.getElementById('grandTotalDisplay');
+        const taxValueInput = document.getElementById('taxValue');
+        const discountValueInput = document.getElementById('discountValue');
+
+        // ========================
+        // 📧 SEND EMAIL WITH PDF
+        // ========================
+        document.addEventListener('click', function (e) {
+          if (!e.target.classList.contains('sendInvoiceEmail')) return;
+
+          e.preventDefault();
+
+          const id = Number(e.target.getAttribute('data-invoice-id'));
+          const email = e.target.getAttribute('data-company-email');
+          const companyName = e.target.getAttribute('data-company-name');
+
+          if (!id || !email) {
+              swal("Error", "Email not found for this invoice", "error");
+              return;
+          }
+
+          // Confirm before sending
+          swal({
+              title: "Send Invoice?",
+              text: `Send invoice to ${email}?`,
+              icon: "question",
+              buttons: {
+                  cancel: "Cancel",
+                  confirm: {
+                      text: "Send",
+                      value: true
+                  }
+              }
+          }).then((willSend) => {
+              if (!willSend) return;
+
+          // Show loading state
+          const originalClass = e.target.className;
+          e.target.className = 'fa fa-spinner fa-spin fa-2x';
+          e.target.style.cursor = 'not-allowed';
+
+          // Send email via API
+          fetch(`/api/rms/rms-invoice/send-email/${id}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              e.target.className = originalClass;
+              e.target.style.cursor = 'pointer';
+
+              if (data.status) {
+                  swal("Success", data.message, "success");
+              } else {
+                  swal("Error", data.message || 'Failed to send email', "error");
+              }
+          })
+          .catch(error => {
+              e.target.className = originalClass;
+              e.target.style.cursor = 'pointer';
+              console.error('Error:', error);
+              swal("Error", 'Error sending email: ' + error.message, "error");
+          });
+          });
         });
 
-        // Initialize Select2
-        $('.item-select').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Select an item',
-            allowClear: true
-        });
+        const modal = $('#add-edit-invoice-modal');
 
-        // Edit button
-        $(document).on('click', '.edit-btn', function() {
-            const id = $(this).data('id');
+        modal.on('shown.bs.modal', async function () {
+        
+            // Only reset when NOT editing and NOT loading from quotation
+            if (!editMode && !quotationMode) {
+                resetForm();
 
-            $.get(`/api/rms/rms-invoice/edit/${id}`)
-                .done(function(response) {
-                    if (response.status && response.data) {
-                        const invoice = response.data;
+                try {
+                    const res = await fetch(
+                        '/api/rms/rms-invoice/generate-ref?companyName=TEMP'
+                    );
 
-                        $('#editId').val(invoice.id);
-                        $('#editInvoiceNumber').val(invoice.invoiceNumber);
-                        $('#editCompanyName').val(invoice.companyName);
-                        $('#editCompanyEmail').val(invoice.companyEmail);
-                        $('#editInvoiceStatus').val(invoice.invoiceStatus);
-                        $('#editTaxAmount').val(invoice.taxAmount || 0);
-                        $('#editDiscountAmount').val(invoice.discountAmount || 0);
-                        $('#editNotes').val(invoice.notes);
+                    const data = await res.json();
 
-                        // Clear existing items
-                        $('#editItemsTable tbody').empty();
-
-                        // Add items
-                        invoice.items.forEach(function(item) {
-                            const itemOptions = !{JSON.stringify(items)}.map(itemOpt => `<option value="${itemOpt.id}" ${itemOpt.id == (item.itemId || '') ? 'selected' : ''}>${itemOpt.label}</option>`).join('');
-                            const rowHtml = `
-                                <tr class="item-row">
-                                    <td>
-                                        <select class="form-control item-select" name="itemId[]" required>
-                                            <option value="">Select Item</option>
-                                            ${itemOptions}
-                                        </select>
-                                        <input type="hidden" name="itemName[]" value="${item.itemName}">
-                                    </td>
-                                    <td>
-                                        <input class="form-control quantity-input" type="number" name="quantity[]" min="0" step="1" value="${item.quantity}" required>
-                                    </td>
-                                    <td>
-                                        <input class="form-control unit-price-input" type="number" name="unitPrice[]" min="0" step="0.01" value="${item.unitPrice}" required>
-                                    </td>
-                                    <td>
-                                        <input class="form-control total-price-input" type="number" name="totalPrice[]" min="0" step="0.01" value="${item.totalPrice}" readonly>
-                                    </td>
-                                    <td>
-                                        <input class="form-control notes-input" type="text" name="notes[]" value="${item.notes || ''}" placeholder="Optional notes">
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm remove-item" type="button">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                            $('#editItemsTable tbody').append(rowHtml);
-                        });
-
-                        $('.item-select').select2({
-                            theme: 'bootstrap4',
-                            placeholder: 'Select an item',
-                            allowClear: true
-                        });
-
-                        $('#editModal').modal('show');
+                    if (data.status && data.invoiceNumber) {
+                        // Use the correct input element
+                        invoiceNumber.value = data.invoiceNumber;
                     } else {
-                        toastr.error('Failed to load invoice data');
+                        invoiceNumber.value = '';
                     }
-                })
-                .fail(function() {
-                    toastr.error('Failed to load invoice data');
-                });
+
+                } catch (err) {
+                    console.error('REF ERROR:', err);
+                    invoiceNumber.value = '';
+                }
+            }
         });
 
-        // Update invoice
-        $('#editInvoiceForm').on('submit', function(e) {
-            e.preventDefault();
+        // ========================
+        // HELPER FUNCTIONS
+        // ========================
+        const num = (value) => Number(value || 0);
 
-            const id = $('#editId').val();
-            const formData = new FormData(this);
-            const data = {
-                invoiceNumber: formData.get('invoiceNumber'),
-                companyName: formData.get('companyName'),
-                companyEmail: formData.get('companyEmail'),
-                invoiceStatus: formData.get('invoiceStatus'),
-                taxAmount: parseFloat(formData.get('taxAmount') || '0'),
-                discountAmount: parseFloat(formData.get('discountAmount') || '0'),
-                notes: formData.get('notes'),
-                items: []
+        function setValue(el, value = '') {
+            if (el) el.value = value;
+        }
+
+        // ========================
+        // LIVE ITEM CALCULATION
+        // ========================
+        function calculateItemTotal() {
+            const qty = num(quantity?.value);
+            const unitPrice = num(unitPriceInput?.value);
+            const discountPercent = num(itemDiscountPercentInput?.value);
+
+            const gross = qty * unitPrice;
+            const discountValue = gross * discountPercent / 100;
+            const total = gross - discountValue;
+
+            if (itemTotalInput) {
+                itemTotalInput.value = total.toFixed(2);
+            }
+        }
+
+        [quantity, unitPriceInput, itemDiscountPercentInput].forEach(el => {
+            el?.addEventListener('input', calculateItemTotal);
+        });
+
+        // ========================
+        // ITEM SELECT CHANGE
+        // ========================
+        itemSelect?.addEventListener('change', function () {
+            const opt = this.options[this.selectedIndex];
+
+            setValue(itemStock, opt.dataset.stock || '0');
+            setValue(unitPriceInput, num(opt.dataset.price).toFixed(2));
+
+            if (!quantity.value) quantity.value = '1';
+            if (!itemDiscountPercentInput.value) itemDiscountPercentInput.value = '0';
+
+            calculateItemTotal();
+        });
+
+        // ========================
+        // RESET FORM
+        // ========================
+        function resetForm() {
+            cart = [];
+            editMode = false;
+            quotationMode = false;
+            editId = null;
+
+            setValue(invoiceNumber);
+            setValue(quotationId);
+            setValue(companyName);
+            setValue(companyEmail);
+            setValue(invoiceStatus, 'pending');
+            setValue(notes);
+
+            setValue(itemSelect);
+            setValue(itemStock);
+            setValue(quantity, '1');
+            setValue(unitPriceInput);
+            setValue(itemDiscountPercentInput, '0');
+            setValue(itemTotalInput, '0.00');
+
+            setValue(taxAmount, '0');
+            setValue(discountAmount, '0');
+
+            setValue(subtotalInput, '0.00');
+            setValue(grandTotalInput, '0.00');
+
+            if (taxValueInput) taxValueInput.value = '0.00';
+            if (discountValueInput) discountValueInput.value = '0.00';
+            if (grandTotalDisplay) grandTotalDisplay.textContent = '0.00';
+
+            renderCart();
+            calculateTotals();
+        }
+
+        // ========================
+        // ADD ITEM
+        // ========================
+        document.getElementById('addItem')?.addEventListener('click', function () {
+
+            const itemId = itemSelect?.value;
+            const opt = itemSelect.options[itemSelect.selectedIndex];
+
+            const stock = num(opt?.dataset.stock);
+            const qty = num(quantity?.value);
+            const unitPrice = num(unitPriceInput?.value);
+            const itemDiscountPercent = num(itemDiscountPercentInput?.value);
+
+            if (!itemId) {
+                return swal("Warning", "Select item", "warning");
+            }
+
+            if (qty <= 0) {
+                return swal("Warning", "Enter valid quantity", "warning");
+            }
+
+            if (qty > stock) {
+                return swal("Warning", "Quantity exceeds stock", "warning");
+            }
+
+            if (cart.find(x => x.itemId == itemId)) {
+                return swal("Warning", "Item already added", "warning");
+            }
+
+            const gross = qty * unitPrice;
+
+            const itemDiscountAmount = gross * itemDiscountPercent / 100;
+
+            const totalPrice = gross - itemDiscountAmount;
+
+            cart.push({
+                itemId,
+                itemName: opt.dataset.name || opt.text,
+                availableStock: stock,
+                quantity: qty,
+                unitPrice,
+                itemDiscountPercent,
+                itemDiscountAmount,
+                totalPrice,
+                notes: ''
+            });
+
+            renderCart();
+            calculateTotals();
+
+            setValue(itemSelect);
+            setValue(itemStock);
+            setValue(quantity, '1');
+            setValue(unitPriceInput);
+            setValue(itemDiscountPercentInput, '0');
+            setValue(itemTotalInput, '0.00');
+        });
+
+        // ========================
+        // REMOVE ITEM
+        // ========================
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.removeItem');
+            if (!btn) return;
+
+            const index = Number(btn.dataset.index);
+            cart.splice(index, 1);
+
+            renderCart();
+            calculateTotals();
+        });
+
+        // ========================
+        // LIVE UPDATE CART ITEMS
+        // ========================
+        document.addEventListener('input', function (e) {
+            const index = Number(e.target.dataset.index);
+            if (isNaN(index) || !cart[index]) return;
+
+            const item = cart[index];
+
+            // ========================
+            // UPDATE MODEL ONLY
+            // ========================
+            if (e.target.classList.contains('itemQtyInput')) {
+                item.quantity = Number(e.target.value || 0);
+            }
+
+            if (e.target.classList.contains('itemUnitPriceInput')) {
+                item.unitPrice = Number(e.target.value || 0);
+            }
+
+            if (e.target.classList.contains('itemDiscountPercentInput')) {
+                item.itemDiscountPercent = Number(e.target.value || 0);
+            }
+
+            if (e.target.classList.contains('noteInput')) {
+                item.notes = e.target.value;
+                return; // no calculation needed
+            }
+
+            // ========================
+            // RECALCULATE ONLY DATA
+            // ========================
+            const gross = item.quantity * item.unitPrice;
+
+            item.itemDiscountAmount =
+                gross * (item.itemDiscountPercent || 0) / 100;
+
+            item.totalPrice =
+                gross - item.itemDiscountAmount;
+
+            // ========================
+            // UPDATE ONLY TOTAL CELLS (NO RE-RENDER)
+            // ========================
+            const row = e.target.closest('tr');
+            if (!row) return;
+
+            const discountCell = row.querySelector('.itemDiscountAmountCell');
+            const totalCell = row.querySelector('.itemTotalCell');
+
+            if (discountCell) {
+                discountCell.textContent = item.itemDiscountAmount.toFixed(2);
+            }
+
+            if (totalCell) {
+                totalCell.textContent = item.totalPrice.toFixed(2);
+            }
+
+            // ========================
+            // GLOBAL TOTAL UPDATE
+            // ========================
+            calculateTotals();
+        });
+
+        // ========================
+        // RENDER CART
+        // ========================
+        function renderCart() {
+            const tbody = document.querySelector('#itemTable tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            if (!cart.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            No item added yet.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            cart.forEach((item, i) => {
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr>
+                        <!-- Item -->
+                        <td>${item.itemName || ''}</td>
+
+                        <!-- Stock -->
+                        <td class="text-center">
+                            ${Number(item.availableStock || 0)}
+                        </td>
+
+                        <!-- Qty (editable) -->
+                        <td class="text-center" style="width:90px;">
+                            <input
+                                type="number"
+                                class="form-control itemQtyInput"
+                                data-index="${i}"
+                                min="1"
+                                value="${Number(item.quantity || 1)}"
+                            >
+                        </td>
+
+                        <!-- Unit Price (editable) -->
+                        <td class="text-right" style="width:130px;">
+                            <input
+                                type="number"
+                                class="form-control itemUnitPriceInput"
+                                data-index="${i}"
+                                min="0"
+                                step="0.01"
+                                value="${Number(item.unitPrice || 0).toFixed(2)}"
+                            >
+                        </td>
+
+                        <!-- Item Discount % (editable) -->
+                        <td class="text-right" style="width:110px;">
+                            <input
+                                type="number"
+                                class="form-control itemDiscountPercentInput"
+                                data-index="${i}"
+                                min="0"
+                                step="0.01"
+                                value="${Number(item.itemDiscountPercent || 0).toFixed(2)}"
+                            >
+                        </td>
+
+                        <!-- Item Discount Amount -->
+                        <td class="text-right">
+                            ${Number(item.itemDiscountAmount || 0).toFixed(2)}
+                        </td>
+
+                        <!-- Total -->
+                        <td class="text-right">
+                            ${Number(item.totalPrice || 0).toFixed(2)}
+                        </td>
+
+                        <!-- Notes -->
+                        <td style="min-width:200px;">
+                            <input
+                                type="text"
+                                class="form-control noteInput"
+                                data-index="${i}"
+                                value="${item.notes || ''}"
+                                placeholder="Optional note"
+                            >
+                        </td>
+
+                        <!-- Action -->
+                        <td class="text-center" style="width:80px;">
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm removeItem"
+                                data-index="${i}"
+                            >
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // ========================
+        // TOTAL CALCULATION
+        // ========================
+        function calculateTotals() {
+
+            let subtotal = 0;
+            let discountEligibleSubtotal = 0;       
+
+            cart.forEach(item => {      
+
+                const lineTotal = num(item.totalPrice);
+                subtotal += lineTotal;      
+
+                // Only items WITHOUT item discount are eligible for overall discount
+                if (!item.itemDiscountPercent || item.itemDiscountPercent === 0) {
+                    discountEligibleSubtotal += lineTotal;
+                }
+            });     
+
+            const taxPercent = num(taxAmount?.value);
+            const discountPercent = num(discountAmount?.value);     
+
+            // TAX on full subtotal (you can change if needed)
+            const taxValue = subtotal * taxPercent / 100;       
+
+            // OVERALL DISCOUNT only on eligible items
+            const discountValue = discountEligibleSubtotal * discountPercent / 100;     
+
+            const grandTotal = subtotal + taxValue - discountValue;     
+
+            setValue(subtotalInput, subtotal.toFixed(2));       
+
+            if (taxValueInput) taxValueInput.value = taxValue.toFixed(2);
+            if (discountValueInput) discountValueInput.value = discountValue.toFixed(2);
+            if (grandTotalDisplay) grandTotalDisplay.textContent = grandTotal.toFixed(2);
+            if (grandTotalInput) grandTotalInput.value = grandTotal.toFixed(2);
+        }
+
+        taxAmount?.addEventListener('input', calculateTotals);
+        discountAmount?.addEventListener('input', calculateTotals);
+
+        // ========================
+        // SAVE INVOICE (CREATE / UPDATE)
+        // ========================
+        document.getElementById('saveInvoice')
+        ?.addEventListener('click', async function () {
+        
+            // Validate cart
+            if (!cart.length) {
+                return swal("Warning", "No items added", "warning");
+            }
+
+            // Calculate values
+            const subtotal = Number(subtotalInput?.value || 0);
+            const grandTotal = Number(grandTotalInput?.value || 0);
+            const taxPercent = Number(taxAmount?.value || 0);
+            const discountPercent = Number(discountAmount?.value || 0);
+
+            const taxValue = subtotal * taxPercent / 100;
+            const discountValue = subtotal * discountPercent / 100;
+
+            // Build payload according to your controller
+            const payload = {
+                invoiceNumber: invoiceNumber.value,
+                quotationId: quotationId.value
+                    ? Number(quotationId.value)
+                    : undefined,
+
+                companyName: companyName.value?.trim(),
+                companyEmail: companyEmail.value?.trim(),
+                invoiceStatus: invoiceStatus.value,
+                notes: notes.value?.trim(),
+
+                // Controller expects these exact names
+                taxAmount: taxValue,
+                discountAmount: discountValue,
+
+                // Optional totals
+                subtotal,
+                grandTotal,
+
+                // Items
+                items: cart.map(item => ({
+                    itemId: Number(item.itemId),
+                    quantity: Number(item.quantity),
+                    unitPrice: Number(item.unitPrice),
+                    totalPrice: Number(item.totalPrice),
+
+                    // Optional fields
+                    itemDiscountPercent: Number(item.itemDiscountPercent || 0),
+                    itemDiscountAmount: Number(item.itemDiscountAmount || 0),
+
+                    notes: item.notes || ''
+                }))
             };
 
-            // Collect items
-            const itemIds = formData.getAll('itemId[]');
-            const quantities = formData.getAll('quantity[]');
-            const unitPrices = formData.getAll('unitPrice[]');
-            const totalPrices = formData.getAll('totalPrice[]');
-            const notes = formData.getAll('notes[]');
+            console.log("SAVE PAYLOAD:", payload);
 
-            for (let i = 0; i < itemIds.length; i++) {
-                if (itemIds[i]) {
-                    data.items.push({
-                        itemId: parseInt(itemIds[i]),
-                        quantity: parseInt(quantities[i]) || 0,
-                        unitPrice: parseFloat(unitPrices[i]) || 0,
-                        totalPrice: parseFloat(totalPrices[i]) || 0,
-                        notes: notes[i] || null
-                    });
-                }
+            // Determine create or update URL
+            let url = '/api/rms/rms-invoice/create';
+            let method = 'POST';
+
+            if (editMode && editId) {
+                url = `/api/rms/rms-invoice/update/${editId}`;
+                method = 'PUT';
             }
 
-            $.ajax({
-                url: `/api/rms/rms-invoice/update/${id}`,
-                type: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function(response) {
-                    if (response.status) {
-                        $('#editModal').modal('hide');
-                        table.ajax.reload();
-                        toastr.success(response.message);
-                    } else {
-                        toastr.error(response.message);
-                    }
-                },
-                error: function(xhr) {
-                    toastr.error('Failed to update invoice');
-                }
-            });
-        });
+            try {
+                // Disable button while saving
+                const saveBtn = this;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML =
+                    '<i class="fa fa-spinner fa-spin"></i> Saving...';
 
-        // PDF button
-        $(document).on('click', '.pdf-btn', function() {
-            const id = $(this).data('id');
-            window.open(`/api/rms/rms-invoice/generate-pdf/${id}`, '_blank');
-        });
-
-        // Delete button
-        $(document).on('click', '.delete-btn', function() {
-            const id = $(this).data('id');
-
-            if (confirm('Are you sure you want to delete this invoice?')) {
-                $.ajax({
-                    url: `/api/rms/rms-invoice/delete/${id}`,
-                    type: 'DELETE',
-                    success: function(response) {
-                        if (response.status) {
-                            table.ajax.reload();
-                            toastr.success(response.message);
-                        } else {
-                            toastr.error(response.message);
-                        }
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
                     },
-                    error: function(xhr) {
-                        toastr.error('Failed to delete invoice');
-                    }
+                    body: JSON.stringify(payload)
                 });
+
+                const result = await response.json();
+
+                // Restore button
+                saveBtn.disabled = false;
+                saveBtn.innerHTML =
+                    '<i class="fa fa-save"></i> Save Invoice';
+
+                if (response.ok && result.status) {
+                    swal(
+                        "Success",
+                        result.message ||
+                        (editMode
+                            ? "Invoice updated successfully"
+                            : "Invoice created successfully"),
+                        "success"
+                    ).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    swal(
+                        "Error",
+                        result.message || "Save failed",
+                        "error"
+                    );
+                }
+
+            } catch (error) {
+                console.error("SAVE ERROR:", error);
+
+                // Restore button
+                this.disabled = false;
+                this.innerHTML =
+                    '<i class="fa fa-save"></i> Save Invoice';
+
+                swal(
+                    "Error",
+                    "Request failed. Please try again.",
+                    "error"
+                );
             }
         });
 
-        // Quotation search
-        let quotationSearchTimeout;
-        $('#quotationSearch').on('input', function() {
-            clearTimeout(quotationSearchTimeout);
-            const searchTerm = $(this).val();
+        // ========================
+        // EDIT INVOICE
+        // ========================
+        document.addEventListener('click', async function (e) {
+            const btn = e.target.closest('.editInvoice');
+            if (!btn) return;
 
-            if (searchTerm.length >= 2) {
-                quotationSearchTimeout = setTimeout(function() {
-                    $.get('/api/rms/rms-quotation/all', { search: searchTerm, limit: 10 })
-                        .done(function(response) {
-                            if (response.status && response.data.length > 0) {
-                                $('#quotationTable tbody').empty();
-                                response.data.forEach(function(quotation) {
-                                    $('#quotationTable tbody').append(`
-                                        <tr>
-                                            <td>${quotation.refNumber}</td>
-                                            <td>${quotation.companyName}</td>
-                                            <td>${new Date(quotation.created_at).toLocaleDateString()}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-success create-from-quotation-btn" data-id="${quotation.id}">
-                                                    <i class="fas fa-plus"></i> Create Invoice
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `);
-                                });
-                                $('#quotationTable').show();
-                            } else {
-                                $('#quotationTable').hide();
-                            }
-                        });
-                }, 500);
-            } else {
-                $('#quotationTable').hide();
+            // Your HTML uses data-invoice-id
+            const id = btn.dataset.invoiceId;
+
+            if (!id) {
+                console.log('Edit button:', btn.outerHTML);
+                return swal("Error", "Edit ID not found", "error");
+            }
+
+            // Prevent the default <a href="#">
+            e.preventDefault();
+
+            try {
+                // Loading state
+                const originalClass = btn.className;
+                btn.className = 'fa fa-spinner fa-spin';
+                btn.style.pointerEvents = 'none';
+
+                // Load invoice data
+                const response = await fetch(`/api/rms/rms-invoice/edit/${id}`);
+                const result = await response.json();
+
+                // Restore icon
+                btn.className = originalClass;
+                btn.style.pointerEvents = 'auto';
+
+                if (!response.ok || !result.status) {
+                    return swal(
+                        "Error",
+                        result.message || "Failed to load invoice",
+                        "error"
+                    );
+                }
+
+                const invoice = result.data;
+
+                // Reset form
+                resetForm();
+
+                // Set edit mode
+                editMode = true;
+                quotationMode = false;
+                editId = invoice.id;
+
+                // Basic information
+                setValue(invoiceNumber, invoice.invoiceNumber || '');
+                setValue(quotationId, invoice.quotationId || '');
+                setValue(companyName, invoice.companyName || '');
+                setValue(companyEmail, invoice.companyEmail || '');
+                setValue(invoiceStatus, invoice.invoiceStatus || 'pending');
+
+                // Repository returns invoiceNotes, not notes
+                setValue(notes, invoice.invoiceNotes || invoice.notes || '');
+
+                // Tax and discount amounts
+                setValue(taxAmount, Number(invoice.taxAmount || 0));
+                setValue(discountAmount, Number(invoice.discountAmount || 0));
+
+                // Load items into cart
+                cart = (invoice.items || []).map(item => {
+                    const qty = Number(item.quantity || 1);
+                    const unitPrice = Number(item.unitPrice || 0);
+                    const itemDiscountAmount = Number(item.itemDiscountAmount || 0);
+                    const gross = qty * unitPrice;
+
+                    // Calculate discount percent from amount
+                    const itemDiscountPercent =
+                        gross > 0
+                            ? (itemDiscountAmount / gross) * 100
+                            : 0;
+
+                    return {
+                        itemId: Number(item.itemId),
+                        itemName: item.itemName || '',
+                        availableStock: Number(item.availableStock || 0),
+                        quantity: qty,
+                        unitPrice,
+                        itemDiscountPercent,
+                        itemDiscountAmount,
+                        totalPrice: Number(
+                            item.totalPrice ||
+                            (gross - itemDiscountAmount)
+                        ),
+                        // Repository returns itemNotes
+                        notes: item.itemNotes || item.notes || ''
+                    };
+                });
+
+                // Render
+                renderCart();
+                calculateTotals();
+
+                // Open modal manually
+                $('#add-edit-invoice-modal').modal('show');
+
+            } catch (error) {
+                console.error('EDIT LOAD ERROR:', error);
+
+                // Restore icon if error occurs
+                btn.className = 'editInvoice fa fa-edit';
+                btn.style.pointerEvents = 'auto';
+
+                swal(
+                    "Error",
+                    "Failed to load invoice data",
+                    "error"
+                );
             }
         });
 
-        // Create from quotation
-        $(document).on('click', '.create-from-quotation-btn', function() {
-            const quotationId = $(this).data('id');
+        // ========================
+    // LOAD QUOTATION → INVOICE
+    // ========================
+    document.getElementById('loadQuotationForInvoice')
+    ?.addEventListener('click', async function () {
+    
+        const refNumber =
+            document.getElementById('searchQuotationId')?.value?.trim();
 
-            $.post(`/rms/rms-invoice/create-from-quotation/${quotationId}`)
-                .done(function(response) {
-                    if (response.status) {
-                        $('#quotationModal').modal('hide');
-                        table.ajax.reload();
-                        toastr.success(response.message);
-                    } else {
-                        toastr.error(response.message);
-                    }
-                })
-                .fail(function(xhr) {
-                    toastr.error('Failed to create invoice from quotation');
-                });
-        });
+        if (!refNumber) {
+            return swal("Warning", "Enter quotation number", "warning");
+        }
 
-        // Challan search
-        let challanSearchTimeout;
-        $('#challanSearch').on('input', function() {
-            clearTimeout(challanSearchTimeout);
-            const searchTerm = $(this).val();
+        try {
+            const res = await fetch(
+                `/api/rms/rms-invoice/load-from-quotation/${encodeURIComponent(refNumber)}`
+            );
 
-            if (searchTerm.length >= 2) {
-                challanSearchTimeout = setTimeout(function() {
-                    $.get('/api/rms/rms-challan/all', { search: searchTerm, limit: 10 })
-                        .done(function(response) {
-                            if (response.status && response.data.length > 0) {
-                                $('#challanTable tbody').empty();
-                                response.data.forEach(function(challan) {
-                                    $('#challanTable tbody').append(`
-                                        <tr>
-                                            <td>${challan.challanNumber}</td>
-                                            <td>${challan.companyName}</td>
-                                            <td>${new Date(challan.created_at).toLocaleDateString()}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-info create-from-challan-btn" data-id="${challan.id}">
-                                                    <i class="fas fa-plus"></i> Create Invoice
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `);
-                                });
-                                $('#challanTable').show();
-                            } else {
-                                $('#challanTable').hide();
-                            }
-                        });
-                }, 500);
-            } else {
-                $('#challanTable').hide();
+            const result = await res.json();
+
+            console.log("LOAD QUOTATION RESULT:", result);
+
+            if (!result.status) {
+                return swal(
+                    "Error",
+                    result.message || "Quotation not found",
+                    "error"
+                );
             }
-        });
 
-        // Create from challan
-        $(document).on('click', '.create-from-challan-btn', function() {
-            const challanId = $(this).data('id');
+            const quotation = result.data;
 
-            $.post(`/rms/rms-invoice/create-from-challan/${challanId}`)
-                .done(function(response) {
-                    if (response.status) {
-                        $('#challanModal').modal('hide');
-                        table.ajax.reload();
-                        toastr.success(response.message);
-                    } else {
-                        toastr.error(response.message);
-                    }
-                })
-                .fail(function(xhr) {
-                    toastr.error('Failed to create invoice from challan');
-                });
-        });
+            // ========================
+            // RESET FORM
+            // ========================
+            resetForm();
+
+            // Mark as quotation mode
+            quotationMode = true;
+            editMode = true;
+            editId = null;
+
+            // ========================
+            // BASIC INFO
+            // ========================
+            if (quotationId) {
+                quotationId.value = quotation.quotationId || '';
+            }
+
+            if (companyName) {
+                companyName.value = quotation.companyName || '';
+            }
+
+            if (companyEmail) {
+                companyEmail.value = quotation.companyEmail || '';
+            }
+
+            if (invoiceStatus) {
+                invoiceStatus.value = 'pending';
+            }
+
+            // Generate invoice number if API sends one
+            if (invoiceNumber) {
+                invoiceNumber.value =
+                    quotation.invoiceNumber ||
+                    quotation.generatedInvoiceNumber ||
+                    '';
+            }
+
+            if (notes) {
+                notes.value = quotation.notes || '';
+            }
+
+            // ========================
+            // TAX / DISCOUNT
+            // ========================
+            if (taxAmount) {
+                taxAmount.value = Number(
+                    quotation.taxPercent ||
+                    quotation.taxAmount ||
+                    0
+                ).toString();
+            }
+
+            if (discountAmount) {
+                discountAmount.value = Number(
+                    quotation.discountPercent ||
+                    quotation.discountAmount ||
+                    0
+                ).toString();
+            }
+
+            // ========================
+            // LOAD ITEMS INTO CART
+            // ========================
+            cart = (quotation.items || []).map(item => {
+                const qty = Number(
+                    item.quantity ||
+                    item.quotationQuantity ||
+                    1
+                );
+
+                const unitPrice = Number(item.unitPrice || 0);
+
+                const itemDiscountPercent = Number(
+                    item.itemDiscountPercent || 0
+                );
+
+                const gross = qty * unitPrice;
+
+                const itemDiscountAmount =
+                    item.itemDiscountAmount ??
+                    (gross * itemDiscountPercent / 100);
+
+                const totalPrice =
+                    item.totalPrice ??
+                    (gross - itemDiscountAmount);
+
+                return {
+                    itemId: Number(item.itemId),
+                    itemName:
+                        item.itemName ||
+                        item.productName ||
+                        '',
+                    availableStock: Number(
+                        item.availableStock || 0
+                    ),
+                    quantity: qty,
+                    unitPrice: unitPrice,
+                    itemDiscountPercent: itemDiscountPercent,
+                    itemDiscountAmount: Number(itemDiscountAmount || 0),
+                    totalPrice: Number(totalPrice || 0),
+                    notes: item.notes || ''
+                };
+            });
+
+            // ========================
+            // RENDER + CALCULATE
+            // ========================
+            renderCart();
+            calculateTotals();
+
+            // ========================
+            // CLOSE SEARCH MODAL
+            // ========================
+            $('#createQuotationInvoiceModal').modal('hide');
+
+            // ========================
+            // OPEN INVOICE MODAL
+            // ========================
+            $('#add-edit-invoice-modal').modal('show');
+
+        } catch (err) {
+            console.error("LOAD QUOTATION ERROR:", err);
+
+            swal(
+                "Error",
+                "Failed to load quotation",
+                "error"
+            );
+        }
     });
+
+    // ========================
+    // LOAD CHALLAN → INVOICE
+    // ========================
+    document.getElementById('loadChallanForInvoice')
+    ?.addEventListener('click', async function () {
+
+        const challanNumber =
+            document.getElementById('searchChallanId')?.value?.trim();
+
+        if (!challanNumber) {
+            return swal("Warning", "Enter challan number", "warning");
+        }
+
+        try {
+            // Show loading
+            this.disabled = true;
+            const originalHtml = this.innerHTML;
+            this.innerHTML =
+                '<i class="fa fa-spinner fa-spin"></i> Loading...';
+
+            const res = await fetch(
+                `/api/rms/rms-invoice/load-from-challan/${encodeURIComponent(challanNumber)}`
+            );
+
+            const result = await res.json();
+
+            // Restore button
+            this.disabled = false;
+            this.innerHTML = originalHtml;
+
+            if (!result.status) {
+                return swal(
+                    "Error",
+                    result.message || "Challan not found",
+                    "error"
+                );
+            }
+
+            const challan = result.data;
+
+            // ========================
+            // RESET FORM
+            // ========================
+            resetForm();
+
+            // Mark as special mode
+            quotationMode = true; // reuse existing flag
+            editMode = false;
+            editId = null;
+
+            // ========================
+            // BASIC INFO
+            // ========================
+            if (companyName) {
+                companyName.value = challan.companyName || '';
+            }
+
+            if (companyEmail) {
+                companyEmail.value = challan.companyEmail || '';
+            }
+
+            if (invoiceStatus) {
+                invoiceStatus.value = 'pending';
+            }
+
+            // Save challanId in hidden field if you have one
+            const challanIdInput = document.getElementById('challanId');
+            if (challanIdInput) {
+                challanIdInput.value = challan.challanId || challan.id || '';
+            }
+
+            // Invoice number
+            if (invoiceNumber) {
+                invoiceNumber.value =
+                    challan.invoiceNumber ||
+                    challan.generatedInvoiceNumber ||
+                    '';
+            }
+
+            // Notes
+            if (notes) {
+                notes.value = challan.notes || '';
+            }
+
+            // Tax / Discount
+            if (taxAmount) {
+                taxAmount.value = Number(
+                    challan.taxPercent ||
+                    challan.taxAmount ||
+                    0
+                ).toString();
+            }
+
+            if (discountAmount) {
+                discountAmount.value = Number(
+                    challan.discountPercent ||
+                    challan.discountAmount ||
+                    0
+                ).toString();
+            }
+
+            // ========================
+            // LOAD ITEMS INTO CART
+            // ========================
+            cart = (challan.items || []).map(item => {
+                const qty = Number(
+                    item.deliveredQuantity ||
+                    item.quantity ||
+                    1
+                );
+
+                const unitPrice = Number(
+                    item.unitPrice ||
+                    item.itemPrice ||
+                    0
+                );
+
+                const itemDiscountPercent = Number(
+                    item.itemDiscountPercent || 0
+                );
+
+                const gross = qty * unitPrice;
+
+                const itemDiscountAmount =
+                    item.itemDiscountAmount ??
+                    (gross * itemDiscountPercent / 100);
+
+                const totalPrice =
+                    item.totalPrice ??
+                    (gross - itemDiscountAmount);
+
+                return {
+                    itemId: Number(item.itemId),
+                    itemName: item.itemName || '',
+                    availableStock: Number(
+                        item.availableStock || 0
+                    ),
+                    quantity: qty,
+                    unitPrice,
+                    itemDiscountPercent,
+                    itemDiscountAmount: Number(itemDiscountAmount || 0),
+                    totalPrice: Number(totalPrice || 0),
+                    notes: item.notes || ''
+                };
+            });
+
+            // ========================
+            // RENDER + CALCULATE
+            // ========================
+            renderCart();
+            calculateTotals();
+
+            // ========================
+            // CLOSE SEARCH MODAL
+            // ========================
+            $('#createChallanInvoiceModal').modal('hide');
+
+            // ========================
+            // OPEN INVOICE MODAL
+            // ========================
+            $('#add-edit-invoice-modal').modal('show');
+
+        } catch (err) {
+            console.error("LOAD CHALLAN ERROR:", err);
+
+            this.disabled = false;
+            this.innerHTML = 'Load Challan';
+
+            swal(
+                "Error",
+                "Failed to load challan",
+                "error"
+            );
+        }
+    });
+        // Initialize
+        resetForm();
+    });
+
+    
