@@ -1,5 +1,5 @@
 import { Config } from "../../../core/Config";
-import fs from "fs";
+// import fs from "fs";
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import {
     IRmsQuotation,
@@ -7,6 +7,7 @@ import {
     IRmsQuotationRepository
 } from "../interfaces/rms.quotation.interface";
 import { AppDataSource } from "../../../init";
+import * as fs from 'fs';
 
 const APP_CONFIG: Config = new Config(
     JSON.parse(fs.readFileSync("config.json").toString())
@@ -115,396 +116,332 @@ export class RmsQuotationService {
             if (!quotation) throw new Error('Quotation not found');
 
             const itemsWithDetails = await this.getItemsWithDetails(quotation.items || []);
-
             const totalAmount = itemsWithDetails.reduce((sum, item) => {
                 const qty = Number(item.quarterly) || 0;
                 const price = Number(item.rmsPrice) || 0;
-                return sum + qty * price;
+                return sum + (qty * price);
             }, 0);
 
             const pdfDoc = await PDFDocument.create();
 
-            // ================= FILES =================
-            const headerImageBytes = fs.readFileSync('src/public/dist/img/header.png');
-            const footerImageBytes = fs.readFileSync('src/public/dist/img/footer.png');
-            const signatureBytes = fs.readFileSync('src/public/dist/img/sig.png');
-            const signatureImage = await pdfDoc.embedPng(signatureBytes);
+            // Embed Fonts
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-            const headerImage = await pdfDoc.embedPng(headerImageBytes);
-            const footerImage = await pdfDoc.embedPng(footerImageBytes);
+            // Load Images
+            const headerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/header.png'));
+            const footerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/footer.png'));
+            const signatureImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/sig.png'));
 
-            const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-            const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-            // ================= PAGE SETUP =================
+            // Page Constants
             const margin = 50;
-            const lineHeight = 14;
-            const BOTTOM_LIMIT = 120;
+            const width = 595.28;
+            const height = 841.89;
+            const BOTTOM_LIMIT = 100;
+            let yPosition = height - 130;
 
-            let page = pdfDoc.addPage();
-            let { width, height } = page.getSize();
+            let page = pdfDoc.addPage([width, height]);
 
-            let yPosition = height - 120; // SAFE START POSITION
-
-            // ================= CLEAN TEXT =================
-            const cleanText = (text: any): string => {
-                return String(text || '')
-                    .replace(/\r/g, '')
-                    .replace(/\t/g, ' ')
-                    .replace(/[^\x20-\x7E\n]/g, '');
+            // ================= HELPERS =================
+            const drawHeaderFooter = (p: any) => {
+                p.drawImage(headerImage, { x: 0, y: height - 100, width, height: 100 });
+                p.drawImage(footerImage, { x: 0, y: 0, width, height: 45 });
             };
 
-            // ================= WRAP TEXT =================
-            const wrapTextByWidth = (
+            const addNewPage = () => {
+                page = pdfDoc.addPage([width, height]);
+                drawHeaderFooter(page);
+                yPosition = height - 130;
+                return page;
+            };
+
+            // =====================================
+            // CLEAN TEXT
+            // =====================================
+            const cleanText = (text: any): string => {
+                return String(text || '')
+                    // Decode HTML entities
+                    .replace(/&bull;/gi, '•')
+                    .replace(/&nbsp;/gi, ' ')
+                    .replace(/&amp;/gi, '&')
+                    .replace(/&quot;/gi, '"')
+                    .replace(/&#39;/gi, "'")
+
+                    // Convert <br> tags to new lines (important if content comes from editor)
+                    .replace(/<br\s*\/?>/gi, '\n')
+
+                    // Convert closing paragraph tags to paragraph breaks
+                    .replace(/<\/p>/gi, '\n\n')
+
+                    // Remove opening paragraph tags
+                    .replace(/<p[^>]*>/gi, '')
+
+                    // Convert list items to bullet points
+                    .replace(/<li[^>]*>/gi, '• ')
+                    .replace(/<\/li>/gi, '\n')
+
+                    // Remove ul/ol tags
+                    .replace(/<\/?(ul|ol)[^>]*>/gi, '\n')
+
+                    // Remove any remaining HTML tags
+                    .replace(/<[^>]+>/g, '')
+
+                    // Normalize line endings
+                    .replace(/\r\n/g, '\n')
+                    .replace(/\r/g, '\n')
+
+                    // Replace tabs with single spaces
+                    .replace(/\t/g, ' ')
+
+                    // Remove spaces around new lines
+                    .replace(/[ \t]*\n[ \t]*/g, '\n')
+
+                    // Collapse multiple spaces within a line
+                    .replace(/[ ]{2,}/g, ' ')
+
+                    // Preserve paragraph breaks:
+                    // 2 or more newlines = paragraph break
+                    .replace(/\n{2,}/g, '\n\n')
+
+                    // Remove unsupported characters, but keep bullets and newlines
+                    .replace(/[^\x20-\x7E\n•]/g, '')
+
+                    .trim();
+            };
+
+            // =====================================
+            // WRAP TEXT
+            // =====================================
+            const wrapText = (
                 text: string,
                 maxWidth: number,
-                font: any,
+                pdfFont: any,
                 fontSize: number
             ): string[] => {
                 const safeText = cleanText(text);
-                const paragraphs = safeText.split('\n');
+
+                // Split paragraphs by double newline
+                const paragraphs = safeText.split('\n\n');
 
                 const lines: string[] = [];
 
                 for (const paragraph of paragraphs) {
-                    const words = paragraph.split(' ');
-                    let line = '';
+                    const trimmedParagraph = paragraph.trim();
 
-                    for (const word of words) {
-                        const testLine = line ? line + ' ' + word : word;
-                        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+                    if (!trimmedParagraph) {
+                        lines.push('');
+                        continue;
+                    }
 
-                        if (testWidth > maxWidth) {
-                            if (line) lines.push(line);
-                            line = word;
-                        } else {
-                            line = testLine;
+                    // Split paragraph into individual lines
+                    const rawLines = trimmedParagraph.split('\n');
+
+                    for (const rawLine of rawLines) {
+                        const lineText = rawLine.trim();
+
+                        if (!lineText) {
+                            lines.push('');
+                            continue;
+                        }
+
+                        // Detect bullet line
+                        const isBullet = lineText.startsWith('•');
+                        const bulletPrefix = isBullet ? '• ' : '';
+                        const content = isBullet
+                            ? lineText.substring(1).trim()
+                            : lineText;
+
+                        const words = content.split(/\s+/);
+                        let currentLine = bulletPrefix;
+                        let firstLine = true;
+
+                        for (const word of words) {
+                            const testLine =
+                                currentLine.trim().length === 0
+                                    ? word
+                                    : `${currentLine}${word}`;
+
+                            const testWidth = pdfFont.widthOfTextAtSize(
+                                testLine,
+                                fontSize
+                            );
+
+                            if (testWidth > maxWidth) {
+                                if (currentLine.trim()) {
+                                    lines.push(currentLine.trimEnd());
+                                }
+
+                                // Indent wrapped bullet lines
+                                currentLine =
+                                    isBullet && !firstLine
+                                        ? '   ' + word + ' '
+                                        : (isBullet ? '   ' : '') + word + ' ';
+
+                                firstLine = false;
+                            } else {
+                                currentLine = testLine + ' ';
+                            }
+                        }
+
+                        if (currentLine.trim()) {
+                            lines.push(currentLine.trimEnd());
                         }
                     }
 
-                    if (line) lines.push(line);
+                    // Add blank line after each paragraph
                     lines.push('');
+                }
+
+                // Remove trailing blank lines
+                while (lines.length > 0 && lines[lines.length - 1] === '') {
+                    lines.pop();
                 }
 
                 return lines;
             };
 
-            // ================= HEADER / FOOTER =================
-            const drawHeaderFooter = () => {
-                const headerHeight = 100;
-                const footerHeight = 70;
-
-                page.drawImage(headerImage, {
-                    x: 0,
-                    y: height - headerHeight,
-                    width,
-                    height: headerHeight,
-                });
-
-                page.drawImage(footerImage, {
-                    x: 0,
-                    y: 0,
-                    width,
-                    height: footerHeight,
-                });
+            const drawTableGrid = (y: number, h: number, columnWidths: number[]) => {
+                const tWidth = columnWidths.reduce((a, b) => a + b, 0);
+                page.drawRectangle({ x: margin, y: y - h + 10, width: tWidth, height: h, borderColor: rgb(0,0,0), borderWidth: 1 });
+                let currX = margin;
+                for (let i = 0; i < columnWidths.length - 1; i++) {
+                    currX += columnWidths[i];
+                    page.drawLine({ start: { x: currX, y: y + 10 }, end: { x: currX, y: y - h + 10 }, thickness: 1 });
+                }
             };
 
-            // ================= NEW PAGE =================
-            const addPage = () => {
-                page = pdfDoc.addPage();
-                ({ width, height } = page.getSize());
+            // Start Page 1
+            drawHeaderFooter(page);
 
-                drawHeaderFooter();
+            // ================= PAGE 1: COVER LETTER =================
+            page.drawText('QUOTATION', { x: margin, y: yPosition, size: 20, font: fontBold });
 
-                yPosition = height - 120; // reset safe content start
-            };
-
-            // first page header/footer
-            drawHeaderFooter();
-
-            // ================= TEXT DRAW =================
-            const drawText = (text: string, x: number, size = 11, font = helvetica) => {
-                if (yPosition < BOTTOM_LIMIT) addPage();
-
-                page.drawText(cleanText(text), {
-                    x,
-                    y: yPosition,
-                    size,
-                    font,
-                    color: rgb(0, 0, 0),
-                });
-
-                yPosition -= lineHeight;
-            };
-
-            // ================= TITLE =================
-            page.drawText('RMS Tech Solutions', {
-                x: margin,
-                y: yPosition,
-                size: 18,
-                font: helveticaBold,
-            });
-            yPosition -= 25;
-
-            page.drawText('Quotation', {
-                x: margin,
-                y: yPosition,
-                size: 14,
-                font: helveticaBold,
-            });
-            yPosition -= 20;
-
-            drawText(`Ref Number: ${quotation.refNumber}`, margin);
-            drawText(`Date: ${new Date().toLocaleDateString()}`, margin);
-            drawText(`To: ${quotation.companyName}`, margin);
-            if (quotation.companyEmail) drawText(`Email: ${quotation.companyEmail}`, margin);
-            drawText(`Subject: ${quotation.subject}`, margin);
-
-            yPosition -= 10;
-
-            // ================= DESCRIPTION =================
-            page.drawText('Description:', {
-                x: margin,
-                y: yPosition,
-                size: 12,
-                font: helveticaBold,
-            });
-            yPosition -= 15;
-
-            const descLines = wrapTextByWidth(
-                quotation.discriptions || '',
-                width - margin * 2,
-                helvetica,
-                11
-            );
-
-            for (const line of descLines) {
-                if (!line.trim()) {
-                    yPosition -= 6;
-                    continue;
-                }
-
-                if (yPosition < BOTTOM_LIMIT) addPage();
-
-                page.drawText(line, {
-                    x: margin,
-                    y: yPosition,
-                    size: 11,
-                    font: helvetica,
-                });
-
-                yPosition -= 14;
-            }
-
-            yPosition -= 10;
-
-            // ===== SIGNATURE ON FIRST PAGE =====
-            const signatureY = 150; // bottom anchor
-
-            // Signature Image
-            page.drawImage(signatureImage, {
-                x: margin,
-                y: signatureY,
-                width: 120,
-                height: 60,
-            });
-
-            // Text ABOVE the signature (not using drawText)
-            page.drawText('Best Regards,', {
-                x: margin,
-                y: signatureY + 80,
-                size: 12,
-                font: helveticaBold,
-            });
-
-            page.drawText('RMS Tech Solutions', {
-                x: margin,
-                y: signatureY + 60,
-                size: 12,
-                font: helvetica,
-            });
-
-            // Name & designation BELOW signature
-            page.drawText('Md. Masud Rana', {
-                x: margin,
-                y: signatureY - 15,
-                size: 11,
-                font: helveticaBold,
-            });
-
-            page.drawText('Technical Manager', {
-                x: margin,
-                y: signatureY - 30,
-                size: 10,
-                font: helvetica,
-            });
-
-            page.drawText('RMS Tech Solutions', {
-                x: margin,
-                y: signatureY - 45,
-                size: 10,
-                font: helvetica,
-            });
-            addPage();
-
-            // ================= TABLE HEADER =================
-            const drawTableHeader = () => {
-                page.drawText('SL', { x: margin, y: yPosition, size: 10, font: helveticaBold });
-                page.drawText('Description', { x: margin + 40, y: yPosition, size: 10, font: helveticaBold });
-                page.drawText('Qty', { x: margin + 300, y: yPosition, size: 10, font: helveticaBold });
-                page.drawText('Unit Price', { x: margin + 350, y: yPosition, size: 10, font: helveticaBold });
-                page.drawText('Amount', { x: margin + 430, y: yPosition, size: 10, font: helveticaBold });
-
-                yPosition -= 12;
-
-                page.drawLine({
-                    start: { x: margin, y: yPosition },
-                    end: { x: width - margin, y: yPosition },
-                    thickness: 1,
-                });
-
-                yPosition -= 10;
-            };
-
-            drawTableHeader();
-
-            // ================= ITEMS =================
-            for (let i = 0; i < itemsWithDetails.length; i++) {
-                const item = itemsWithDetails[i];
-
-                const qty = Number(item.quarterly) || 0;
-                const unitPrice = Number(item.rmsPrice) || 0;
-                const amount = qty * unitPrice;
-
-                let description = item.itemName || '';
-                if (item.itemConfigurations) {
-                    description += '\n' + item.itemConfigurations;
-                }
-
-                const wrappedLines = wrapTextByWidth(description, 240, helvetica, 10);
-                const rowHeight = wrappedLines.length * 14;
-
-                if (yPosition < BOTTOM_LIMIT + rowHeight) {
-                    addPage();
-                    drawTableHeader();
-                }
-
-                const rowY = yPosition;
-
-                page.drawText(String(i + 1), {
-                    x: margin,
-                    y: rowY,
-                    size: 10,
-                    font: helvetica,
-                });
-
-                const rightAlign = (text: string, x: number) => {
-                    const w = helvetica.widthOfTextAtSize(text, 10);
-                    page.drawText(text, {
-                        x: x - w,
-                        y: rowY,
-                        size: 10,
-                        font: helvetica,
-                    });
-                };
-
-                rightAlign(String(qty), margin + 320);
-                rightAlign(this.formatCurrency(unitPrice), margin + 400);
-                rightAlign(this.formatCurrency(amount), margin + 480);
-
-                let textY = rowY;
-
-                for (const line of wrappedLines) {
-                    if (!line.trim()) {
-                        textY -= 6;
-                        continue;
-                    }
-
-                    page.drawText(line, {
-                        x: margin + 40,
-                        y: textY,
-                        size: 10,
-                        font: helvetica,
-                    });
-
-                    textY -= 14;
-                }
-
-                yPosition = textY - 6;
-
-                page.drawLine({
-                    start: { x: margin, y: yPosition },
-                    end: { x: width - margin, y: yPosition },
-                    thickness: 0.5,
-                });
-
-                yPosition -= 10;
-            }
-
-            // ================= TOTAL =================
-            yPosition -= 10;
-
-            if (yPosition < BOTTOM_LIMIT) addPage();
-
-            page.drawText(`Total: ${this.formatCurrency(totalAmount)}`, {
-                x: margin + 350,
-                y: yPosition,
-                size: 12,
-                font: helveticaBold,
-            });
-
-            yPosition -= 20;
-
-            drawText(`In words: ${this.numberToWords(Math.floor(totalAmount))} only.`, margin);
+            // Date on Right
+            const dateStr = `Date: ${new Date().toLocaleDateString('en-GB')}`;
+            page.drawText(dateStr, { x: width - margin - font.widthOfTextAtSize(dateStr, 11), y: yPosition, size: 11, font });
 
             yPosition -= 30;
+            page.drawText(`Ref: ${String(quotation.refNumber || '').replace(/[^\x20-\x7E]/g, '')}`, { x: margin, y: yPosition, size: 11, font: fontBold });
+            yPosition -= 20;
+            page.drawText(`To: ${String(quotation.companyName || '').replace(/[^\x20-\x7E]/g, '')}`, { x: margin, y: yPosition, size: 11, font: fontBold });
+            yPosition -= 25;
 
-            // ================= TERMS =================
-            if (yPosition < BOTTOM_LIMIT) addPage();
-
-            drawText('Note: Terms & Conditions:', margin, 12, helveticaBold);
-            drawText('1. Project timeline: 10 days.', margin + 10, 10, helvetica);
-            drawText('2. 50% Advance payable.', margin + 10, 10, helvetica);
-            drawText('3. 40% Progress payment.', margin + 10, 10, helvetica);
-            drawText('4. 10% Final payment.', margin + 10, 10, helvetica);
-            drawText('WARRANTY: 12 months manufacturing warranty.', margin + 10, 10, helvetica);
-
-            yPosition -= 10;
-
-            drawText('Best Regards,', margin, 12, helveticaBold);
-            drawText('RMS Tech Solutions', margin, 12, helvetica);
-
-            if (yPosition < 150) {
-                addPage();
-            }
-
-            yPosition -= 10;
-
-            page.drawImage(signatureImage, {
-                x: margin,
-                y: yPosition - 40,
-                width: 120,
-                height: 60,
+            // Subject
+            const subLines = wrapText(`Subject: ${quotation.subject}`, width - (margin * 2), fontBold, 11);
+            subLines.forEach(l => {
+                page.drawText(l, { x: margin, y: yPosition, size: 11, font: fontBold });
+                yPosition -= 15;
             });
 
+            yPosition -= 10;
+
+            // Description Body
+            const descriptionLines = wrapText(quotation.discriptions, width - (margin * 2), font, 11);
+
+            for (const line of descriptionLines) {
+                if (yPosition < BOTTOM_LIMIT + 40) {
+                    page = pdfDoc.addPage([width, height]);
+                    drawHeaderFooter(page);
+                    yPosition = height - 130;
+                }
+
+                if (line === '') {
+                    yPosition -= 10;
+                } else {
+                    page.drawText(line, { x: margin, y: yPosition, size: 11, font });
+                    yPosition -= 15;
+                }
+            }
+
+            yPosition -= 30;
+            page.drawText('Best Regards,', { x: margin, y: yPosition, size: 11, font: fontBold });
             yPosition -= 50;
+            page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 50 });
+            yPosition -= 15;
+            page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
+            yPosition -= 12;
+            page.drawText('Technical Manager | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
 
-            // ================= SIGNATURE TEXT =================
-            drawText('Md. Masud Rana', margin, 11, helveticaBold);
-            drawText('Technical Manager', margin, 10, helvetica);
-            drawText('RMS Tech Solutions', margin, 10, helvetica);
+            // ================= PAGE 2: ITEMS TABLE =================
+            addNewPage(); // Forces items to start on Page 2
 
-            // ================= SAVE =================
-            const pdfBytes = await pdfDoc.save();
+            const cols = [35, 245, 45, 85, 85];
 
-            return {
-                pdfBuffer: Buffer.from(pdfBytes),
-                emailSent: false,
+            const drawHeader = (y: number) => {
+                drawTableGrid(y, 22, cols);
+                page.drawText('SL', { x: margin + 8, y: y - 2, size: 10, font: fontBold });
+                page.drawText('Description', { x: margin + 45, y: y - 2, size: 10, font: fontBold });
+                page.drawText('Qty', { x: margin + 285, y: y - 2, size: 10, font: fontBold });
+                page.drawText('Unit Price', { x: margin + 335, y: y - 2, size: 10, font: fontBold });
+                page.drawText('Total (BDT)', { x: margin + 420, y: y - 2, size: 10, font: fontBold });
             };
 
+            drawHeader(yPosition);
+            yPosition -= 22;
+
+            for (let i = 0; i < itemsWithDetails.length; i++) {
+                const item = itemsWithDetails[i];
+                const qty = Number(item.quarterly) || 0;
+                const price = Number(item.rmsPrice) || 0;
+                const sub = qty * price;
+
+                const itemTxt = `${item.itemName}${item.itemConfigurations ? '\n' + item.itemConfigurations : ''}`;
+                const wrappedItem = wrapText(itemTxt, 235, font, 9);
+                const rowH = Math.max(wrappedItem.length * 14 + 10, 30);
+
+                if (yPosition - rowH < BOTTOM_LIMIT) {
+                    addNewPage();
+                    drawHeader(yPosition);
+                    yPosition -= 22;
+                }
+
+                drawTableGrid(yPosition, rowH, cols);
+                page.drawText(String(i + 1), { x: margin + 12, y: yPosition - 5, size: 9, font });
+
+                let lineY = yPosition - 5;
+                wrappedItem.forEach(l => {
+                    page.drawText(l, { x: margin + 45, y: lineY, size: 9, font });
+                    lineY -= 12;
+                });
+
+                page.drawText(String(qty), { x: margin + 295, y: yPosition - 5, size: 9, font });
+                page.drawText(this.formatCurrency(price), { x: margin + 340, y: yPosition - 5, size: 9, font });
+                page.drawText(this.formatCurrency(sub), { x: margin + 425, y: yPosition - 5, size: 9, font });
+
+                yPosition -= rowH;
+            }
+
+            // ================= FINAL TOTAL & TERMS =================
+            yPosition -= 20;
+            if (yPosition < 150) addNewPage();
+
+            page.drawText(`Total Amount: BDT ${this.formatCurrency(totalAmount)}`, { x: width - margin - 180, y: yPosition, size: 12, font: fontBold });
+            yPosition -= 15;
+            page.drawText(`In words: ${this.numberToWords(Math.floor(totalAmount))} Taka Only.`, { x: margin, y: yPosition, size: 10, font: fontBold });
+
+            yPosition -= 40;
+            page.drawText('Terms & Conditions:', { x: margin, y: yPosition, size: 10, font: fontBold });
+            yPosition -= 15;
+            ["1. Timeline: 10 working days.", "2. Payment: 50% Advance, 50% on Delivery.", "3. Warranty: 12 Months Manufacturing."].forEach(t => {
+                page.drawText(t, { x: margin + 10, y: yPosition, size: 9, font });
+                yPosition -= 12;
+            });
+
+            yPosition -= 20;
+            page.drawText('Best Regards,', { x: margin, y: yPosition, size: 11, font: fontBold });
+            yPosition -= 50;
+            page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 50 });
+            yPosition -= 15;
+            page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
+            yPosition -= 12;
+            page.drawText('Technical Manager | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
+
+            const pdfBytes = await pdfDoc.save();
+            return { pdfBuffer: Buffer.from(pdfBytes), emailSent: false };
+
         } catch (error: any) {
-            console.error('Error generating PDF:', error);
-            throw new Error(`Failed to generate PDF: ${error.message}`);
+            console.error('PDF Error:', error);
+            throw new Error(`Failed: ${error.message}`);
         }
     }
 

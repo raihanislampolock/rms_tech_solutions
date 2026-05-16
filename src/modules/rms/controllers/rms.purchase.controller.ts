@@ -24,6 +24,7 @@ export class RmsPurchaseController extends Controller {
         this.onGet("/api/rms/rms-purchase/generate-number", [], this.auth.private, this.generateNumber);
         this.onGet("/api/rms/rms-purchase/generate-pdf/:id", [], this.auth.private, this.generatePdf);
         this.onPost("/api/rms/rms-purchase/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
+        this.onGet("/api/rms/rms-purchase/view-pdf/:id", [], this.auth.private, this.viewPdf);
 
     }
 
@@ -346,6 +347,33 @@ export class RmsPurchaseController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message || "Failed to send email"
+            });
+        }
+    }
+
+    public async viewPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid purchase ID"
+                });
+            }
+
+            const result = await this.rmsPurchaseService.generatePdf(id);
+
+            resp.setHeader('Content-Type', 'application/pdf');
+            resp.setHeader('Content-Disposition', `inline; filename=purchase-${id}.pdf`);
+            return resp.send(result.pdfBuffer);
+
+        } catch (error: any) {
+            console.error(error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message
             });
         }
     }

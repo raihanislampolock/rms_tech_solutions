@@ -14,8 +14,6 @@ import { RmsPurchaseItemModel } from "./modules/rms/models/rms.purchase.item.mod
 import { RmsStockTransactionModel } from "./modules/rms/models/rms.stock.transaction.model";
 import { RmsQuotationModel } from "./modules/rms/models/rms.quotation.model";
 import { RmsQuotationItemModel } from "./modules/rms/models/rms.quotation.Item.model";
-import { RmsDeliveryModel } from "./modules/rms/models/rms.delivery.model";
-import { RmsDeliveryItemModel } from "./modules/rms/models/rms.delivery.item.model";
 import { RmsStockMovementModel } from "./modules/rms/models/rms.stock-movement.model";
 import { RmsChallanModel } from "./modules/rms/models/rms.challan.model";
 import { RmsChallanItemModel } from "./modules/rms/models/rms.challan.item.model";
@@ -34,8 +32,8 @@ export const AppDataSource = new DataSource({
     password: APP_CONFIG.postgres.dbPassword || 'secret',
     database: APP_CONFIG.postgres.dbName || 'rms_portal',
     entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsItemStockModel, RmsPurchaseModel,
-                RmsPurchaseItemModel, RmsStockTransactionModel, RmsQuotationModel, RmsQuotationItemModel, RmsDeliveryModel, RmsDeliveryItemModel
-                , RmsStockMovementModel, RmsChallanModel, RmsChallanItemModel, RmsInvoiceModel, RmsInvoiceItemModel],
+                RmsPurchaseItemModel, RmsStockTransactionModel, RmsQuotationModel, RmsQuotationItemModel, RmsStockMovementModel, RmsChallanModel,
+                RmsChallanItemModel, RmsInvoiceModel, RmsInvoiceItemModel],
     synchronize: true, // Automatically sync entity schema (disable in production)
     logging: false,
 });

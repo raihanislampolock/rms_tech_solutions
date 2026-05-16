@@ -183,6 +183,9 @@ block content
                                       a(href='#') PR PDF &nbsp;
                                         i.fa.fa-sort-alpha-asc
                                     th
+                                      a(href='#') View PR &nbsp;
+                                        i.fa.fa-sort-alpha-asc    
+                                    th
                                       a(href='#') PR Email &nbsp;
                                         i.fa.fa-sort-alpha-asc    
                                     th
@@ -329,6 +332,14 @@ block script
                              class="fa fa-file-pdf-o fa-2x"
                              target="_blank"
                              title="Generate PDF">
+                          </a>
+                      </td>
+
+                      <td>    
+                          <a href="/api/rms/rms-purchase/view-pdf/${p.id}"
+                             class="fa fa-file-pdf-o fa-2x"
+                             target="_blank"
+                             title="View PDF">
                           </a>
                       </td>
 
