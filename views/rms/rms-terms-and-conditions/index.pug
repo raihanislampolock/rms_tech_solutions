@@ -1,0 +1,601 @@
+extends ../../layout
+block style
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
+  style.
+    /* === Modern Layout & Card Styling === */
+    .modern-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid #edf2f7;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .modern-toolbar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #edf2f7;
+      background-color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* === Modern Inputs & Selects === */
+    .modern-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
+    }
+
+    .modern-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
+      outline: none;
+    }
+
+    .modern-control:focus {
+      border-color: #580db4;
+      box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
+      background-color: #fff;
+    }
+
+    /* === Modern Buttons === */
+    .btn-modern {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-modern-primary {
+      background-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .btn-modern-primary:hover {
+      background-color: #480a96;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(88, 13, 180, 0.3);
+      color: white;
+    }
+
+    .btn-modern-icon {
+      padding: 0.5rem 0.75rem;
+    }
+
+    /* === Modern Table Styling === */
+    .modern-table-container {
+      padding: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .table.modern-table {
+      margin-bottom: 0;
+      border-collapse: collapse !important; /* Fixed gap issue */
+      width: 100%;
+    }
+
+    .modern-table thead th {
+      position: sticky;
+      top: 0;
+      background-color: #580db4;
+      color: white;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border: none;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Enforce alignment with toolbar */
+    .modern-table thead th:first-child,
+    .modern-table tbody td:first-child {
+      padding-left: 1.5rem !important; 
+    }
+    
+    .modern-table thead th:last-child,
+    .modern-table tbody td:last-child {
+      padding-right: 1.5rem !important; 
+    }
+
+    .modern-table thead th a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex; /* Prevents flex from taking full width strangely */
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modern-table tbody td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+      font-size: 0.95rem;
+    }
+
+    .modern-table tbody tr {
+      transition: all 0.2s;
+    }
+
+    .modern-table tbody tr:hover {
+      background-color: #fbf8ff;
+    }
+
+    .modern-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Action Icons in Table */
+    .action-icon {
+      color: #718096;
+      background: #edf2f7;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .action-icon:hover {
+      background: #580db4;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* === Footer & Pagination === */
+    .modern-footer {
+      padding: 1.25rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modern-footer .title-filter {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Modern Pagination */
+    .pagination {
+      margin: 0;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination li a, .pagination li span {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: #4a5568;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .pagination li.active a {
+      background-color: #580db4;
+      border-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .pagination li a:hover:not(.active) {
+      background-color: #edf2f7;
+      color: #580db4;
+    }
+
+    /* Breadcrumb override */
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+    }
+
+    /* Utility for selection */
+    .selected-row {
+      background-color: #580db4 !important;
+      color: white !important;
+    }
+
+block content
+  section.content-header.mb-4
+    div(style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;")
+      h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Terms and Conditions
+      ol.breadcrumb(style="margin: 0;")
+        li
+          a(href='/dashboard' style="color: #580db4; font-weight: 500; text-decoration: none;")
+            i.fa.fa-home.mr-1
+            | Dashboard
+        li
+          a(href='/rms/rms-terms-and-conditions' style="color: #718096; text-decoration: none;")
+            | RMS Terms and Conditions
+
+  section.content
+    .row
+      .col-xs-12
+        .modern-card
+          //- Toolbar Area
+          .modern-toolbar
+            .toolbar-group
+              .modern-input-group
+                span Search:
+                input.modern-control(type='text' placeholder='Enter search criteria...' name='search' autocomplete='off' id='search' style='width: 250px;')
+                button.btn-modern.btn-modern-primary.btn-modern-icon#searchBtn(type='button')
+                  i.fa.fa-filter
+              
+              button.btn-modern.btn-modern-primary(type='button' data-toggle='modal' data-target='#add-edit-terms-modal') 
+                i.fa.fa-plus
+                | Add New
+              
+              button.btn-modern.btn-modern-primary.btn-modern-icon(type='button' title="Download") 
+                i.fa.fa-download
+                
+            .toolbar-group
+              .modern-input-group
+                span Show:
+                select.modern-control#limitSelect(style='width: 80px;')
+                  option 10
+                  option 25
+                  option 50
+                  option 100
+
+          //- Table Area
+          .modern-table-container
+            table.table.modern-table#termsTable
+              thead
+                tr
+                  th 
+                    a(href='#') Action 
+                      i.fa.fa-sort-alpha-asc.ml-1
+                  th 
+                    a(href='#') Time Line  
+                  th 
+                    a(href='#') Payment Terms
+                  th 
+                    a(href='#') Warranty   
+                  th 
+                    a(href='#') Remarks 
+                  th 
+                    a(href='#') Created By
+                  th 
+                    a(href='#') Updated By     
+                  th 
+                    a(href='#') Created Date
+                  th 
+                    a(href='#') Updated Date           
+              tbody#termsTableBody
+                tr 
+                  td.text-center(colspan='9' style="padding: 3rem;") 
+                    span(style="color: #a0aec0; font-size: 1.1rem;") No data to display. Use the search filters above to load data.
+
+          //- Footer Area
+          .modern-footer
+            span.title-filter#title-filter Showing no entries
+            ul.pagination#paginationContainer
+
+  include ./create
+
+block script
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('termsTableBody');
+      if (!tableBody) {
+        console.error("Element with id 'termsTableBody' not found.");
+        return;
+      }
+      const paginationContainer = document.getElementById('paginationContainer');
+      const searchStr = document.getElementById('search');
+      const searchBtn = document.getElementById('searchBtn');
+      const limitSelect = document.getElementById('limitSelect');
+
+      let currentPage = 1;
+      let currentSearch = '';
+      let limit = limitSelect.value;
+
+      async function fetchTerms(page = 1, search = '', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center" style="padding: 3rem;"><i class="fa fa-spinner fa-spin" style="font-size: 32px; color: #580db4;"></i></td></tr>`;
+        try {
+          const response = await fetch(`/api/rms/rms-terms-and-conditions/all?page=${page}&search=${search}&limit=${limit}`);
+          const data = await response.json();
+          console.log("API Response:", data);
+
+          if (data?.data?.length > 0) {
+            tableBody.innerHTML = data.data.map(terms => {
+            return `
+              <tr style='cursor:pointer' class="table-row">
+                <td>
+                  <a href="#" id='editTerms' class="action-icon" data-terms-id="${terms.id}" data-toggle='modal' data-target='#add-edit-terms-modal' title="Edit">
+                    <i class="fa fa-edit"></i>
+                  </a>
+                </td>
+                <td>${terms.timeLine || '-'}</td>
+                <td>${terms.payment || '-'}</td>
+                <td>${terms.warranty || '-'}</td>
+                <td>${terms.remarks || '-'}</td>              
+                <td>${terms.createdBy || '-'}</td>
+                <td>${terms.updatedBy || '-'}</td>
+                <td>${terms.created_at || '-'}</td>
+                <td>${terms.updated_at || '-'}</td>
+              </tr>
+          `;
+          }).join('');
+
+          const totalRecords = data.total;
+          const startRecord = (currentPage - 1) * limit + 1;
+          const endRecord = Math.min(currentPage * limit, totalRecords);
+
+          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+
+          } else {
+            tableBody.innerHTML = `<tr><td colspan="9" class="text-center" style="padding: 3rem; color: #a0aec0;">No data found matching your criteria.</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries to display';
+          }          
+
+          // Generate pagination buttons
+          const totalPages = Math.ceil((data.total || 0) / limit);
+          renderPagination(totalPages, currentPage);
+
+        } catch (error) {
+          console.error('Error fetching reports:', error);
+          tableBody.innerHTML = `<tr><td colspan="9" class="text-center" style="padding: 3rem; color: #e53e3e;">Error loading data. Please try again.</td></tr>`;
+          document.querySelector('#title-filter').textContent = 'Error loading entries';
+        }
+      }
+
+      function renderPagination(totalPages, currentPage) {
+        paginationContainer.innerHTML = ""
+        if (totalPages <= 0) return;
+
+        const maxVisiblePages = 5
+        const firstPages = 2
+        const lastPages = 2
+
+        // Helper function to create pagination link
+        const createPageLink = (page, isActive = false) => {
+          const pageItem = document.createElement("li")
+          if (isActive) pageItem.classList.add("active")
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
+          paginationContainer.appendChild(pageItem)
+        }
+
+        // Show "Previous" button if not on first page
+        if (currentPage > 1) {
+          const prevItem = document.createElement("li")
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}"><i class="fa fa-chevron-left" style="font-size: 0.8em; pointer-events:none;"></i></a>`
+          paginationContainer.appendChild(prevItem)
+        }
+
+        // For small number of pages, show all pages without ellipsis
+        if (totalPages <= maxVisiblePages) {
+          for (let i = 1; i <= totalPages; i++) {
+            createPageLink(i, i === currentPage)
+          }
+        } else {
+          // Show first page
+          createPageLink(1, currentPage === 1)
+
+          // Calculate range of pages to show around current page
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
+
+          // Adjust range if current page is near the end
+          if (rangeEnd === totalPages - 1) {
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+          }
+
+          // Show ellipsis after first page if needed
+          if (rangeStart > 2) {
+            paginationContainer.innerHTML += `<li><span style="pointer-events: none;">...</span></li>`
+          }
+
+          // Show pages in range
+          for (let i = rangeStart; i <= rangeEnd; i++) {
+            createPageLink(i, i === currentPage)
+          }
+
+          // Show ellipsis before last page if needed
+          if (rangeEnd < totalPages - 1) {
+            paginationContainer.innerHTML += `<li><span style="pointer-events: none;">...</span></li>`
+          }
+
+          // Show last page if not already shown
+          if (totalPages > 1) {
+            createPageLink(totalPages, currentPage === totalPages)
+          }
+        }
+
+        // Show "Next" button if not on last page
+        if (currentPage < totalPages) {
+          const nextItem = document.createElement("li")
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}"><i class="fa fa-chevron-right" style="font-size: 0.8em; pointer-events:none;"></i></a>`
+          paginationContainer.appendChild(nextItem)
+        }
+      }          
+
+        // Update page and fetch data
+      function updatePage(page) {
+        currentSearch = searchStr.value;
+        currentPage = page;
+        fetchTerms(currentPage, currentSearch, limit);
+      }   
+
+      // Event listener for pagination links
+      paginationContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('pagination-link')) {
+          event.preventDefault();
+          const page = parseInt(event.target.getAttribute('data-page'), 10);
+          if (!isNaN(page)) {
+            updatePage(page);
+          }
+        }
+      });      
+
+      // Search and limit event listeners
+      searchBtn.addEventListener('click', () => {
+        currentSearch = searchStr.value;
+        fetchTerms(1, currentSearch, limit);
+      });
+      
+      // Allow searching by pressing "Enter" key
+      searchStr.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchBtn.click();
+        }
+      });
+      
+      limitSelect.addEventListener('change', () => {
+        limit = limitSelect.value;
+        currentPage = 1;
+        fetchTerms(currentPage, currentSearch, limit);
+      });
+
+      fetchTerms(currentPage, currentSearch, limit);
+    });
+
+    // Reset terms form
+    $(document).on('click', '.btn-add-terms', function () {
+      $('#terms-form')[0].reset();
+      $('#terms-form').removeAttr('data-terms-id');
+      $('#terms-form input, #terms-form textarea').val('');
+      $('#add-edit-terms-modal .modal-title').text('Add Terms and Conditions');
+      $('#button-add-edit-terms').text('Create');
+    });
+
+    // Handle terms form submission
+    $('#terms-form').on('submit', function (e) {
+      e.preventDefault();
+
+      const id = $(this).attr('data-terms-id');
+
+      const formData = {
+        timeLine: $('#timeLine').val(),
+        payment: $('#payment').val(),
+        warranty: $('#warranty').val(),
+        remarks: $('#remarks').val()
+      };
+
+      if (id) {
+        updateTerms(id, formData);
+      } else {
+        createTerms(formData);
+      }
+    });
+
+    // Create Terms
+    function createTerms(formData) {
+      $.ajax({
+        url: '/rms/rms-terms-and-conditions/create',
+        type: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json', 
+        success: function (response) {
+          if (response.status) {
+            swal({
+              title: response.message,
+              icon: "success",
+              button: "OK"
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            swal("Error", response.message || "Failed to create terms and conditions", "error");
+          }
+        },
+        error: function (xhr) {
+          swal("Error", xhr.responseJSON?.message || "Something went wrong", "error");
+        }
+      });
+    }
+
+    // Update Terms
+    function updateTerms(id, formData) {
+      $.ajax({
+        url: `/api/rms/rms-terms-and-conditions/update/${id}`,
+        type: 'PUT',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        success: function (response) {
+          if (response.status) {
+            swal({
+              title: response.message,
+              icon: "success",
+              button: "OK"
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            swal("Error", response.message || "Failed to update terms and conditions", "error");
+          }
+        },
+        error: function (xhr) {
+          swal("Error", xhr.responseJSON?.message || "Something went wrong", "error");
+        }
+      });
+    }
+
+    // Load Terms for Editing
+    $(document).on('click', '#editTerms', function () {
+      const id = $(this).attr('data-terms-id');
+      loadTermsForEdit(id);
+    });
+
+    function loadTermsForEdit(id) {
+      $.ajax({
+        url: `/api/rms/rms-terms-and-conditions/edit/${id}`,
+        type: 'GET',
+        success: function (response) {
+          if (response.status && response.data) {
+            const terms = response.data;
+            $('#terms-form').attr('data-terms-id', id);
+            $('#timeLine').val(terms.timeLine);
+            $('#payment').val(terms.payment);
+            $('#warranty').val(terms.warranty);
+            $('#remarks').val(terms.remarks);
+          } else {
+            swal("Error", response.message || "Failed to load terms and conditions data", "error");
+          }
+        },
+        error: function (xhr) {
+          swal("Error", xhr.responseJSON?.message || "Something went wrong", "error");
+        }
+      });
+    }
+

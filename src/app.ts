@@ -57,6 +57,9 @@ import { RmsChallanService } from "./modules/rms/services/rms.challan.service";
 import { RmsInvoiceController } from "./modules/rms/controllers/rms.invoice.controller";
 import { RmsInvoiceRepository } from "./modules/rms/repositories/rms.invoice.repository";
 import { RmsInvoiceService } from "./modules/rms/services/rms.invoice.service";
+import { RmsTermsAndConditionsController } from "./modules/rms/controllers/rms.terms.and.conditions.controller";
+import { RmsTermsAndConditionsRepository } from "./modules/rms/repositories/rms.terms.and.conditions.repository";
+import { RmsTermsAndConditionsService } from "./modules/rms/services/rms.terms.and.conditions.service";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -115,6 +118,7 @@ app.set("RmsQuotationRepository", new RmsQuotationRepository());
 app.set("RmsChallanRepository", new RmsChallanRepository());
 app.set("RmsInvoiceRepository", new RmsInvoiceRepository());
 app.set("RmsItemStockRepository", new RmsItemStockRepository());
+app.set("RmsTermsAndConditionsRepository", new RmsTermsAndConditionsRepository());
 
 
 app.set("SignUpService", new SignUpService(app.get("UserRepository"), AppDataSource));
@@ -129,6 +133,7 @@ app.set("RmsChallanService", new RmsChallanService(app.get("RmsChallanRepository
 app.set("RmsInvoiceService", new RmsInvoiceService(app.get("RmsInvoiceRepository")));
 app.set("RmsPurchaseService", new RmsPurchaseService(app.get("RmsPurchaseRepository")));
 app.set("RmsItemStockService", new RmsItemStockService(app.get("RmsItemStockRepository")));
+app.set("RmsTermsAndConditionsService", new RmsTermsAndConditionsService(app.get("RmsTermsAndConditionsRepository")));
 
 
 // Initialize and set the mailer to use
@@ -147,6 +152,7 @@ app.registerController(new RmsChallanController());
 app.registerController(new RmsInvoiceController());
 app.registerController(new RmsPurchaseController());
 app.registerController(new RmsItemStockController());
+app.registerController(new RmsTermsAndConditionsController());
 
 // Finally setup the cron jobs
 // cron.schedule("* * * * *", async () => {

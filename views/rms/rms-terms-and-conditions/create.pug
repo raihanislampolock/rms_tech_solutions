@@ -1,0 +1,178 @@
+style.
+  /* Modern styling overrides */
+  .modern-modal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .modern-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #edf2f7;
+    padding: 1.25rem 1.5rem;
+  }
+  .modern-modal .modal-title {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1.15rem;
+  }
+  .modern-modal .close {
+    opacity: 0.5;
+    transition: all 0.2s;
+  }
+  .modern-modal .close:hover {
+    opacity: 1;
+    color: #e53e3e;
+  }
+  .modern-modal .modal-body {
+    padding: 2rem 1.5rem;
+  }
+  .modern-modal .section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #38a169; /* Bootstrap success green equivalent */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  /* Floating Label Input Styling */
+  .modern-modal .form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .modern-modal .form-control {
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 1.25rem 1rem 0.5rem; /* Space for label */
+    height: auto;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background-color: #fcfcfc;
+  }
+  .modern-modal .form-control:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    background-color: #fff;
+  }
+  .modern-modal .control-label {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    color: #718096;
+    transition: all 0.2s ease-out;
+    pointer-events: none;
+    margin: 0;
+    font-size: 1rem;
+  }
+  /* Floating label active state */
+  .modern-modal .form-control:focus ~ .control-label,
+  .modern-modal .form-control:not(:placeholder-shown) ~ .control-label {
+    top: 0.35rem;
+    font-size: 0.75rem;
+    color: #4a5568;
+    transform: translateY(0);
+    font-weight: 500;
+  }
+  .modern-modal .modal-footer {
+    border-top: 1px solid #edf2f7;
+    background-color: #f8f9fa;
+    padding: 1.25rem 1.5rem;
+    gap: 0.5rem;
+  }
+  .modern-modal .btn {
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modern-modal .btn-green {
+    background-color: #38a169;
+    border-color: #38a169;
+    color: white;
+  }
+  .modern-modal .btn-green:hover {
+    background-color: #2f855a;
+    border-color: #2f855a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(56, 161, 105, 0.2);
+  }
+  .modern-modal .btn-danger {
+    background-color: white;
+    color: #e53e3e;
+    border: 1px solid #fc8181;
+  }
+  .modern-modal .btn-danger:hover {
+    background-color: #fff5f5;
+    color: #c53030;
+    border-color: #e53e3e;
+  }
+
+#add-edit-terms-modal.modal.fade.modern-modal(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xl
+    .modal-content
+      form#terms-form(role='form', action='#', method='POST')
+        
+        .modal-header
+          h5.modal-title RMS Terms and Conditions Information
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+
+        .modal-body.scrollable-area(style='max-height: 75vh; overflow-y: auto;')
+          
+          h6.section-title Terms and Conditions Details
+
+          .row
+            .col-md-6.mb-2
+              .form-group
+                input.form-control(
+                  type='text',
+                  id='timeLine',
+                  name='timeLine',
+                  placeholder=' '
+                )
+                label.control-label(for='timeLine') Time Line
+
+            .col-md-6.mb-2
+              .form-group
+                input.form-control(
+                  type='text',
+                  id='payment',
+                  name='payment',
+                  placeholder=' '
+                )
+                label.control-label(for='payment') Payment Terms
+
+            .col-md-6.mb-2
+              .form-group
+                input.form-control(
+                  type='text',
+                  id='warranty',
+                  name='warranty',
+                  placeholder=' '
+                )
+                label.control-label(for='warranty') Warranty
+
+            .col-md-6.mb-2
+              .form-group
+                input.form-control(
+                  type='text',
+                  id='remarks',
+                  name='remarks',
+                  placeholder=' '
+                )
+                label.control-label(for='remarks') Remarks
+
+        .modal-footer
+          button.btn.btn-danger(type='button', data-dismiss='modal')
+            span.fa.fa-times-circle
+            | Cancel
+            
+          button.btn.btn-green#button-add-edit-terms(type='submit')
+            span.fa.fa-save
+            | Save Changes
