@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { RmsChallanModel } from "./rms.challan.model";
+import { RmsTermsAndConditionsModel } from "../models/rms.terms.and.conditions.modal";
 
 @Entity("rms_quotation")
 export class RmsQuotationModel {
@@ -21,6 +22,13 @@ export class RmsQuotationModel {
 
     @Column({ type: "text", nullable: true })
     discriptions!: string;
+
+    @Column({ type: "int", nullable: true })
+    termsConditionId!: number | null;
+
+    @ManyToOne(() => RmsTermsAndConditionsModel, { nullable: true })
+    @JoinColumn({ name: "termsConditionId" })
+    termsCondition!: RmsTermsAndConditionsModel | null;
 
     @Column({ type: "varchar", length: 50, nullable: true })
     createdBy!: string | null;

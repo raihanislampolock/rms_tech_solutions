@@ -26,6 +26,7 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 companyEmail: data.companyEmail ?? null,
                 subject: data.subject,
                 discriptions: data.discriptions,
+                termsConditionId: data.termsConditionId ?? null,
                 createdBy: data.createdBy ?? null,
             });
 
@@ -49,7 +50,11 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
 
             return {
                 ...savedQuotation,
-                items: data.items || []
+                items: data.items || [],
+                timeLine: null,
+                payment: null,
+                warranty: null,
+                remarks: null,
             };
 
         } catch (error) {
@@ -84,6 +89,10 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 q."companyEmail",
                 q.subject,
                 q.discriptions,
+                t."timeLine",
+                t.payment,
+                t.warranty,
+                t.remarks, 
                 i."itemName",
                 i."itemPrice",
                 qi."rmsPrice",
@@ -104,17 +113,21 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 left join public.rms_items i on qi."itemId" = i.id
                 left join public.users u on q."createdBy" = u."userId"
                 left join public.users u2 on q."updatedBy" = u2."userId"
+                left join public.rms_terms_and_conditions t on q."termsConditionId" = t.id
             ${whereSQL}
-            ORDER BY q.created_at DESC
+            order by q.created_at desc
             LIMIT $${params.length + 1} OFFSET $${params.length + 2}
         `;
 
         const data = await AppDataSource.query(query, [...params, limit, offset]);
 
-        const countResult = await AppDataSource.query(
-            `SELECT COUNT(*) FROM rms_quotation`
-        );
+        const countQuery = `
+            SELECT COUNT(DISTINCT q.id) AS count
+            FROM public.rms_quotation q
+            ${whereSQL}
+        `;
 
+        const countResult = await AppDataSource.query(countQuery, params);
         const total = parseInt(countResult[0].count, 10);
 
         return {
@@ -136,6 +149,11 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 q."companyEmail",
                 q.subject,
                 q.discriptions,
+                q."termsConditionId",
+                t."timeLine",
+                t.payment,
+                t.warranty,
+                t.remarks, 
                 q.created_at AS "createdAt",
                 q.updated_at AS "updatedAt",
                 qi."itemId",
@@ -149,6 +167,7 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
             FROM rms_quotation q
             LEFT JOIN rms_quotation_items qi ON qi."quotationId" = q.id
             LEFT JOIN rms_items i ON i.id = qi."itemId"
+            left join public.rms_terms_and_conditions t on q."termsConditionId" = t.id
             WHERE q.id = $1
         `;
 
@@ -164,6 +183,11 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
             companyEmail: rows[0].companyEmail,
             subject: rows[0].subject,
             discriptions: rows[0].discriptions,
+            termsConditionId: rows[0].termsConditionId,
+            timeLine: rows[0].timeLine,
+            payment: rows[0].payment,
+            warranty: rows[0].warranty,
+            remarks: rows[0].remarks,
             items: rows.map((r: any) => ({
                 itemId: r.itemId,
                 itemName: r.itemName,
@@ -198,8 +222,14 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 companyEmail: data.companyEmail ?? undefined,
                 subject: data.subject,
                 discriptions: data.discriptions,
+                termsConditionId:
+                    data.termsConditionId !== undefined && data.termsConditionId !== null
+                        ? Number(data.termsConditionId)
+                        : null,
                 updatedBy: data.updatedBy ?? undefined
             });
+
+            console.log("UPDATE TERMS ID:", data.termsConditionId);
 
             // 👉 Delete old items
             await queryRunner.manager.delete(RmsQuotationItemModel, {
@@ -254,6 +284,28 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 i."itemConfigurations"
             FROM public.rms_items i
             ORDER BY i."itemName"
+        `;
+
+        return await AppDataSource.query(query);
+    }
+
+    // ✅ DROPDOWN
+    public async getDataByTermsConditionId(): Promise<{ id: string; label: string }[]> {
+        const query = `
+            SELECT
+                t.id,
+                CONCAT(
+                    t."timeLine",' | ',
+                    t."payment",' | ',
+                    t."warranty",' | ',
+                    COALESCE(t."timeLine",'')
+                ) AS label,
+                t."timeLine",
+                t.payment,
+                t.warranty,
+                t.remarks 
+            FROM public.rms_terms_and_conditions t
+            ORDER BY t."timeLine" 
         `;
 
         return await AppDataSource.query(query);

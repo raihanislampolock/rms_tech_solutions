@@ -90,6 +90,15 @@ export class RmsQuotationService {
         }
     }
 
+    public async getTermsConditionDropdown(): Promise<{ id: string; label: string }[]> {
+        try {
+            return await this.rmsQuotationRepository.getDataByTermsConditionId();
+        } catch (error) {
+            console.error("Error loading dropdown:", error);
+            throw new Error("Failed to load dropdown");
+        }
+    }
+
     public async generateRefNumber(companyName: string): Promise<string> {
 
         const companyCode =
@@ -274,8 +283,8 @@ export class RmsQuotationService {
                                 // Indent wrapped bullet lines
                                 currentLine =
                                     isBullet && !firstLine
-                                        ? '   ' + word + ' '
-                                        : (isBullet ? '   ' : '') + word + ' ';
+                                        ? '    ' + word + ' '
+                                        : (isBullet ? '    ' : '') + word + ' ';
 
                                 firstLine = false;
                             } else {
@@ -411,22 +420,56 @@ export class RmsQuotationService {
                 yPosition -= rowH;
             }
 
-            // ================= FINAL TOTAL & TERMS =================
-            yPosition -= 20;
-            if (yPosition < 150) addNewPage();
+            // ================= DYNAMIC TERMS SELECTION =================
+            const dynamicTerms: string[] = [];
+            let termIndex = 1;
 
+            const timelineText = quotation.timeLine || quotation.timeLine;
+            dynamicTerms.push(`${termIndex++}. Timeline: ${timelineText || '10 working days.'}`);
+
+            const paymentText = quotation.payment;
+            dynamicTerms.push(`${termIndex++}. Payment: ${paymentText || '50% Advance, 50% on Delivery.'}`);
+
+            const warrantyText = quotation.warranty;
+            dynamicTerms.push(`${termIndex++}. Warranty: ${warrantyText || '12 Months Manufacturing.'}`);
+
+            const remarksText = quotation.remarks;
+            if (remarksText && remarksText !== '-') {
+                dynamicTerms.push(`${termIndex++}. Remarks: ${remarksText}`);
+            }
+
+            // ================= FINAL BLOCK SAFETY HEIGHT CHECK =================
+            // Estimate the height of the entire trailing signature and terms section:
+            // - Total Amount (15pt) + In Words (20pt)
+            // - Space spacing (40pt)
+            // - Terms Title (15pt) + Terms Lines (dynamicTerms.length * 12pt)
+            // - Space spacing (20pt)
+            // - Best Regards text (15pt) + Signature space spacing (50pt) + Signature image (50pt)
+            // - Names & Designation text lines (30pt)
+            const finalBlockEstimate = 205 + (dynamicTerms.length * 12);
+
+            // If rendering this entire block takes us below the safe margin limit, start a fresh page
+            if (yPosition - finalBlockEstimate < BOTTOM_LIMIT) {
+                addNewPage();
+            }
+
+            // ================= RENDERING GRAND TOTALS =================
+            yPosition -= 20;
             page.drawText(`Total Amount: BDT ${this.formatCurrency(totalAmount)}`, { x: width - margin - 180, y: yPosition, size: 12, font: fontBold });
             yPosition -= 15;
             page.drawText(`In words: ${this.numberToWords(Math.floor(totalAmount))} Taka Only.`, { x: margin, y: yPosition, size: 10, font: fontBold });
 
+            // ================= RENDERING TERMS & CONDITIONS =================
             yPosition -= 40;
             page.drawText('Terms & Conditions:', { x: margin, y: yPosition, size: 10, font: fontBold });
             yPosition -= 15;
-            ["1. Timeline: 10 working days.", "2. Payment: 50% Advance, 50% on Delivery.", "3. Warranty: 12 Months Manufacturing."].forEach(t => {
+
+            dynamicTerms.forEach(t => {
                 page.drawText(t, { x: margin + 10, y: yPosition, size: 9, font });
                 yPosition -= 12;
             });
 
+            // ================= RENDERING SIGNATURE =================
             yPosition -= 20;
             page.drawText('Best Regards,', { x: margin, y: yPosition, size: 11, font: fontBold });
             yPosition -= 50;

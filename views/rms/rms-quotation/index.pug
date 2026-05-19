@@ -1,220 +1,394 @@
 extends ../../layout
 block style
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
   style.
-    .selected-row {
-      background-color: #580db4 !important;
-      color: white !important;
+    /* === Modern Layout & Card Styling === */
+    .modern-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid #edf2f7;
+      margin-bottom: 2rem;
+      overflow: hidden;
     }
-    
-    .select-report {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    #tableHead {
-      background-color: #580db4;
-      color: white;
-    }
-    
-    /* =========================
-       FORM CHECK
-       ========================= */
-    .form-check {
-      margin-top: 1rem;
+
+    .modern-toolbar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #edf2f7;
+      background-color: #fff;
       display: flex;
+      justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
       gap: 1rem;
     }
 
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 1rem 1rem 0.3rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: none;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
-    
-    .form-check-input {
-      width: 2rem;
-      height: 2rem;
-      margin: 0;
-      cursor: pointer;
-      accent-color: #580db4;
+
+    /* === Modern Inputs & Selects === */
+    .modern-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
     }
-    
-    .form-check-label {
-      font-size: 1rem;
-      color: #555;
-      cursor: pointer;
-      margin-left: 0.1rem;
-      margin-top: 0.5rem;
+
+    .modern-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
+      outline: none;
+      color: #2d3748;
     }
-    
-    /* =========================
-       MODAL WIDTH
-       ========================= */
-    #add-edit-quotation-modal .modal-dialog {
-      max-width: 60%;
-      width: auto;
-    }
-    
-    /* =========================
-       SERVICE TABLE
-       ========================= */
-    #serviceTable {
-      font-size: 16px;
-    }
-    
-    #serviceTable th,
-    #serviceTable td {
-      padding: 10px 14px;
-    }
-    
-    #serviceTable tfoot td {
-      font-size: 15px;
-      font-weight: 400;
-    }
-    
-    /* =========================
-       SELECT BOX (FIX UI)
-       ========================= */
-    select {
-      color: #580db4;
+
+    .modern-control:focus {
+      border-color: #580db4;
+      box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
       background-color: #fff;
     }
-    
-    /* IMPORTANT: Fix invisible dropdown items */
-    select option {
-      color: #580db4 !important;
-      background-color: #fff !important;
-    }
-    
-    /* =========================
-       SELECT2 (SAFE KEEP IF USED ELSEWHERE)
-       ========================= */
-    .select2-container--default .select2-selection--single {
-      height: 38px !important;
-      line-height: 38px !important;
-      background-color: #fff !important;
-      border: 1px solid #ced4da !important;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      color: #333 !important;
-      line-height: 36px !important;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      height: 36px !important;
-    }
-    
-    /* =========================
-       DROPDOWN VISIBILITY FIX
-       ========================= */
-    #itemSelect {
-      color: #000 !important;
-    }
-    
-    /* Fix dropdown hidden text issue */
-    select option {
-      color: #000 !important;
-    }
-    
-    /* Ensure modal does not break dropdown */
-    .modal {
-      overflow: visible !important;
+
+    /* === Modern Buttons === */
+    .btn-modern {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
 
+    .btn-modern-primary {
+      background-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .btn-modern-primary:hover {
+      background-color: #480a96;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(88, 13, 180, 0.3);
+      color: white;
+    }
+
+    .btn-modern-outline {
+      background-color: white;
+      color: #4a5568;
+      border: 1px solid #cbd5e0;
+    }
+
+    .btn-modern-outline:hover {
+      background-color: #f8f9fa;
+      border-color: #a0aec0;
+      color: #2d3748;
+    }
+
+    .btn-modern-icon {
+      padding: 0.5rem 0.75rem;
+    }
+
+    /* === Modern Table Styling === */
+    .modern-table-container {
+      padding: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .table.modern-table {
+      margin-bottom: 0;
+      border-collapse: collapse !important;
+      width: 100%;
+    }
+
+    .modern-table thead th {
+      position: sticky;
+      top: 0;
+      background-color: #580db4;
+      color: white;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border: none;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .modern-table thead th:first-child,
+    .modern-table tbody td:first-child {
+      padding-left: 1.5rem !important; 
+    }
+    
+    .modern-table thead th:last-child,
+    .modern-table tbody td:last-child {
+      padding-right: 1.5rem !important; 
+    }
+
+    .modern-table thead th a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modern-table tbody td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+      font-size: 0.95rem;
+    }
+
+    .modern-table tbody tr.main-row {
+      background-color: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .modern-table tbody tr.main-row:hover {
+      background-color: #fbf8ff;
+    }
+
+    /* Action Icons in Table */
+    .action-icon {
+      color: #718096;
+      background: #edf2f7;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .action-icon:hover {
+      background: #580db4;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .action-icon.pdf-icon:hover { background: #e53e3e; }
+    .action-icon.email-icon:hover { background: #3182ce; }
+    
+    /* View Items Button */
+    .btn-view-items {
+      background-color: #ebf4ff;
+      color: #3182ce;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-view-items:hover {
+      background-color: #3182ce;
+      color: white;
+    }
+
+    /* === Footer & Pagination === */
+    .modern-footer {
+      padding: 1.25rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modern-footer .title-filter {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .pagination {
+      margin: 0;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination li a, .pagination li span {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: #4a5568;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .pagination li.active a {
+      background-color: #580db4;
+      border-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .pagination li a:hover:not(.active) {
+      background-color: #edf2f7;
+      color: #580db4;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+    }
+
+    .selected-row {
+      background-color: rgba(88, 13, 180, 0.05) !important;
+      border-left: 3px solid #580db4;
+    }
+    
+    /* Child Table UI */
+    .child-table-wrapper {
+      padding: 1rem 1.5rem 1.5rem 3rem !important;
+      background-color: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .child-table {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+    }
+    .child-table th {
+      background-color: #edf2f7 !important;
+      color: #4a5568 !important;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem !important;
+      position: static !important; /* Overrides sticky header */
+    }
+    .child-table td {
+      background-color: #ffffff;
+      padding: 0.75rem 1rem !important;
+      font-size: 0.85rem;
+    }
 
 block content
-    section.content-header
-      h1.text-lg.font-weight-bold.mb-3
-        | RMS Quotation Dashboard
-
-      ol.breadcrumb
+  section.content-header.mb-4
+    div(style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;")
+      h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Quotation Dashboard
+      ol.breadcrumb(style="margin: 0;")
         li
-          a(href='/dashboard')
-            strong(style="color: #580db4") Dashboard 
+          a(href='/dashboard' style="color: #580db4; font-weight: 500; text-decoration: none;")
+            i.fa.fa-home.mr-1
+            | Dashboard
         li
-            strong(style="color: #580db4") RMS TecH Solutions
+          span(style="color: #718096; margin: 0 0.5rem;") /
+          span(style="color: #4a5568; font-weight: 500;") RMS TecH Solutions
         li
-            strong(style="color: #580db4") RMS Quotation
-        li
-          a(href='/rms/rms-quotation')
-            strong(style="color: #580db4") Quotation Dashboard
+          span(style="color: #718096; margin: 0 0.5rem;") /
+          a(href='/rms/rms-quotation' style="color: #718096; text-decoration: none;") Quotation Dashboard
         
-    section.content
-        .row
-          .col-md-12.col-xs-12
-             .box.box-parrot
-                .box-header.with-border
-                    .pull-left
-                        span.title-filter(style='display:flex;align-items:center;') Search:
-                         input.form-control.input-sm(type='text', placeholder='Enter search by Name,', name='search' autocomplete='off' style='margin-left:10px' id='search')
-                         button.btn.btn-sm.btn-default.btn-filter.date-range-btn#daterange-btn(type="button" style='display:none;')
-                            span#date-range-display Select date range
-                            input#date-range-input(type="hidden" name="" value="")
-                         button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
-                          span.fa.fa-search      
-                    .pull-left 
-                        button.btn.btn-sm.btn-primary.btn-add(type='submit' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-quotation-modal') 
-                            span.fa.fa-plus                                   
-                    .pull-right
-                        span.title-filter(style='display:flex;align-items:center') Show:
-                            select.form-control.input-filter.input-sm(id='limitSelect')
-                                option 10
-                                option 25
-                                option 50
-                                option 100                                
-                .box-body
-                    .table.table-responsive
-                        table.table.table-striped.table-hover
-                            thead
-                                tr
-                                    th
-                                      a(href='#') Action &nbsp;
-                                        <i class="fa fa-sort-alpha-asc"></i> 
-                                    th
-                                      a(href='#') Download Quotation PDF
-                                    th
-                                      a(href='#') View Quotation PDF   
-                                    th
-                                      a(href='#') Email     
-                                    th
-                                      a(href='#') Ref Number
-                                    th
-                                      a(href='#') Company Name 
-                                    th
-                                      a(href='#') Company Email            
-                                    th
-                                      a(href='#') View Items
-                                    th 
-                                      a(href='#') Created By
-                                    th 
-                                      a(href='#') Updated By     
-                                    th 
-                                      a(href='#') Created Date
-                                    th 
-                                      a(href='#') Updated Date            
-                            tbody#quotationTableBody
-                                tr
-                                    td.text-center(colspan='18') No data to display. Use the search filters above to load data.
+  section.content
+    .row
+      .col-xs-12
+        .modern-card
+          //- Toolbar Area
+          .modern-toolbar
+            .toolbar-group
+              .modern-input-group
+                span Search:
+                input.modern-control#search(type='text', placeholder='Search by Name...', name='search' autocomplete='off' style='width: 250px;')
+                button.btn-modern.btn-modern-primary.btn-modern-icon#searchBtn(type='button')
+                  i.fa.fa-search
+              
+              button.btn-modern.btn-modern-outline.date-range-btn#daterange-btn(type="button" style='display:none;')
+                i.fa.fa-calendar-alt.mr-2(style="color:#580db4;")
+                span#date-range-display Select date range
+                input#date-range-input(type="hidden" name="" value="")
+              
+              button.btn-modern.btn-modern-primary(type='button' data-toggle='modal' data-target='#add-edit-quotation-modal') 
+                i.fa.fa-plus
+                | Add Quotation
+                
+              button.btn-modern.btn-modern-primary.btn-modern-icon.btn-download(type='button' title="Download Export") 
+                i.fa.fa-download
+                
+            .toolbar-group
+              .modern-input-group
+                span Show:
+                select.modern-control#limitSelect(style='width: 80px;')
+                  option 10
+                  option 25
+                  option 50
+                  option 100
 
+          //- Table Area
+          .modern-table-container
+            table.table.modern-table#quotationTable
+              thead
+                tr
+                  th 
+                    a(href='#') Action 
+                      i.fa.fa-sort-alpha-asc.ml-1
+                  th 
+                    a(href='#') Download PDF
+                  th 
+                    a(href='#') View PDF   
+                  th 
+                    a(href='#') Email     
+                  th 
+                    a(href='#') Ref Number
+                  th 
+                    a(href='#') Company Name 
+                  th 
+                    a(href='#') Company Email
+                  th 
+                    a(href='#') Time Line
+                  th 
+                    a(href='#') Payment
+                  th 
+                    a(href='#') Warranty
+                  th 
+                    a(href='#') Remarks                   
+                  th 
+                    a(href='#') View Items
+                  th 
+                    a(href='#') Created By
+                  th 
+                    a(href='#') Updated By     
+                  th 
+                    a(href='#') Created Date
+                  th 
+                    a(href='#') Updated Date            
+              tbody#quotationTableBody
+                tr
+                  td.text-center(colspan='16' style="padding: 3rem;") 
+                    span(style="color: #a0aec0; font-size: 1.1rem;") No data to display. Use the search filters above to load data.
 
-                .box-footer.clearfix
-                    .pull-left
-                        span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
-                    ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
+          //- Footer Area
+          .modern-footer
+            span.title-filter#title-filter Showing no entries
+            ul.pagination#paginationContainer
 
-    include ./create                  
+  include ./create                  
 
 block script
-  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
@@ -231,18 +405,18 @@ block script
 
       const updateMargin = () => {
         if (dateRangeDisplay.textContent.trim() === "Select date range") {
-        dateRangeDisplay.style.marginRight = "70px";
+          dateRangeDisplay.style.marginRight = "10px";
         } else {
-        dateRangeDisplay.style.marginRight = "0";
+          dateRangeDisplay.style.marginRight = "0";
         }
       };
 
-        // Initial check
-        updateMargin();
+      // Initial check
+      updateMargin();
 
-        // Observe changes in text content
-        const observer = new MutationObserver(updateMargin);
-        observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
+      // Observe changes in text content
+      const observer = new MutationObserver(updateMargin);
+      observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
 
       let currentPage = 1;
       let currentSearch = '';
@@ -252,32 +426,40 @@ block script
       const selectedData = [];
 
       async function fetchQuotation(page = 1, search = '', dateRange='', limit = 10) {
-        tableBody.innerHTML = `<tr><td colspan="18" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="16" class="text-center" style="padding: 3rem;"><i class="fa fa-spinner fa-spin" style="font-size: 32px; color: #580db4;"></i></td></tr>`;
         try {
           const response = await fetch(`/api/rms/rms-quotation/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();
 
           if (data?.data?.length > 0) {
-            const grouped = {};
+            // Fix: Use an array to store groups to strictly guarantee order preservation
+            const groupedArray = [];
+            const groupMap = {};
 
             data.data.forEach(row => {
-              if (!grouped[row.id]) {
-                grouped[row.id] = {
+              if (!groupMap[row.id]) {
+                groupMap[row.id] = {
                   id: row.id,
                   refNumber: row.refNumber,
                   companyName: row.companyName,
                   companyEmail: row.companyEmail,
                   subject: row.subject,
                   discriptions: row.discriptions,
+                  timeLine: row.timeLine,
+                  payment: row.payment,
+                  warranty: row.warranty,
+                  remarks: row.remarks,
                   createdBy: row.createdBy,
                   updatedBy: row.updatedBy,
                   created_at: row.created_at,
                   updated_at: row.updated_at,
                   items: []
                 };
+                // Push sequentially to preserve backend SQL sorting logic
+                groupedArray.push(groupMap[row.id]);
               }
 
-              grouped[row.id].items.push({
+              groupMap[row.id].items.push({
                 itemName: row.itemName,
                 itemType: row.itemType,
                 itemModel: row.itemModel,
@@ -291,10 +473,10 @@ block script
               });
             });
 
-            // =========================
-            // ✅ RENDER GROUPED UI
-            // =========================
-            tableBody.innerHTML = Object.values(grouped).map(q => {
+            // ===================================
+            // ✅ RENDER GROUPED UI FROM ORDERED ARRAY
+            // ===================================
+            tableBody.innerHTML = groupedArray.map(q => {
               const totalQty = q.items.reduce((sum, i) => sum + (Number(i.quarterly) || 0), 0);
               const itemPrice = q.items.reduce((sum, i) => sum + (Number(i.itemPrice) || 0), 0);
               const sellPrice = q.items.reduce((sum, i) => sum + (Number(i.rmsPrice) || 0), 0);
@@ -306,69 +488,62 @@ block script
               return `
 
               <!-- MAIN QUOTATION ROW -->
-              <tr style="background:#f5f5f5;font-weight:bold;">
+              <tr class="main-row" data-id="${q.id}">
                 <td>
-                  <a href="#"
-                     class="editQuotation fa fa-edit"
-                     data-quotation-id="${q.id}"
-                     data-toggle="modal"
-                     data-target="#add-edit-quotation-modal">
+                  <a href="#" class="action-icon editQuotation" data-quotation-id="${q.id}" data-toggle="modal" data-target="#add-edit-quotation-modal" title="Edit">
+                    <i class="fa fa-edit"></i>
                   </a>
                 </td>
                 <td>
-                  <a href="/api/rms/rms-quotation/generate-pdf/${q.id}"
-                     class="fa fa-file-pdf-o fa-2x"
-                     target="_blank"
-                     title="Generate PDF">
+                  <a href="/api/rms/rms-quotation/generate-pdf/${q.id}" class="action-icon pdf-icon" target="_blank" title="Download PDF">
+                    <i class="fa fa-file-download"></i>
                   </a>
                 </td>
                 <td>
-                  <a href="/api/rms/rms-quotation/view-pdf/${q.id}"
-                     class="fa fa-file-pdf-o fa-2x"
-                     target="_blank"
-                     title="View PDF">
+                  <a href="/api/rms/rms-quotation/view-pdf/${q.id}" class="action-icon pdf-icon" target="_blank" title="View PDF">
+                    <i class="fa fa-file-pdf"></i>
                   </a>
                 </td>
                 <td>
-                  <a href="#"
-                     class="sendQuotationEmail fa fa-envelope fa-2x"
-                     data-quotation-id="${q.id}"
-                     data-company-email="${q.companyEmail}"
-                     data-company-name="${q.companyName}"
-                     title="Send via Email">
+                  <a href="#" class="action-icon email-icon sendQuotationEmail" data-quotation-id="${q.id}" data-company-email="${q.companyEmail}" data-company-name="${q.companyName}" title="Send via Email">
+                    <i class="fa fa-envelope"></i>
                   </a>
                 </td>
 
-                <td>${q.refNumber ?? ''}</td>
-                <td>${q.companyName ?? ''}</td>
-                <td>${q.companyEmail ?? ''}</td>
+                <td style="font-weight: 600; color: #580db4;">${q.refNumber ?? '-'}</td>
+                <td>${q.companyName ?? '-'}</td>
+                <td>${q.companyEmail ?? '-'}</td>
+                <td>${q.timeLine ?? '-'}</td>
+                <td>${q.payment ?? '-'}</td>
+                <td>${q.warranty ?? '-'}</td>
+                <td>${q.remarks ?? '-'}</td>
 
                 <!-- View Items column -->
                 <td>
-                  <button class="btn btn-sm btn-info toggleItems" data-id="${q.id}">
-                    View Items (${q.items.length})
+                  <button class="btn-view-items toggleItems" data-id="${q.id}">
+                    <i class="fa fa-list-ul mr-1"></i> View (${q.items.length})
                   </button>
                 </td>
 
-                <td>${q.createdBy ?? ''}</td>
-                <td>${q.updatedBy ?? ''}</td>
-                <td>${q.created_at ?? ''}</td>
-                <td>${q.updated_at ?? ''}</td>
+                <td>${q.createdBy ?? '-'}</td>
+                <td>${q.updatedBy ?? '-'}</td>
+                <td>${q.created_at ?? '-'}</td>
+                <td>${q.updated_at ?? '-'}</td>
               </tr>
 
-              <!-- ITEMS ROW -->
-              <tr id="items-${q.id}" style="display:none;">
-                <td colspan="21">
-                  <table class="table table-bordered">
-                    <thead style="background:#580db4;color:white;">
+              <!-- NESTED ITEMS ROW -->
+              <tr id="items-${q.id}" style="display:none; background-color: transparent;">
+                <td colspan="16" class="child-table-wrapper">
+                  <table class="child-table">
+                    <thead>
                       <tr>
-                        <th>Item</th>
+                        <th>Item Name</th>
                         <th>Type</th>
                         <th>Model</th>
-                        <th>Spec</th>
+                        <th>Specification</th>
                         <th>Qty</th>
-                        <th>Buy</th>
-                        <th>Sell</th>
+                        <th>Item Price</th>
+                        <th>RMS Price</th>
                         <th>Total Buy</th>
                         <th>Total Sell</th>
                       </tr>
@@ -376,30 +551,30 @@ block script
                     <tbody>
                       ${q.items.map(i => `
                         <tr>
-                          <td>${i.itemName ?? ''}</td>
-                          <td>${i.itemType ?? ''}</td>
-                          <td>${i.itemModel ?? ''}</td>
-                          <td>${i.itemConfigurations ?? ''}</td>
-                          <td>${i.quarterly ?? ''}</td>
-                          <td>${i.itemPrice ?? ''}</td>
-                          <td>${i.rmsPrice ?? ''}</td>
-                          <td>${i.totalItemPrice ?? ''}</td>
-                          <td>${i.totalRmsPrice ?? ''}</td>
+                          <td style="font-weight: 500;">${i.itemName ?? '-'}</td>
+                          <td>${i.itemType ?? '-'}</td>
+                          <td>${i.itemModel ?? '-'}</td>
+                          <td>${i.itemConfigurations ?? '-'}</td>
+                          <td>${i.quarterly ?? '-'}</td>
+                          <td>${i.itemPrice ?? '-'}</td>
+                          <td>${i.rmsPrice ?? '-'}</td>
+                          <td>${i.totalItemPrice ?? '-'}</td>
+                          <td>${i.totalRmsPrice ?? '-'}</td>
                         </tr>
                       `).join('')}
-                    <!-- ✅ TOTAL ROW -->
-                            <tr style="background:#e8f5e9; font-weight:bold;">
-                              <td colspan="4" style="text-align:right;">TOTAL</td>
-                              <td>${format(totalQty)}</td>
-                              <td>${format(itemPrice)}</td>
-                              <td>${format(sellPrice)}</td>
-                              <td>${format(totalBuy)}</td>
-                              <td>${format(totalSell)}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
+                      <!-- ✅ TOTAL ROW -->
+                      <tr style="background:#f1f5f9;">
+                        <td colspan="4" style="text-align:right; font-weight: 700; color: #2d3748;">GRAND TOTAL:</td>
+                        <td style="font-weight: 700;">${format(totalQty)}</td>
+                        <td style="font-weight: 700;">${format(itemPrice)}</td>
+                        <td style="font-weight: 700;">${format(sellPrice)}</td>
+                        <td style="font-weight: 700; color: #38a169;">${format(totalBuy)}</td>
+                        <td style="font-weight: 700; color: #580db4;">${format(totalSell)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
             `}).join('');
 
             selectedRows.forEach((id) => {
@@ -414,7 +589,7 @@ block script
           document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
 
           } else {
-            tableBody.innerHTML = `<tr><td colspan="18" class="text-center">No data found</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="16" class="text-center" style="padding: 3rem; color: #a0aec0;">No matching quotations found.</td></tr>`;
             document.querySelector('#title-filter').textContent = 'No entries to display';
             return;
           }
@@ -425,13 +600,14 @@ block script
 
         } catch (error) {
           console.error('Error fetching reports:', error);
-          tableBody.innerHTML = `<tr><td colspan="18" class="text-center">Error loading data</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="16" class="text-center" style="padding: 3rem; color: #e53e3e;">Error loading data. Please try again.</td></tr>`;
           document.querySelector('#title-filter').textContent = 'Error loading entries';
         }
       }
 
       function renderPagination(totalPages, currentPage) {
         paginationContainer.innerHTML = ""
+        if (!totalPages || totalPages <= 0) return;
 
         const maxVisiblePages = 5
         const firstPages = 2
@@ -448,7 +624,7 @@ block script
         // Show "Previous" button if not on first page
         if (currentPage > 1) {
           const prevItem = document.createElement("li")
-          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}">« Previous</a>`
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}"><i class="fa fa-chevron-left" style="font-size: 0.8em; pointer-events:none;"></i></a>`
           paginationContainer.appendChild(prevItem)
         }
 
@@ -472,7 +648,7 @@ block script
 
           // Show ellipsis after first page if needed
           if (rangeStart > 2) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`
           }
 
           // Show pages in range
@@ -482,7 +658,7 @@ block script
 
           // Show ellipsis before last page if needed
           if (rangeEnd < totalPages - 1) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`
           }
 
           // Show last page if not already shown
@@ -494,7 +670,7 @@ block script
         // Show "Next" button if not on last page
         if (currentPage < totalPages) {
           const nextItem = document.createElement("li")
-          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}">Next »</a>`
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}"><i class="fa fa-chevron-right" style="font-size: 0.8em; pointer-events:none;"></i></a>`
           paginationContainer.appendChild(nextItem)
         }
       }
@@ -518,6 +694,14 @@ block script
         }
       });
 
+      // Allow searching by pressing "Enter" key
+      search.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchBtn.click();
+        }
+      });
+
       // Search and limit event listeners
       searchBtn.addEventListener('click', () => {
         selectedRows.clear();
@@ -535,7 +719,7 @@ block script
         fetchQuotation(currentPage, currentSearch, dateRange, limit);
       });
 
-      function updateSelectedData(rowId, email, mrno, patientName) {
+      function updateSelectedData(rowId, email, mrno, patientName, add) {
           if (add) {
             selectedData.push({ id: rowId, email, mrno, patientName });
           } else {
@@ -654,23 +838,49 @@ block script
           loadQuotation(id);
         });
 
+        document.addEventListener('change', function (e) {
+            if (e.target.id !== 'termsConditionId') return;
+
+            console.log("Terms changed:", e.target.value); // 👈 CHECK IF CHANGE DETECTED
+
+            const selected = e.target.options[e.target.selectedIndex];
+
+            if (!selected || !selected.value) {
+                return;
+            }
+
+            // Optional live preview (if you added preview fields)
+            const previewTimeline = document.getElementById('previewTimeline');
+            const previewPayment = document.getElementById('previewPayment');
+            const previewWarranty = document.getElementById('previewWarranty');
+            const previewRemarks = document.getElementById('previewRemarks');
+
+            if (previewTimeline) previewTimeline.value = selected.dataset.timeline || '';
+            if (previewPayment) previewPayment.value = selected.dataset.payment || '';
+            if (previewWarranty) previewWarranty.value = selected.dataset.warranty || '';
+            if (previewRemarks) previewRemarks.value = selected.dataset.remarks || '';
+        });
+
         // ========================
         // 📧 SEND EMAIL WITH PDF
         // ========================
         document.addEventListener('click', function (e) {
-          if (!e.target.classList.contains('sendQuotationEmail')) return;
-
+          // 1. Safely locate the anchor button, even if they click the inner <i> icon
+          const emailBtn = e.target.closest('.sendQuotationEmail');
+          if (!emailBtn) return;
+        
           e.preventDefault();
-
-          const id = Number(e.target.getAttribute('data-quotation-id'));
-          const email = e.target.getAttribute('data-company-email');
-          const companyName = e.target.getAttribute('data-company-name');
-
+        
+          // 2. Read attributes from the BUTTON/ANCHOR element, not the inner icon
+          const id = Number(emailBtn.getAttribute('data-quotation-id'));
+          const email = emailBtn.getAttribute('data-company-email');
+          const companyName = emailBtn.getAttribute('data-company-name');
+        
           if (!id || !email) {
               swal("Error", "Email not found for this quotation", "error");
               return;
           }
-
+        
           // Confirm before sending
           swal({
               title: "Send Quotation?",
@@ -685,36 +895,43 @@ block script
               }
           }).then((willSend) => {
               if (!willSend) return;
-
-          // Show loading state
-          const originalClass = e.target.className;
-          e.target.className = 'fa fa-spinner fa-spin fa-2x';
-          e.target.style.cursor = 'not-allowed';
-
-          // Send email via API
-          fetch(`/api/rms/rms-quotation/send-email/${id}`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
+        
+              // Gracefully switch the class of the inner icon to a loading spinner
+              const iconEl = emailBtn.querySelector('i');
+              const originalIconClass = iconEl ? iconEl.className : 'fa fa-envelope';
+              
+              if (iconEl) {
+                  iconEl.className = 'fa fa-spinner fa-spin';
               }
-          })
-          .then(response => response.json())
-          .then(data => {
-              e.target.className = originalClass;
-              e.target.style.cursor = 'pointer';
-
-              if (data.status) {
-                  swal("Success", data.message, "success");
-              } else {
-                  swal("Error", data.message || 'Failed to send email', "error");
-              }
-          })
-          .catch(error => {
-              e.target.className = originalClass;
-              e.target.style.cursor = 'pointer';
-              console.error('Error:', error);
-              swal("Error", 'Error sending email: ' + error.message, "error");
-          });
+              emailBtn.style.pointerEvents = 'none';
+              emailBtn.style.cursor = 'not-allowed';
+        
+              // Send email via API
+              fetch(`/api/rms/rms-quotation/send-email/${id}`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (iconEl) iconEl.className = originalIconClass;
+                  emailBtn.style.pointerEvents = 'auto';
+                  emailBtn.style.cursor = 'pointer';
+        
+                  if (data.status) {
+                      swal("Success", data.message, "success");
+                  } else {
+                      swal("Error", data.message || 'Failed to send email', "error");
+                  }
+              })
+              .catch(error => {
+                  if (iconEl) iconEl.className = originalIconClass;
+                  emailBtn.style.pointerEvents = 'auto';
+                  emailBtn.style.cursor = 'pointer';
+                  console.error('Error:', error);
+                  swal("Error", 'Error sending email: ' + error.message, "error");
+              });
           });
         });
 
@@ -726,6 +943,7 @@ block script
         const rmsPrice = document.getElementById('rmsPrice');
         const quarterly = document.getElementById('quarterly');
         const refInput = document.getElementById('refNumber');
+        const termsSelect = document.getElementById('termsConditionId');
 
         function resetForm() {
             editMode = false;
@@ -917,6 +1135,7 @@ block script
                 document.getElementById('companyEmail').value = data.companyEmail || '';
                 document.getElementById('subject').value = data.subject || '';
                 document.getElementById('discriptions').value = data.discriptions || '';
+                document.getElementById('termsConditionId').value = data.termsConditionId || '';
         
                 cart = (data.items || []).map(i => ({
                     itemId: i.itemId,
@@ -952,6 +1171,7 @@ block script
                 companyEmail: document.getElementById('companyEmail').value,
                 subject: document.getElementById('subject').value,
                 discriptions: document.getElementById('discriptions').value,
+                termsConditionId: document.getElementById('termsConditionId').value,
                 items: cart
             };
 

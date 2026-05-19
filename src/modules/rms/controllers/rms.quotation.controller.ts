@@ -28,15 +28,18 @@ export class RmsQuotationController extends Controller {
     public async index(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
         try {
             const items = await this.rmsQuotationService.getItemDropdown();
+            const termsConditions = await this.rmsQuotationService.getTermsConditionDropdown();
 
             return resp.view("rms/rms-quotation/index", {
-                items
+                items,
+                termsConditions
             });
 
         } catch (error) {
             console.error(error);
             return resp.view("rms/rms-quotation/index", {
-                items: []
+                items: [],
+                termsConditions: []
             });
         }
     }
@@ -50,6 +53,7 @@ export class RmsQuotationController extends Controller {
                 companyEmail,
                 subject,
                 discriptions,
+                termsConditionId,
                 items
             } = req.body;
 
@@ -68,6 +72,7 @@ export class RmsQuotationController extends Controller {
                 companyEmail,
                 subject,
                 discriptions,
+                termsConditionId,
                 createdBy,
                 items
             });
@@ -153,10 +158,13 @@ export class RmsQuotationController extends Controller {
                 companyEmail,
                 subject,
                 discriptions,
+                termsConditionId,
                 items
             } = req.body;
 
             const updatedBy = req.user?.userId || "system";
+
+            console.log("termsConditionId:", termsConditionId); // 👈 CHECK IF VALUE RECEIVED
 
             await this.rmsQuotationService.update(
                 id,
@@ -166,6 +174,7 @@ export class RmsQuotationController extends Controller {
                     companyEmail,
                     subject,
                     discriptions,
+                    termsConditionId,
                     updatedBy
                 },
                 items

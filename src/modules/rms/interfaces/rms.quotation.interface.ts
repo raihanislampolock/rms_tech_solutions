@@ -15,6 +15,11 @@ export interface IRmsQuotation {
     companyEmail?: string | null;
     subject: string;
     discriptions: string;
+    termsConditionId: number | null;
+    timeLine: string | null;
+    payment: string | null;
+    warranty: string | null;
+    remarks: string | null;
     createdBy?: string | null;
     updatedBy?: string | null;
     createdAt: Date;
@@ -43,4 +48,5 @@ export interface IRmsQuotationRepository {
     ): Promise<any>;
 
     getDataByItemId(): Promise<{ id: string; label: string }[]>;
+    getDataByTermsConditionId(): Promise<{ id: string; label: string }[]>;
 }

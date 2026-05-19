@@ -1,58 +1,217 @@
+style.
+  /* === Quotation Modal Specific Styling === */
+  .modern-modal {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+  
+  .section-title {
+    color: #580db4;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .section-title:first-of-type { 
+    margin-top: 0; 
+  }
+
+  /* Floating Labels */
+  .floating-label-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .static-label-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .static-label-group label {
+    font-size: 0.85rem;
+    color: #580db4;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .modern-input {
+    width: 100%;
+    padding: 1rem 1rem 0.25rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+    color: #2d3748;
+    min-height: 52px;
+  }
+
+  select.modern-input {
+    padding: 0.5rem 1rem;
+    color: #4a5568;
+  }
+  
+  textarea.modern-input {
+    min-height: 100px;
+    padding-top: 1.2rem;
+    resize: vertical;
+  }
+
+  .modern-input:focus {
+    border-color: #580db4;
+    box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
+    background-color: #fff;
+  }
+
+  .floating-label-group label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.95rem;
+    color: #a0aec0;
+    pointer-events: none;
+    transition: all 0.2s ease-out;
+    background-color: transparent;
+    padding: 0 0.25rem;
+    margin: 0;
+  }
+
+  .floating-label-group input:focus + label,
+  .floating-label-group input:not(:placeholder-shown) + label,
+  .floating-label-group textarea:focus + label,
+  .floating-label-group textarea:not(:placeholder-shown) + label {
+    top: -0.6rem;
+    left: 0.8rem;
+    font-size: 0.8rem;
+    color: #580db4;
+    background-color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+  }
+  
+  /* Readonly Inputs - slightly grayed to indicate they are auto-filled */
+  .modern-input[readonly] {
+    background-color: #f8f9fa;
+    color: #718096;
+    border-color: #e2e8f0;
+  }
+
+  .modern-input[readonly]:focus {
+    box-shadow: none;
+    border-color: #e2e8f0;
+  }
+
+  /* Action Buttons */
+  .btn-modern-success {
+    background-color: #38a169;
+    color: white;
+    box-shadow: 0 2px 4px rgba(56, 161, 105, 0.2);
+  }
+  .btn-modern-success:hover {
+    background-color: #2f855a;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(56, 161, 105, 0.3);
+  }
+
+  .btn-outline-danger {
+    background-color: white;
+    color: #e53e3e;
+    border: 1px solid #fc8181;
+  }
+  .btn-outline-danger:hover {
+    background-color: #fff5f5;
+    color: #c53030;
+    border-color: #e53e3e;
+  }
+
+  /* Table styling inside the modal */
+  .modal-table-container {
+    border: 1px solid #edf2f7;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .modal-table th {
+    background-color: #f8f9fa !important;
+    color: #4a5568 !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #edf2f7 !important;
+  }
+  .modal-table td {
+    vertical-align: middle;
+    color: #4a5568;
+    font-size: 0.9rem;
+  }
+
 #add-edit-quotation-modal.modal.fade(data-backdrop='static', data-keyboard='false')
   .modal-dialog.modal-dialog-centered.modal-xl
-    .modal-content
+    .modal-content.modern-modal
       form#quotation-form(role='form', method='POST')
 
         // ===== HEADER =====
-        .modal-header
-          h5.modal-title.text-primary RMS Quotation
-          button.close(type='button', data-dismiss='modal')
-            span &times;
+        .modal-header(style="border-bottom: 1px solid #edf2f7; padding: 1.5rem;")
+          h5.modal-title(style="color: #580db4; font-weight: 600; font-size: 1.25rem;") 
+            i.fa.fa-file-invoice.mr-2
+            | RMS Quotation
+          button.close(type='button', data-dismiss='modal', style="opacity: 1;")
+            span(aria-hidden='true', style="color: #a0aec0; font-size: 1.5rem;") &times;
 
         // ===== BODY =====
-        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto;')
+        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto; padding: 2rem;')
 
           // ===== SECTION 1: BASIC INFO =====
-          h5.mb-3.text-primary Quotation Info
+          h5.section-title 
+            i.fa.fa-info-circle.mr-2
+            | Basic Information
           .row
-            .col-md-4
-              .form-group
-                label Ref Number
-                input.form-control(type='text', id='refNumber', placeholder='Auto generated on save', readonly)
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='refNumber', placeholder=' ', readonly)
+                label(for='refNumber') Ref Number (Auto generated)
 
-            .col-md-4
-              .form-group
-                label Company Name
-                input.form-control(type='text', id='companyName', placeholder='Enter Company Name')
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='companyName', placeholder=' ')
+                label(for='companyName') Company Name
 
-            .col-md-4
-              .form-group
-                label Company Email
-                input.form-control(type='email', id='companyEmail', placeholder='Enter Company Email')
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='email', id='companyEmail', placeholder=' ')
+                label(for='companyEmail') Company Email
 
-            .col-md-4
-              .form-group
-                label Subject
-                input.form-control(type='text', id='subject', placeholder='Enter Subject')
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='subject', placeholder=' ')
+                label(for='subject') Subject
 
           .row
             .col-md-12
-              .form-group
-                label Description
-                textarea.form-control(id='discriptions')
-
-          hr
+              .form-group.floating-label-group
+                textarea.form-control.modern-input(id='discriptions', placeholder=' ', rows="3")
+                label(for='discriptions') Description
 
           // ===== SECTION 2: ITEM SELECTION =====
-          h5.mb-3.text-primary Item Selection
+          h5.section-title 
+            i.fa.fa-box-open.mr-2
+            | Item Selection
 
           .row
             .col-md-4
-              .form-group
-                label Select Item
-                select.form-control(id='itemSelect', style='width:100%')
-                  option(value='' disabled selected) Select Item
-                
+              .form-group.static-label-group
+                label(for='itemSelect') Select Item
+                select.form-control.modern-input(id='itemSelect', style='width:100%')
+                  option(value='' disabled selected) Select an Item...
+                  
                   if items && items.length > 0
                     each item in items
                       option(
@@ -65,68 +224,124 @@
                         data-config=item.itemConfigurations
                       ) #{item.itemName}
 
-            .col-md-2
-              .form-group
-                label Item Price
-                input.form-control(type='text', id='itemPrice', readonly)
-              .form-group
-                label RMS Price
-                input.form-control(type='number', id='rmsPrice', placeholder='Enter RMS Price')   
-                
+            .col-md-4
+              .form-group.floating-label-group
+                // We add a top margin class to match the select box height since select has a static label above it
+                div(style="margin-top: 1.85rem;")
+                  input.form-control.modern-input(type='text', id='itemPrice', placeholder=' ', readonly)
+                  label(for='itemPrice') Default Item Price
+            
+            .col-md-4
+              .form-group.floating-label-group
+                div(style="margin-top: 1.85rem;")
+                  input.form-control.modern-input(type='number', id='rmsPrice', placeholder=' ')
+                  label(for='rmsPrice') RMS Custom Price
 
-            .col-md-2
-              .form-group
-                label Item Type
-                input.form-control(type='text', id='itemType', readonly)
+          // Refactored grid to 4 columns for a cleaner single row instead of cramming
+          .row
+            .col-md-3
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='itemType', placeholder=' ', readonly)
+                label(for='itemType') Item Type
 
-            .col-md-2
-              .form-group
-                label Model
-                input.form-control(type='text', id='itemModel', readonly)
-            .col-md-2
-              .form-group
-                label Specification
-                input.form-control(type='text', id='itemConfigurations', readonly)    
+            .col-md-3
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='itemModel', placeholder=' ', readonly)
+                label(for='itemModel') Model
+            
+            .col-md-3
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='itemConfigurations', placeholder=' ', readonly)
+                label(for='itemConfigurations') Specification
 
-            .col-md-2
-              .form-group
-                label RMS Quantity
-                input.form-control(type='number', id='quarterly', placeholder='Enter RMS Quantity', min='1')  
+            .col-md-3
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='number', id='quarterly', placeholder=' ', min='1')
+                label(for='quarterly') RMS Quantity
 
-          .row.mt-2
-            .col-md-2.offset-md-10
-              button.btn.btn-primary.btn-block(type='button', id='addItem')
-                i.fa.fa-plus
-                |  Add Item
-
-          hr
+          .row.mb-4
+            .col-md-12.text-right
+              button.btn-modern.btn-modern-primary(type='button', id='addItem')
+                i.fa.fa-plus.mr-1
+                |  Add Item to Quotation
 
           // ===== SECTION 3: ITEM TABLE =====
-          h5.mb-3.text-primary Added Items
+          h5.section-title 
+            i.fa.fa-list.mr-2
+            | Added Items
 
-          table.table.table-bordered.table-striped#itemTable
-            thead
-              tr
-                th Item Name
-                th Type
-                th Model
-                th Specification
-                th RMS Quantity
-                th.text-right Item Price
-                th.text-right(style="min-width:120px") RMS Price
-                th.text-right Total Item Price
-                th.text-right Total RMS Price
-                th Action
-            tbody
-              tr
-                td.text-center(colspan='10') No item added yet.
+          .modal-table-container.mb-4
+            table.table.modern-table.modal-table#itemTable(style="margin-bottom: 0;")
+              thead
+                tr
+                  th Item Name
+                  th Type
+                  th Model
+                  th Specification
+                  th Qty
+                  th.text-right Item Price
+                  th.text-right(style="min-width:120px") RMS Price
+                  th.text-right Total Item
+                  th.text-right Total RMS
+                  th.text-center Action
+              tbody
+                tr
+                  td.text-center(colspan='10', style="padding: 3rem; color: #a0aec0;") 
+                    i.fa.fa-inbox.mr-2
+                    | No items added yet. Please add items from the selection above.
+
+          // ===== SECTION 4: TERMS & CONDITIONS =====
+          h5.section-title 
+            i.fa.fa-file-signature.mr-2
+            | Terms & Conditions
+          
+          .row
+            .col-md-12
+              .form-group.static-label-group
+                label(for='termsConditionId') Select Template
+                select.form-control.modern-input(id='termsConditionId')
+                  option(value='') Choose Terms & Conditions...
+                  
+                  if termsConditions && termsConditions.length > 0
+                    each term in termsConditions
+                      option(
+                        value=term.id,
+                        data-timeline=term.timeLine,
+                        data-payment=term.payment,
+                        data-warranty=term.warranty,
+                        data-remarks=term.remarks
+                      )
+                        | Timeline: #{term.timeLine || 'N/A'} | Payment: #{term.payment || 'N/A'}
+
+          // ===== PREVIEW SELECTED TERMS =====
+          .row.mt-3
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='previewTimeline', placeholder=' ', readonly)
+                label(for='previewTimeline') Timeline Preview
+
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='previewPayment', placeholder=' ', readonly)
+                label(for='previewPayment') Payment Preview
+
+          .row
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='previewWarranty', placeholder=' ', readonly)
+                label(for='previewWarranty') Warranty Preview
+
+            .col-md-6
+              .form-group.floating-label-group
+                input.form-control.modern-input(type='text', id='previewRemarks', placeholder=' ', readonly)
+                label(for='previewRemarks') Remarks Preview      
 
         // ===== FOOTER =====
-        .modal-footer
-          button.btn.btn-success(type='button', id='saveQuotation')
-            i.fa.fa-save
-            |  Save Quotation
-
-          button.btn.btn-danger(type='button', data-dismiss='modal')
-            i.fa.fa-times
+        .modal-footer(style="border-top: 1px solid #edf2f7; padding: 1.25rem 1.5rem; background-color: #f8f9fa;")
+          button.btn-modern.btn-outline-danger(type='button', data-dismiss='modal')
+            i.fa.fa-times.mr-1
             |  Cancel
+            
+          button.btn-modern.btn-modern-success(type='button', id='saveQuotation')
+            i.fa.fa-save.mr-1
+            |  Save Quotation
