@@ -1,4 +1,5 @@
 extends ../layout
+
 block style
   style.
     /* Subtle Tech Grid Background */
@@ -11,26 +12,37 @@ block style
       min-height: 100vh;
     }
 
-      .neon-box {
+    .neon-box {
       background: rgba(255, 255, 255, 0.9) !important;
       backdrop-filter: blur(5px); /* Modern Glassmorphism */
       border: 1px solid rgba(0, 0, 0, 0.05);
       border-radius: 12px !important;
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
     }
 
-      .neon-box:hover {
-      transform: translateY(-10px) scale(1.02);
+    .neon-box:hover {
+      transform: translateY(-5px) scale(1.01);
       box-shadow: 0 15px 35px rgba(60, 141, 188, 0.2) !important;
     }
 
-      .info-box-icon {
+    .info-box-icon {
       transition: all 0.4s ease;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
     }
 
-      .neon-box:hover .info-box-icon {
+    .neon-box:hover .info-box-icon {
       filter: brightness(1.2);
+    }
+    
+    /* Clean text containment overrides */
+    .info-box-content {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
 include ../partials/dashboard-selector
@@ -47,7 +59,7 @@ block content
             alt='RMS Logo', 
             style='width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; display: inline-block;'
           )
-          |  Dashboard
+          | Dashboard
 
   section.content
     +dashboardSelector(user.roleName)
@@ -61,7 +73,7 @@ block content
               | RMS COMMAND CENTER
 
     .row
-      //- Button 1: Items
+      //- Row 1: Item Modules
       .col-lg-4.col-md-6.col-sm-6.col-xs-12
         a(href='/rms/rms-items' style='text-decoration:none;')
           .info-box.neon-box
@@ -73,7 +85,30 @@ block content
               .progress
                 .progress-bar(style='width: 100%; background: #3c8dbc;')
 
-      //- Button 2: Quotation
+      .col-lg-4.col-md-6.col-sm-6.col-xs-12
+        a(href='/rms/rms-purchase' style='text-decoration:none;')
+          .info-box.neon-box
+            span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
+              img(src='/dist/img/item-stock.svg' style='width: 40px; filter: invert(1);')
+            .info-box-content
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") ITEM PURCHASE
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Supply Chain Orders
+              .progress
+                .progress-bar(style='width: 100%; background: #00a65a;')           
+
+      .col-lg-4.col-md-6.col-sm-6.col-xs-12
+        a(href='/rms/rms-stock' style='text-decoration:none;')
+          .info-box.neon-box
+            span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
+              img(src='/dist/img/item-purchase.svg' style='width: 40px; filter: invert(1);')
+            .info-box-content
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") STOCK & INVENTORY
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Warehouse Control
+              .progress
+                .progress-bar(style='width: 100%; background: #f39c12;')
+
+    .row
+      //- Row 2: Sales & Documentation Modules
       .col-lg-4.col-md-6.col-sm-6.col-xs-12
         a(href='/rms/rms-quotation' style='text-decoration:none;')
           .info-box.neon-box
@@ -81,7 +116,7 @@ block content
               img(src='/dist/img/quotationdashboard.svg' style='width: 40px; filter: invert(1);')
             .info-box-content
               span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") QUOTATIONS
-              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Sales & Billing
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Sales & Estimations
               .progress
                 .progress-bar(style='width: 100%; background: #00a65a;')
 
@@ -91,10 +126,10 @@ block content
             span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
               img(src='/dist/img/delivery.svg' style='width: 40px; filter: invert(1);')
             .info-box-content
-              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") Challan
-              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Management
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") CHALLAN
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Dispatch & Logistics
               .progress
-                .progress-bar(style='width: 100%; background: #00a65a;')
+                .progress-bar(style='width: 100%; background: #00c0ef;')
 
       .col-lg-4.col-md-6.col-sm-6.col-xs-12
         a(href='/rms/rms-invoice' style='text-decoration:none;')
@@ -102,50 +137,30 @@ block content
             span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
               img(src='/dist/img/invocie.svg' style='width: 40px; filter: invert(1);')
             .info-box-content
-              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") Invoice
-              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") & Billing
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") INVOICE
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Billing Settlements
               .progress
-                .progress-bar(style='width: 100%; background: #00a65a;')          
+                .progress-bar(style='width: 100%; background: #dd4b39;')          
 
-      .col-lg-4.col-md-6.col-sm-6.col-xs-12
-        a(href='/rms/rms-purchase' style='text-decoration:none;')
-          .info-box.neon-box
-            span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
-              img(src='/dist/img/item-stock.svg' style='width: 40px; filter: invert(1);')
-            .info-box-content
-              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") Item
-              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Purchase Management
-              .progress
-                .progress-bar(style='width: 100%; background: #00a65a;')          
-
-      .col-lg-4.col-md-6.col-sm-6.col-xs-12
-        a(href='/rms/rms-stock' style='text-decoration:none;')
-          .info-box.neon-box
-            span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
-              img(src='/dist/img/item-purchase.svg' style='width: 40px; filter: invert(1);')
-            .info-box-content
-              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") Item
-              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Stock & Inventory Management
-              .progress
-                .progress-bar(style='width: 100%; background: #00a65a;')
-
+    .row
+      //- Row 3: Configurations & Management (Perfectly balances grid architecture)
       .col-lg-4.col-md-6.col-sm-6.col-xs-12
         a(href='/rms/rms-terms-and-conditions' style='text-decoration:none;')
           .info-box.neon-box
             span.info-box-icon(style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);")
-              img(src='/dist/img/item-purchase.svg' style='width: 40px; filter: invert(1);')
+              img(src='/dist/img/terms-policy.svg' style='width: 40px; filter: invert(1);')
             .info-box-content
-              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") Terms
-              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") & Conditions
+              span.info-box-text(style="color: #2c3e50; font-size: 16px; font-weight: 700;") TERMS & CONDITIONS
+              span.info-box-number(style="font-size: 12px; font-weight: 400; color: #7f8c8d;") Policy Documents
               .progress
-                .progress-bar(style='width: 100%; background: #00a65a;')                                                   
+                .progress-bar(style='width: 100%; background: #605ca8;')                                                                   
 
-      //- NEW: Empty "Upcoming Feature" or Stats card to fill space
       .col-lg-4.col-md-6.col-sm-6.col-xs-12
-        .info-box.neon-box(style="opacity: 0.7; border: 1px dashed #ccc;")
+        .info-box.neon-box(style="opacity: 0.6; border: 1px dashed #bbb;")
           span.info-box-icon(style="background: #f4f4f4;")
             i.fa.fa-plus(style="color: #bbb;")
           .info-box-content
-            span.info-box-text(style="color: #bbb;") Add New Module
-            span.info-box-number(style="color: #ddd; font-weight: 400;") Coming Soon
-          
+            span.info-box-text(style="color: #bbb; font-weight: 700;") NEW MODULE
+            span.info-box-number(style="color: #ccc; font-weight: 400; font-size: 12px;") Coming Soon
+            .progress
+              .progress-bar(style='width: 0%; background: #ccc;')

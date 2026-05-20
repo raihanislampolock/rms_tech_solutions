@@ -1,31 +1,51 @@
-#createQuotationChallanModal.modal.fade
+#createQuotationChallanModal.modal.fade(data-backdrop='static', data-keyboard='false')
   .modal-dialog.modal-dialog-centered
-    .modal-content
+    .modal-content(style='border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); overflow: hidden;')
 
-      .modal-header
-        h5.modal-title Create Challan From Quotation
+      // ===== MODERN SEARCH HEADER =====
+      .modal-header(style='background: #fff; border-bottom: 1px solid #edf2f7; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;')
+        h5.modal-title(style='margin: 0; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem;')
+          i.fa.fa-search-plus(style='color: #580db4;')
+          | Initialize Document Link
+        button.close(type='button', data-dismiss='modal', style='background: none; border: none; font-size: 1.5rem; color: #a0aec0; cursor: pointer; transition: color 0.2s; outline: none;', onmouseover="this.style.color='#e53e3e'", onmouseout="this.style.color='#a0aec0'")
+          span &times;
 
-      .modal-body
+      // ===== MODERN SEARCH BODY =====
+      .modal-body(style='padding: 1.75rem; background-color: #f8fafc;')
+        .challan-card(style='background: #ffffff; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); padding: 1.25rem;')
+          .form-group.mb-0
+            label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.5rem; display: block;') Target Quotation Reference or ID
+            
+            // Input wrapper for adding a sleek lookup accent icon inside the field
+            .position-relative(style='display: flex; align-items: center;')
+              i.fa.fa-hashtag(style='position: absolute; left: 1rem; color: #a0aec0; font-size: 0.9rem;')
+              input.form-control(
+                type='text',
+                id='searchQuotationId',
+                placeholder='e.g., QT-2026-00892',
+                style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.6rem 1rem 0.6rem 2.25rem; transition: all 0.2s; outline: none; font-weight: 500; width: 100%;',
+                onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+              )
 
-        .form-group
-          label Quotation Ref# or ID
+      // ===== MODERN SEARCH FOOTER =====
+      .modal-footer(style='background: #f8fafc; border-top: 1px solid #edf2f7; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;')
+        button.btn(
+          type='button', 
+          data-dismiss='modal',
+          style='background-color: white; color: #4a5568; border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.55rem 1.25rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; cursor: pointer;',
+          onmouseover="this.style.backgroundColor='#edf2f7'; this.style.color='#2d3748'",
+          onmouseout="this.style.backgroundColor='white'; this.style.color='#4a5568'"
+        )
+          i.fa.fa-times
+          | Close
 
-          input.form-control(
-            type='text',
-            id='searchQuotationId',
-            placeholder='Enter quotation ref or ID'
-          )
-
-      .modal-footer
-
-        button.btn.btn-primary(
-          type='button',
-          id='loadQuotationForChallan'
+        button.btn(
+          type='button', 
+          id='loadQuotationForChallan',
+          style='background-color: #580db4; color: white; border-radius: 8px; padding: 0.55rem 1.5rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; border: none; transition: all 0.2s; box-shadow: 0 2px 4px rgba(88, 13, 180, 0.15); cursor: pointer;',
+          onmouseover="this.style.backgroundColor='#480a96'; this.style.transform='translateY(-1px)'",
+          onmouseout="this.style.backgroundColor='#580db4'; this.style.transform='translateY(0)'"
         )
           i.fa.fa-search
-          |  Load
-
-        button.btn.btn-danger(
-          type='button',
-          data-dismiss='modal'
-        ) Cancel
+          | Load Profile

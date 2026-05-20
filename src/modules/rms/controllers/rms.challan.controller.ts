@@ -25,6 +25,7 @@ export class RmsChallanController extends Controller {
         this.onGet("/api/rms/rms-challan/generate-ref", [], this.auth.private, this.generateRef);
         this.onGet("/api/rms/rms-challan/generate-pdf/:id", [], this.auth.private, this.generatePdf);
         this.onGet("/api/rms/rms-challan/view-pdf/:id", [], this.auth.private, this.viewPdf);
+        this.onPost("/api/rms/rms-challan/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
     }
 
     // Page
@@ -347,6 +348,64 @@ export class RmsChallanController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message
+            });
+        }
+    }
+
+    public async sendEmailWithPdf(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const rawId = req.params.id;
+            const id = Number(rawId);
+
+            // ✅ VALIDATION
+            if (!rawId || isNaN(id)) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid invoice ID"
+                });
+            }
+
+            // Get challan data
+            const challan = await this.rmsChallanService.edit(id);
+            if (!challan) {
+                return resp.status(404).json({
+                    status: false,
+                    message: "Challan not found"
+                });
+            }
+
+            // Check if email exists
+            if (!challan.companyEmail) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Company email not found"
+                });
+            }
+
+            // Generate PDF
+            const pdfResult = await this.rmsChallanService.generatePdf(id);
+
+            // Send email with PDF
+            const ChallanEmailService = require("../../../utils/challan-email-service").ChallanEmailService;
+            const emailService = new ChallanEmailService();
+
+            await emailService.sendChallanPdf(
+                challan.companyEmail,
+                challan.companyName,
+                pdfResult.pdfBuffer,
+                challan.challanNumber
+            );
+
+            return resp.json({
+                status: true,
+                message: `✅ Email sent successfully to ${challan.companyEmail}`
+            });
+
+        } catch (error: any) {
+            console.error('Error sending email:', error);
+            return resp.status(500).json({
+                status: false,
+                message: error.message || "Failed to send email"
             });
         }
     }

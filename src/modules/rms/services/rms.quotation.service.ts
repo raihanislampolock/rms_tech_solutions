@@ -140,7 +140,7 @@ export class RmsQuotationService {
             // Load Images
             const headerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/header.png'));
             const footerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/footer.png'));
-            const signatureImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/sig.png'));
+            const signatureImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/rms-sig.png'));
 
             // Page Constants
             const margin = 50;
@@ -365,7 +365,7 @@ export class RmsQuotationService {
             yPosition -= 30;
             page.drawText('Best Regards,', { x: margin, y: yPosition, size: 11, font: fontBold });
             yPosition -= 50;
-            page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 50 });
+            page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 40 });
             yPosition -= 15;
             page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
             yPosition -= 12;
@@ -473,7 +473,7 @@ export class RmsQuotationService {
             yPosition -= 20;
             page.drawText('Best Regards,', { x: margin, y: yPosition, size: 11, font: fontBold });
             yPosition -= 50;
-            page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 50 });
+            page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 40 });
             yPosition -= 15;
             page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
             yPosition -= 12;

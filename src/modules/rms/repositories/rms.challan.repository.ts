@@ -248,6 +248,7 @@ export class RmsChallanRepository implements IRmsChallanRepository {
             companyName: rows[0].companyName,
             companyEmail: rows[0].companyEmail,
             notes: rows[0].challanNotes,
+            username: rows[0].username,
             challanStatus: rows[0].challanStatus,
             items: rows.map((r: any) => ({
                 itemId: r.itemId,

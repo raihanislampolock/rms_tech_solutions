@@ -1,137 +1,198 @@
 #add-edit-challan-modal.modal.fade(data-backdrop='static', data-keyboard='false')
   .modal-dialog.modal-dialog-centered.modal-xl
-    .modal-content
+    .modal-content(style='border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden;')
       form#challanForm(role='form', method='POST')
 
-        // ===== HEADER =====
-        .modal-header
-          h5.modal-title.text-primary RMS Challan
-          button.close(type='button', data-dismiss='modal')
+        // ===== MODERN HEADER =====
+        .modal-header(style='background: #fff; border-bottom: 1px solid #edf2f7; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;')
+          h5.modal-title(style='margin: 0; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;')
+            i.fa.fa-file-invoice(style='color: #580db4;')
+            | RMS Delivery Challan Setup
+          button.close(type='button', data-dismiss='modal', style='background: none; border: none; font-size: 1.5rem; color: #a0aec0; cursor: pointer; transition: color 0.2s; outline: none;', onmouseover="this.style.color='#e53e3e'", onmouseout="this.style.color='#a0aec0'")
             span &times;
 
-        // ===== BODY =====
-        .modal-body.scrollable-area(style='max-height: 80vh; overflow-y: auto;')
+        // ===== MODERN BODY =====
+        .modal-body(style='max-height: 75vh; overflow-y: auto; padding: 1.75rem; background-color: #f8fafc;')
 
-          // ===== SECTION 1: BASIC INFO =====
-          h5.mb-3.text-primary Challan Info
-          .row
-            .col-md-4
-              .form-group
-                label Challan Number
-                input.form-control(
-                  type='text',
-                  id='challanNumber',
-                  name='challanNumber',
-                  placeholder='Auto generated on save',
-                  readonly
-                )
-                input(type='hidden', id='quotationId', name='quotationId')
+          // ===== CARD 1: GENERAL METADATA =====
+          .challan-card(style='background: #ffffff; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); padding: 1.5rem; margin-bottom: 1.75rem;')
+            h6(style='margin: 0 0 1.25rem 0; font-weight: 600; color: #580db4; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;')
+              i.fa.fa-info-circle
+              | Core Tracking Info
+            
+            .row
+              .col-md-4
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Challan Reference ID
+                  input.form-control(
+                    type='text',
+                    id='challanNumber',
+                    name='challanNumber',
+                    placeholder='Generated sequentially on save',
+                    readonly,
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; background-color: #edf2f7; color: #718096; font-weight: 500;'
+                  )
+                  input(type='hidden', id='quotationId', name='quotationId')
 
-            .col-md-4
-              .form-group
-                label Company Name
-                input.form-control(
-                  type='text',
-                  id='companyName',
-                  name='companyName',
-                  placeholder='Enter Company Name'
-                )
+              .col-md-4
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Client / Company Title
+                  input.form-control(
+                    type='text',
+                    id='companyName',
+                    name='companyName',
+                    placeholder='Enter Company Name',
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; transition: all 0.2s; outline: none;',
+                    onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                    onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+                  )
 
-            .col-md-4
-              .form-group
-                label Company Email
-                input.form-control(
-                  type='email',
-                  id='companyEmail',
-                  name='companyEmail',
-                  placeholder='Enter Company Email'
-                )
+              .col-md-4
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Client Dispatch Email
+                  input.form-control(
+                    type='email',
+                    id='companyEmail',
+                    name='companyEmail',
+                    placeholder='Enter Company Email',
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; transition: all 0.2s; outline: none;',
+                    onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                    onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+                  )
 
-          .row
-            .col-md-4
-              .form-group
-                label Status
-                select.form-control(id='challanStatus', name='challanStatus')
-                  option(value='pending') Pending
-                  option(value='delivered') Delivered
-                  option(value='cancelled') Cancelled
+            .row.mt-2
+              .col-md-4
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Fulfillment Status
+                  select.form-control(
+                    id='challanStatus', 
+                    name='challanStatus',
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; outline: none; background-color: #fff; height: auto;',
+                    onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                    onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+                  )
+                    option(value='Pending') ⏳ Pending Route
+                    option(value='Delivered') ✅ Fully Delivered
+                    option(value='Cancelled') ❌ Void / Cancelled
 
-            .col-md-8
-              .form-group
-                label Notes
-                textarea.form-control(id='notes', name='notes')
+              .col-md-8
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Manifest Global Notes
+                  textarea.form-control(
+                    id='notes', 
+                    name='notes',
+                    rows='1',
+                    placeholder='Add context regarding delivery terms, structural packaging parameters or location landmarks...',
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; transition: all 0.2s; outline: none; min-height: 42px;',
+                    onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                    onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+                  )
 
-          hr
+          // ===== CARD 2: INTERACTIVE DISPATCH COUNTER (CENTERED) =====
+          .challan-card(style='background: #ffffff; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); padding: 1.5rem; margin-bottom: 1.75rem;')
+            h6(style='margin: 0 0 1.25rem 0; font-weight: 600; color: #580db4; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;')
+              i.fa.fa-dolly
+              | Item Assignment Counter
+            
+            // Centered Inputs Row
+            .row.justify-content-center
+              .col-md-5
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Choose Item Profile
+                  select.form-control(
+                    id='itemSelect', 
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; outline: none; background-color: #fff; height: auto;',
+                    onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                    onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+                  )
+                    option(value='' disabled selected) Choose asset line item...
+                    if items && items.length > 0
+                      each item in items
+                        option(
+                          value=item.id,
+                          data-name=item.itemName,
+                          data-stock=item.availableStock,
+                          data-price=item.itemPrice,
+                          data-model=item.itemModel,
+                          data-type=item.itemType,
+                          data-config=item.itemConfigurations
+                        ) #{item.itemName}
 
-          // ===== SECTION 2: ITEM SELECTION =====
-          h5.mb-3.text-primary Item Selection
+              .col-md-3
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block; text-align: center;') Tracked Allocation Stock
+                  input.form-control(
+                    type='text', 
+                    id='itemStock', 
+                    readonly,
+                    placeholder='--',
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; background-color: #f7fafc; color: #4a5568; font-weight: 600; text-align: center;'
+                  )
 
-          .row
-            .col-md-4
-              .form-group
-                label Select Item
-                select.form-control(id='itemSelect', style='width:100%')
-                  option(value='' disabled selected) Select Item
-                  if items && items.length > 0
-                    each item in items
-                      option(
-                        value=item.id,
-                        data-name=item.itemName,
-                        data-stock=item.availableStock,
-                        data-price=item.itemPrice,
-                        data-model=item.itemModel,
-                        data-type=item.itemType,
-                        data-config=item.itemConfigurations
-                      ) #{item.itemName}
+              .col-md-4
+                .form-group.mb-3
+                  label(style='font-weight: 500; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;') Dispatch Quantity
+                  input.form-control(
+                    type='number',
+                    id='deliveredQuantity',
+                    placeholder='0',
+                    min='1',
+                    style='border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.5rem 1rem; transition: all 0.2s; outline: none;',
+                    onfocus="this.style.borderColor='#580db4'; this.style.boxShadow='0 0 0 3px rgba(88, 13, 180, 0.1)'",
+                    onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none'"
+                  )
 
-            .col-md-3
-              .form-group
-                label Available Stock
-                input.form-control(type='text', id='itemStock', readonly)
-
-            .col-md-3
-              .form-group
-                label Delivered Quantity
-                input.form-control(
-                  type='number',
-                  id='deliveredQuantity',
-                  placeholder='Enter Quantity',
-                  min='1'
-                )
-
-            .col-md-2
-              .form-group
-                label &nbsp;
-                button.btn.btn-primary.btn-block(
+            // Centered Button Row
+            .row.mt-2.justify-content-center
+              .col-md-11.col-12
+                button.btn(
                   type='button',
-                  id='addItem'
+                  id='addItem',
+                  style='background-color: #580db4; color: white; border-radius: 8px; padding: 0.85rem 1.5rem; font-weight: 600; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; width: 100%; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(88, 13, 180, 0.2); cursor: pointer;',
+                  onmouseover="this.style.backgroundColor='#480a96'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(88, 13, 180, 0.3)'",
+                  onmouseout="this.style.backgroundColor='#580db4'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(88, 13, 180, 0.2)'"
                 )
-                  i.fa.fa-plus
-                  |  Add Item
+                  i.fa.fa-plus(style='font-size: 1.1rem;')
+                  | Add Items
 
-          hr
+          // ===== CARD 3: MANIFEST LINE MANAGE TABLE (CENTERED ALIGNMENT) =====
+          .challan-card(style='background: #ffffff; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); overflow: hidden;')
+            // CSS Inject snippet ensuring any dynamically added standard <td> fields align to center automatically
+            style.
+              .modern-challan-table th, .modern-challan-table td { text-align: center !important; vertical-align: middle !important; }
+            .table-responsive(style='max-height: 40vh; overflow-y: auto;')
+              table.table.modern-challan-table#itemTable(style='width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 0;')
+                thead
+                  tr
+                    th(style='position: sticky; top: 0; background-color: #580db4; color: white; font-weight: 500; padding: 1rem 1.25rem; border: none; z-index: 10; font-size: 0.9rem; text-align: center;') Detailed Asset Name
+                    th(style='position: sticky; top: 0; background-color: #580db4; color: white; font-weight: 500; padding: 1rem 1.25rem; border: none; z-index: 10; font-size: 0.9rem; text-align: center; width: 120px;') Stock Ref
+                    th(style='position: sticky; top: 0; background-color: #580db4; color: white; font-weight: 500; padding: 1rem 1.25rem; border: none; z-index: 10; font-size: 0.9rem; text-align: center; width: 150px;') Dispatch Qty
+                    th(style='position: sticky; top: 0; background-color: #580db4; color: white; font-weight: 500; padding: 1rem 1.25rem; border: none; z-index: 10; font-size: 0.9rem; text-align: center;') Package/Item Specification Notes
+                    th(style='position: sticky; top: 0; background-color: #580db4; color: white; font-weight: 500; padding: 1rem 1.25rem; border: none; z-index: 10; font-size: 0.9rem; text-align: center; width: 100px;') Action
+                tbody
+                  tr.empty-placeholder-row
+                    td.text-center(colspan='5', style='padding: 3.5rem 1.5rem; color: #a0aec0; vertical-align: middle; background-color: #fff;')
+                      div.mb-2(style='font-size: 2rem; color: #cbd5e0;') 📦
+                      span(style='font-size: 0.95rem; font-weight: 400;') Delivery list empty. Assign line items from the panel counter above.
 
-          // ===== SECTION 3: ITEM TABLE =====
-          h5.mb-3.text-primary Added Items
+        // ===== MODERN FOOTER =====
+        .modal-footer(style='background: #f8fafc; border-top: 1px solid #edf2f7; padding: 1.25rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;')
+          button.btn(
+            type='button', 
+            id='saveChallan',
+            style='background-color: #38a169; color: white; border-radius: 8px; padding: 0.55rem 1.5rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; border: none; transition: all 0.2s; box-shadow: 0 2px 4px rgba(56, 161, 105, 0.2); cursor: pointer;',
+            onmouseover="this.style.backgroundColor='#2f855a'; this.style.transform='translateY(-1px)'",
+            onmouseout="this.style.backgroundColor='#38a169'; this.style.transform='translateY(0)'"
+          )
+            i.fa.fa-check-circle
+            | Commit Delivery
 
-          table.table.table-bordered.table-striped#itemTable
-            thead
-              tr
-                th Item Name
-                th Stock
-                th Delivered Quantity
-                th Notes
-                th Action
-            tbody
-              tr
-                td.text-center(colspan='5') No item added yet.
-
-        // ===== FOOTER =====
-        .modal-footer
-          button.btn.btn-success(type='button', id='saveChallan')
-            i.fa.fa-save
-            |  Save Challan
-
-          button.btn.btn-danger(type='button', data-dismiss='modal')
-            i.fa.fa-times
-            |  Cancel
+          button.btn(
+            type='button', 
+            data-dismiss='modal',
+            style='background-color: white; color: #4a5568; border: 1px solid #cbd5e0; border-radius: 8px; padding: 0.55rem 1.5rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; cursor: pointer;',
+            onmouseover="this.style.backgroundColor='#edf2f7'; this.style.color='#2d3748'",
+            onmouseout="this.style.backgroundColor='white'; this.style.color='#4a5568'"
+          )
+            i.fa.fa-ban
+            | Discard Changes

@@ -92,7 +92,7 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 t."timeLine",
                 t.payment,
                 t.warranty,
-                t.remarks, 
+                t.remarks,
                 i."itemName",
                 i."itemPrice",
                 qi."rmsPrice",
@@ -153,7 +153,7 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 t."timeLine",
                 t.payment,
                 t.warranty,
-                t.remarks, 
+                t.remarks,
                 q.created_at AS "createdAt",
                 q.updated_at AS "updatedAt",
                 qi."itemId",
@@ -303,9 +303,9 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 t."timeLine",
                 t.payment,
                 t.warranty,
-                t.remarks 
+                t.remarks
             FROM public.rms_terms_and_conditions t
-            ORDER BY t."timeLine" 
+            ORDER BY t."timeLine"
         `;
 
         return await AppDataSource.query(query);

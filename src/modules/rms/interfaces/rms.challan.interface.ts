@@ -2,6 +2,9 @@ export interface IRmsChallanItem {
     id?: number;
     challanId?: number;
     itemId: number;
+    itemModel?: string;
+    itemType?: string;
+    itemName?: string;
     deliveredQuantity: number; // ✅ REQUIRED (important)
     notes?: string;
     createdBy?: string;
@@ -19,6 +22,7 @@ export interface IRmsChallan {
     companyEmail?: string;
     notes?: string;
     challanStatus?: "pending" | "delivered" | "cancelled";
+    username?: string;
     createdBy?: string;
     updatedBy?: string;
     created_at?: Date;
