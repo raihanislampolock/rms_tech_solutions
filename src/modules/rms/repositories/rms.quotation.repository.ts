@@ -82,6 +82,13 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
         }
 
         const query = `
+            WITH paged_invoices AS (
+                SELECT i.id
+                FROM public.rms_invoices i
+                ${whereSQL}
+                ORDER BY i."createdAt" DESC
+                LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+            )
             select
                 q.id,
                 q."refNumber",
@@ -114,9 +121,7 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                 left join public.users u on q."createdBy" = u."userId"
                 left join public.users u2 on q."updatedBy" = u2."userId"
                 left join public.rms_terms_and_conditions t on q."termsConditionId" = t.id
-            ${whereSQL}
             order by q.created_at desc
-            LIMIT $${params.length + 1} OFFSET $${params.length + 2}
         `;
 
         const data = await AppDataSource.query(query, [...params, limit, offset]);
@@ -228,8 +233,6 @@ export class RmsQuotationRepository implements IRmsQuotationRepository {
                         : null,
                 updatedBy: data.updatedBy ?? undefined
             });
-
-            console.log("UPDATE TERMS ID:", data.termsConditionId);
 
             // 👉 Delete old items
             await queryRunner.manager.delete(RmsQuotationItemModel, {

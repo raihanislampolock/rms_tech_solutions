@@ -1,244 +1,406 @@
 extends ../../layout
+
 block style
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
   style.
-    .selected-row {
-      background-color: #580db4 !important;
-      color: white !important;
+    /* === Modern Layout & Card Styling === */
+    .modern-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid #edf2f7;
+      margin-bottom: 2rem;
+      overflow: hidden;
     }
-    
-    .select-report {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    #tableHead {
-      background-color: #580db4;
-      color: white;
-    }
-    
-    /* =========================
-       FORM CHECK
-       ========================= */
-    .form-check {
-      margin-top: 1rem;
+
+    .modern-toolbar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #edf2f7;
+      background-color: #fff;
       display: flex;
+      justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
       gap: 1rem;
     }
 
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 1rem 1rem 0.3rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: none;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
-    
-    .form-check-input {
-      width: 2rem;
-      height: 2rem;
-      margin: 0;
-      cursor: pointer;
-      accent-color: #580db4;
+
+    /* === Modern Inputs & Selects === */
+    .modern-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
     }
-    
-    .form-check-label {
-      font-size: 1rem;
-      color: #555;
-      cursor: pointer;
-      margin-left: 0.1rem;
-      margin-top: 0.5rem;
+
+    .modern-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
+      outline: none;
+      color: #2d3748;
     }
-    
-    /* =========================
-       MODAL WIDTH
-       ========================= */
-    #add-edit-quotation-modal .modal-dialog {
-      max-width: 60%;
-      width: auto;
-    }
-    
-    /* =========================
-       SERVICE TABLE
-       ========================= */
-    #serviceTable {
-      font-size: 16px;
-    }
-    
-    #serviceTable th,
-    #serviceTable td {
-      padding: 10px 14px;
-    }
-    
-    #serviceTable tfoot td {
-      font-size: 15px;
-      font-weight: 400;
-    }
-    
-    /* =========================
-       SELECT BOX (FIX UI)
-       ========================= */
-    select {
-      color: #580db4;
+
+    .modern-control:focus {
+      border-color: #580db4;
+      box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
       background-color: #fff;
     }
-    
-    /* IMPORTANT: Fix invisible dropdown items */
-    select option {
-      color: #580db4 !important;
-      background-color: #fff !important;
-    }
-    
-    /* =========================
-       SELECT2 (SAFE KEEP IF USED ELSEWHERE)
-       ========================= */
-    .select2-container--default .select2-selection--single {
-      height: 38px !important;
-      line-height: 38px !important;
-      background-color: #fff !important;
-      border: 1px solid #ced4da !important;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      color: #333 !important;
-      line-height: 36px !important;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      height: 36px !important;
-    }
-    
-    /* =========================
-       DROPDOWN VISIBILITY FIX
-       ========================= */
-    #itemSelect {
-      color: #000 !important;
-    }
-    
-    /* Fix dropdown hidden text issue */
-    select option {
-      color: #000 !important;
-    }
-    
-    /* Ensure modal does not break dropdown */
-    .modal {
-      overflow: visible !important;
+
+    /* === Modern Buttons === */
+    .btn-modern {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
 
+    .btn-modern-primary {
+      background-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .btn-modern-primary:hover {
+      background-color: #480a96;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(88, 13, 180, 0.3);
+      color: white;
+    }
+
+    .btn-modern-info {
+      background-color: #0ea5e9;
+      color: white;
+      box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-modern-info:hover {
+      background-color: #0284c7;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(14, 165, 233, 0.3);
+      color: white;
+    }
+
+    .btn-modern-warning {
+      background-color: #f59e0b;
+      color: white;
+      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .btn-modern-warning:hover {
+      background-color: #d97706;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+      color: white;
+    }
+
+    .btn-modern-icon {
+      padding: 0.5rem 0.75rem;
+    }
+
+    /* === Modern Table Styling === */
+    .modern-table-container {
+      padding: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .table.modern-table {
+      margin-bottom: 0;
+      border-collapse: collapse !important;
+      width: 100%;
+    }
+
+    .modern-table thead th {
+      position: sticky;
+      top: 0;
+      background-color: #580db4;
+      color: white;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border: none;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .modern-table thead th a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modern-table tbody td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .modern-table tbody tr.main-row {
+      background-color: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .modern-table tbody tr.main-row:hover {
+      background-color: #fbf8ff;
+    }
+
+    /* Status System Badges */
+    .badge {
+      padding: 0.45rem 0.8rem !important;
+      border-radius: 8px !important;
+      font-weight: 600 !important;
+      font-size: 0.8rem !important;
+      letter-spacing: 0.3px;
+      display: inline-block;
+      border: none;
+    }
+    .badge-success { background-color: #d1fae5 !important; color: #065f46 !important; }
+    .badge-warning { background-color: #fef3c7 !important; color: #92400e !important; }
+    .badge-danger { background-color: #fee2e2 !important; color: #991b1b !important; }
+
+    /* Action Icons in Table */
+    .action-icon {
+      color: #718096;
+      background: #edf2f7;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .action-icon:hover {
+      background: #580db4;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .action-icon.pdf-icon:hover { background: #e53e3e; }
+    .action-icon.email-icon:hover { background: #3182ce; }
+    
+    /* View Items Button */
+    .btn-view-items {
+      background-color: #ebf4ff;
+      color: #3182ce;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-view-items:hover {
+      background-color: #3182ce;
+      color: white;
+    }
+
+    /* === Footer & Pagination === */
+    .modern-footer {
+      padding: 1.25rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modern-footer .title-filter {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .pagination {
+      margin: 0;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination li a, .pagination li span {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: #4a5568;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .pagination li.active a {
+      background-color: #580db4;
+      border-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .pagination li a:hover:not(.active) {
+      background-color: #edf2f7;
+      color: #580db4;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+    }
+
+    .selected-row {
+      background-color: rgba(88, 13, 180, 0.05) !important;
+      border-left: 3px solid #580db4;
+    }
+    
+    /* Child Table UI */
+    .child-table-wrapper {
+      padding: 1rem 1.5rem 1.5rem 3rem !important;
+      background-color: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .child-table {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+    }
+    .child-table th {
+      background-color: #edf2f7 !important;
+      color: #4a5568 !important;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem !important;
+      position: static !important;
+      text-align: center;
+    }
+    .child-table td {
+      background-color: #ffffff;
+      padding: 0.75rem 1rem !important;
+      font-size: 0.85rem;
+      text-align: center;
+    }
 
 block content
-    section.content-header
-      h1.text-lg.font-weight-bold.mb-3
-        | RMS Invoice Dashboard
-
-      ol.breadcrumb
+  section.content-header.mb-4
+    div(style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;")
+      h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Invoice Dashboard
+      ol.breadcrumb(style="margin: 0;")
         li
-          a(href='/dashboard')
-            strong(style="color: #580db4") Dashboard 
+          a(href='/dashboard' style="color: #580db4; font-weight: 500; text-decoration: none;")
+            i.fa.fa-home.mr-1
+            | Dashboard
         li
-            strong(style="color: #580db4") RMS TecH Solutions
+          span(style="color: #718096; margin: 0 0.5rem;")
+          span(style="color: #4a5568; font-weight: 500;") RMS TecH Solutions
         li
-            strong(style="color: #580db4") RMS Invoice 
-        li
-          a(href='/rms/rms-invoice')
-            strong(style="color: #580db4") Invoice Dashboard
+          span(style="color: #718096; margin: 0 0.5rem;")
+          a(href='/rms/rms-invoice' style="color: #718096; text-decoration: none;") Invoice Dashboard
         
-    section.content
-        .row
-          .col-md-12.col-xs-12
-             .box.box-parrot
-                .box-header.with-border
-                    .pull-left(style='margin-right:10px;')
-                        span.title-filter(style='display:flex;align-items:center;') Search:
-                         input.form-control.input-sm(type='text', placeholder='Enter search by Name,', name='search' autocomplete='off' style='margin-left:10px' id='search')
-                         button.btn.btn-sm.btn-default.btn-filter.date-range-btn#daterange-btn(type="button" style='display:none;')
-                            span#date-range-display Select date range
-                            input#date-range-input(type="hidden" name="" value="")
-                         button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
-                          span.fa.fa-search      
-                    .btn-group(role='group' aria-label='Invoice Actions' style='margin-left:20px')
-                    .pull-left(style='margin-right:10px;') 
-                      //- Direct Create
-                      button.btn.btn-primary.btn-sm(type='button' data-toggle='modal' data-target='#add-edit-invoice-modal')
-                        span.fa.fa-plus.mr-1
-                        |  Direct Invoice
-                    .pull-left 
-                      //- Create from Quotation
-                      button.btn.btn-info.btn-sm(type='button' data-toggle='modal' data-target='#createQuotationInvoiceModal')
-                        span.fa.fa-file-text-o.mr-1
-                        |  From Quotation
-                    .pull-left 
-                      //- Create from Challan
-                      button.btn.btn-info.btn-sm(type='button' data-toggle='modal' data-target='#createChallanInvoiceModal')
-                        span.fa.fa-file-text-o.mr-1
-                        |  From Challan                                            
-                    .pull-right
-                        span.title-filter(style='display:flex;align-items:center') Show:
-                            select.form-control.input-filter.input-sm(id='limitSelect')
-                                option 10
-                                option 25
-                                option 50
-                                option 100                                
-                .box-body
-                    .table.table-responsive
-                        table.table.table-striped.table-hover
-                            thead
-                                tr
-                                    th
-                                      a(href='#') Action &nbsp;
-                                        i.fa.fa-sort-alpha-asc 
-                                    th
-                                      a(href='#') Download Invoice PDF &nbsp;
-                                        i.fa.fa-sort-alpha-asc
-                                    th
-                                      a(href='#') View Invoice PDF &nbsp;
-                                        i.fa.fa-sort-alpha-asc    
-                                    th
-                                      a(href='#') Invoice Email &nbsp;
-                                        i.fa.fa-sort-alpha-asc           
-                                    th
-                                      a(href='#') Invoice Number
-                                    th
-                                      a(href='#') Company Name
-                                    th
-                                      a(href='#') Status
-                                    th
-                                      a(href='#') Remarks
-                                    th
-                                      a(href='#') Items
-                                    th
-                                      a(href='#') Created By
-                                    th
-                                      a(href='#') Updated By
-                                    th
-                                      a(href='#') Created Date
-                                    th
-                                      a(href='#') Updated Date         
-                            tbody#invoiceTableBody
-                                tr
-                                    td.text-center(colspan='10') No data to display. Use the search filters above to load data.
+  section.content
+    .row
+      .col-xs-12
+        .modern-card
+          //- Toolbar Area
+          .modern-toolbar
+            .toolbar-group
+              .modern-input-group
+                span Search:
+                input.modern-control#search(type='text', placeholder='Search Name, Invoice ID...', name='search' autocomplete='off' style='width: 250px;')
+                button.btn-modern.btn-modern-primary.btn-modern-icon#searchBtn(type='button')
+                  i.fa.fa-search
+              
+              button.btn-modern.btn-modern-primary(type='button' data-toggle='modal' data-target='#add-edit-invoice-modal') 
+                i.fa.fa-plus
+                | Direct Invoice
+                
+              button.btn-modern.btn-modern-info(type='button' data-toggle='modal' data-target='#createQuotationInvoiceModal') 
+                i.fa.fa-file-text-o
+                | From Quotation
 
+              button.btn-modern.btn-modern-warning(type='button' data-toggle='modal' data-target='#createChallanInvoiceModal') 
+                i.fa.fa-truck
+                | From Challan
+                
+            .toolbar-group
+              .modern-input-group
+                span Show:
+                select.modern-control#limitSelect(style='width: 80px;')
+                  option 10
+                  option 25
+                  option 50
+                  option 100
 
-                .box-footer.clearfix
-                    .pull-left
-                        span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
-                    ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
+          //- Table Area
+          .modern-table-container
+            table.table.modern-table#invoiceTable
+              thead
+                tr
+                  th Action
+                  th Download PDF
+                  th View PDF
+                  th Email
+                  th Invoice Number
+                  th Company Name
+                  th Company Email
+                  th Total Invoice Amount
+                  th Status
+                  th Invoice Notes
+                  th Inventory Items
+                  th Created By
+                  th Updated By
+                  th Created Date
+                  th Updated Date
+              tbody#invoiceTableBody
+                tr
+                  td.text-center(colspan='13' style="padding: 3rem;") 
+                    span(style="color: #a0aec0; font-size: 1.1rem;") No data captured. Apply parameters or lookups above.
 
-    include ./create
-    include ./qcreate
-    include ./ccreate
+          //- Footer Area
+          .modern-footer
+            span.title-filter#title-filter Showing no entries
+            ul.pagination#paginationContainer
+
+  // INCLUDE MODAL REGISTRY LINES
+  include ./create
+  include ./qcreate
+  include ./ccreate                  
 
 block script
-  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
-
+  
   script.
     document.addEventListener('DOMContentLoaded', function() {
       const tableBody = document.getElementById('invoiceTableBody');
@@ -246,293 +408,249 @@ block script
       let search = document.getElementById('search');
       const searchBtn = document.getElementById('searchBtn');
       const limitSelect = document.getElementById('limitSelect');
-      const dateRangeDisplay = document.querySelector('#date-range-display');
-      const dateRangeInput = document.getElementById('date-range-input');
-
-      const updateMargin = () => {
-        if (dateRangeDisplay.textContent.trim() === "Select date range") {
-        dateRangeDisplay.style.marginRight = "70px";
-        } else {
-        dateRangeDisplay.style.marginRight = "0";
-        }
-      };
-
-        // Initial check
-        updateMargin();
-
-        // Observe changes in text content
-        const observer = new MutationObserver(updateMargin);
-        observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
 
       let currentPage = 1;
       let currentSearch = '';
       let limit = limitSelect.value;
-      let dateRange = '';
       const selectedRows = new Set();
-      const selectedData = [];
 
-      async function fetchInvoice(page = 1, search = '', dateRange='', limit = 10) {
-        tableBody.innerHTML = `<tr><td colspan="19" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
+      async function fetchInvoice(page = 1, search = '', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="13" class="text-center" style="padding: 3rem;"><i class="fa fa-spinner fa-spin" style="font-size: 32px; color: #580db4;"></i></td></tr>`;
         try {
           const response = await fetch(`/api/rms/rms-invoice/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();
 
           if (data?.data?.length > 0) {
-              const grouped = {};
+            const groupedArray = [];
+            const groupMap = {};
 
-              data.data.forEach(row => {
-                  if (!grouped[row.id]) {
-                      grouped[row.id] = {
-                          id: row.id,
-                          invoiceNumber: row.invoiceNumber,
-                          companyName: row.companyName,
-                          companyEmail: row.companyEmail,
-                          invoiceStatus: row.invoiceStatus,
-                          invoiceNotes: row.invoiceNotes,
-                          createdBy: row.createdBy,
-                          updatedBy: row.updatedBy,
-                          createdAt: row.createdAt,
-                          updatedAt: row.updatedAt,
-                          items: []
-                      };
-                  }
+            data.data.forEach(row => {
+              if (!groupMap[row.id]) {
+                groupMap[row.id] = {
+                  id: row.id,
+                  invoiceNumber: row.invoiceNumber,
+                  companyName: row.companyName,
+                  companyEmail: row.companyEmail,
+                  grandTotal: row.grandTotal,
+                  invoiceStatus: row.invoiceStatus,
+                  invoiceNotes: row.invoiceNotes,
+                  createdBy: row.createdBy,
+                  updatedBy: row.updatedBy,
+                  createdAt: row.createdAt,
+                  updatedAt: row.updatedAt,
+                  items: []
+                };
+                groupedArray.push(groupMap[row.id]);
+              }
 
-                  grouped[row.id].items.push({
-                      itemName: row.itemName,
-                      itemType: row.itemType,
-                      itemModel: row.itemModel,
-                      itemConfigurations: row.itemConfigurations,
-                      itemPrice: row.itemPrice,
-                      deliveredQuantity: row.deliveredQuantity,
-                      unitPrice: Number(row.unitPrice || 0),          // ✅ ADD
-                      totalPrice: Number(row.totalPrice || 0),        // ✅ ADD
-                      itemDiscountAmount: Number(row.itemDiscountAmount || 0), // optional
-                      itemNotes: row.itemNotes
-                  });
+              groupMap[row.id].items.push({
+                itemName: row.itemName,
+                itemType: row.itemType,
+                itemModel: row.itemModel,
+                itemConfigurations: row.itemConfigurations,
+                itemPrice: row.itemPrice,
+                deliveredQuantity: row.deliveredQuantity,
+                unitPrice: Number(row.unitPrice || 0),
+                totalPrice: Number(row.totalPrice || 0),
+                itemDiscountAmount: Number(row.itemDiscountAmount || 0),
+                itemNotes: row.itemNotes
               });
+            });
 
-              // =========================
-              // ✅ RENDER GROUPED UI
-              // =========================
-              tableBody.innerHTML = Object.values(grouped).map(c => {
-              
-                  const totalQty = c.items.reduce((sum, i) => sum + (Number(i.deliveredQuantity) || 0), 0);
+            // Pipeline Sorting (Newest First)
+            groupedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                  const format = (num) => Number(num || 0).toLocaleString();
+            // Render Rows
+            tableBody.innerHTML = groupedArray.map(c => {
+              const totalQty = c.items.reduce((sum, i) => sum + (Number(i.deliveredQuantity) || 0), 0);
+              const totalUnitPrice = c.items.reduce((sum, i) => sum + (Number(i.unitPrice) || 0), 0);
+              const totalGrossPrice = c.items.reduce((sum, i) => sum + (Number(i.totalPrice) || 0), 0);
+              const totalItemDiscount = c.items.reduce((sum, i) => sum + (Number(i.itemDiscountAmount) || 0), 0);
+              const format = (num) => Number(num || 0).toLocaleString();
 
-                  return `
+              let statusBadge = 'badge-warning';
+              if(c.invoiceStatus === 'paid' || c.invoiceStatus === 'delivered') statusBadge = 'badge-success';
+              if(c.invoiceStatus === 'cancelled' || c.invoiceStatus === 'failed') statusBadge = 'badge-danger';
 
-                  <!-- MAIN Invoice ROW -->
-                  <tr style="background:#f5f5f5;font-weight:bold;">
+              return `
+              <tr class="main-row" data-id="${c.id}">
+                <td>
+                  <a href="#" class="action-icon editInvoice" data-invoice-id="${c.id}" data-toggle="modal" data-target="#add-edit-invoice-modal" title="Modify Invoice Properties">
+                    <i class="fa fa-edit"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="/api/rms/rms-invoice/generate-pdf/${c.id}" class="action-icon pdf-icon" target="_blank" title="Download System Ledger Package PDF">
+                    <i class="fa fa-download fa-lg"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="/api/rms/rms-invoice/view-pdf/${c.id}" class="action-icon pdf-icon" target="_blank" title="Review Document Vector Stream">
+                    <i class="fa fa-eye fa-lg"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="#" class="action-icon email-icon sendInvoiceEmail" data-invoice-id="${c.id}" data-company-email="${c.companyEmail}" data-company-name="${c.companyName}" title="Dispatch Statement to Customer">
+                    <i class="fa fa-envelope"></i>
+                  </a>
+                </td>
 
-                      <td>
-                          <a href="#"
-                             class="editInvoice fa fa-edit"
-                             data-invoice-id="${c.id}"
-                             data-toggle="modal"
-                             data-target="#add-edit-invoice-modal">
-                          </a>
-                      </td>
+                <td style="font-weight: 600; color: #580db4;">${c.invoiceNumber ?? '-'}</td>
+                <td>${c.companyName ?? '-'}</td>
+                <td>${c.companyEmail ?? '-'}</td>
+                <td>${c.grandTotal ?? '-'}</td>
+                <td>
+                  <span class="badge ${statusBadge} text-uppercase">
+                    ${c.invoiceStatus ?? 'Pending'}
+                  </span>
+                </td>
+                <td>${c.invoiceNotes ?? '-'}</td>
 
-                      <td>
-                          <a href="/api/rms/rms-invoice/generate-pdf/${c.id}"
-                             class="fa fa-file-pdf-o fa-2x"
-                             target="_blank"
-                             title="Generate PDF">
-                          </a>
-                      </td>
-                      <td>    
-                          <a href="/api/rms/rms-invoice/view-pdf/${c.id}"
-                             class="fa fa-file-pdf-o fa-2x"
-                             target="_blank"
-                             title="View PDF">
-                          </a>
-                      </td>
+                <td>
+                  <button class="btn-view-items toggleItems" data-id="${c.id}">
+                    <i class="fa fa-list-ul mr-1"></i> Lines (${c.items.length})
+                  </button>
+                </td>
 
-                      <td>
-                        <a href="#"
-                           class="sendInvoiceEmail fa fa-envelope fa-2x"
-                           data-invoice-id="${c.id}"
-                           data-company-email="${c.companyEmail}"
-                           data-company-name="${c.companyName}"
-                           title="Send via Email">
-                        </a>
-                      </td>
+                <td>${c.createdBy ?? 'System'}</td>
+                <td>${c.updatedBy ?? '-'}</td>
+                <td>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '-'}</td>
+                <td>${c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : '-'}</td>
+              </tr>
 
-                      <td>${c.invoiceNumber ?? ''}</td>
-                      <td>${c.companyName ?? ''}</td>
-                      <td><span class="badge badge-${c.invoiceStatus === 'delivered' ? 'success' : c.invoiceStatus === 'pending' ? 'warning' : 'danger'}">${c.invoiceStatus ?? ''}</span></td>
-                      <td>${c.invoiceNotes ?? ''}</td>
-
-                      <!-- View Items -->
-                      <td>
-                          <button class="btn btn-sm btn-info toggleItems" data-id="${c.id}">
-                              View Items (${c.items.length})
-                          </button>
-                      </td>
-
-                      <td>${c.createdBy ?? ''}</td>
-                      <td>${c.updatedBy ?? ''}</td>
-                      <td>${new Date(c.createdAt).toLocaleDateString() ?? ''}</td>
-                      <td>${new Date(c.updatedAt).toLocaleDateString() ?? ''}</td>
-
-                  </tr>
-
-                  <!-- ITEMS ROW -->
-                  <tr id="items-${c.id}" style="display:none;">
-                      <td colspan="12">
-                          <table class="table table-bordered">
-
-                              <thead style="background:#580db4;color:white;">
-                                  <tr>
-                                      <th>Item</th>
-                                      <th>Type</th>
-                                      <th>Model</th>
-                                      <th>Spec</th>
-                                      <th>Delivered Qty</th>
-                                      <th>Unit Price</th>
-                                      <th>Total Price</th>
-                                      <th>Discount</th>
-                                      <th>Notes</th>
-                                  </tr>
-                              </thead>
-
-                              <tbody>
-                                  ${c.items.map(i => `
-                                      <tr>
-                                          <td>${i.itemName ?? ''}</td>
-                                          <td>${i.itemType ?? ''}</td>
-                                          <td>${i.itemModel ?? ''}</td>
-                                          <td>${i.itemConfigurations ?? ''}</td>
-                                          <td>${i.deliveredQuantity ?? ''}</td>
-                                          <td>${Number(i.unitPrice).toFixed(2)}</td>
-                                          <td>${Number(i.totalPrice).toFixed(2)}</td>
-                                          <td>${Number(i.itemDiscountAmount || 0).toFixed(2)}</td>
-                                          <td>${i.notes ?? ''}</td>
-                                      </tr>
-                                  `).join('')}
-
-                                  <!-- TOTAL ROW -->
-                                  <tr style="background:#e8f5e9;font-weight:bold;">
-                                      <td colspan="4" style="text-align:right;">TOTAL DELIVERED</td>
-                                      <td>${format(totalQty)}</td>
-                                      <td></td>
-                                  </tr>
-
-                              </tbody>
-                          </table>
-                      </td>
-                  </tr>
-
-                  `;
-              }).join('');
+              <tr id="items-${c.id}" style="display:none; background-color: transparent;">
+                <td colspan="13" class="child-table-wrapper">
+                  <table class="child-table">
+                    <thead>
+                      <tr>
+                        <th>Item Name</th>
+                        <th>Item Type</th>
+                        <th>Item Code</th>
+                        <th>Item Configuration Specifications</th>
+                        <th>Qty Issued</th>
+                        <th>Unit Price</th>
+                        <th>Gross Total</th>
+                        <th>Discount</th>
+                        <th>Item Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${c.items.map(i => `
+                        <tr>
+                          <td style="font-weight: 500;">${i.itemName ?? '-'}</td>
+                          <td>${i.itemType ?? '-'}</td>
+                          <td><code style="color: #ed4014;">${i.itemModel ?? '-'}</code></td>
+                          <td>${i.itemConfigurations ?? '-'}</td>
+                          <td style="font-weight: 700;">${i.deliveredQuantity ?? '0'}</td>
+                          <td style="font-weight: 700;">${format(i.unitPrice)}</td>
+                          <td style="font-weight: 700; color: #065f46;">${format(i.totalPrice)}</td>
+                          <td style="color: #991b1b;">${format(i.itemDiscountAmount)}</td>
+                          <td>${i.itemNotes ?? '-'}</td>
+                        </tr>
+                      `).join('')}
+                      <tr style="background:#f1f5f9;">
+                        <td colspan="4" style="text-align:right; font-weight: 700; color: #2d3748;">Aggregated Quantity:</td>
+                        <td style="font-weight: 700; color: #2d3748;">${totalQty} Units</td>
+                        <td style="font-weight: 700; color: #2d3748;">${totalUnitPrice} BDT</td>
+                        <td style="font-weight: 700; color: #065f46;">${totalGrossPrice} BDT</td>
+                        <td style="font-weight: 700; color: #991b1b;">${totalItemDiscount} BDT</td>
+                        <td colspan="4"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              `;
+            }).join('');
 
             selectedRows.forEach((id) => {
               const row = tableBody.querySelector(`[data-id="${id}"]`);
               if (row) row.classList.add('selected-row');
-          });
+            });
 
-          const totalRecords = data.total;
-          const startRecord = (currentPage - 1) * limit + 1;
-          const endRecord = Math.min(currentPage * limit, totalRecords);
+            const totalRecords = data.total;
+            const startRecord = (currentPage - 1) * limit + 1;
+            const endRecord = Math.min(currentPage * limit, totalRecords);
 
-          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+            document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records assigned`;
 
           } else {
-            tableBody.innerHTML = `<tr><td colspan="19" class="text-center">No data found</td></tr>`;
-            document.querySelector('#title-filter').textContent = 'No entries to display';
+            tableBody.innerHTML = `<tr><td colspan="13" class="text-center" style="padding: 3rem; color: #a0aec0;">No data records extracted matching this criteria query scope.</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries matching filters';
             return;
           }
 
-          // Generate pagination buttons
-          const totalPages = Math.ceil(data.total / limit);
-          renderPagination(totalPages, page);
+          renderPagination(Math.ceil(data.total / limit), page);
 
         } catch (error) {
-          console.error('Error fetching invoices:', error);
-          tableBody.innerHTML = `<tr><td colspan="18" class="text-center">Error loading data</td></tr>`;
+          console.error('Core Exception in invoice parsing framework:', error);
+          tableBody.innerHTML = `<tr><td colspan="13" class="text-center" style="padding: 3rem; color: #e53e3e;"><i class="fa fa-exclamation-triangle"></i> Execution Error pipeline mapping failed.</td></tr>`;
           document.querySelector('#title-filter').textContent = 'Error loading entries';
         }
       }
 
       function renderPagination(totalPages, currentPage) {
-        paginationContainer.innerHTML = ""
+        paginationContainer.innerHTML = "";
+        if (!totalPages || totalPages <= 0) return;
 
-        const maxVisiblePages = 5
-        const firstPages = 2
-        const lastPages = 2
+        const maxVisiblePages = 5;
 
-        // Helper function to create pagination link
         const createPageLink = (page, isActive = false) => {
-          const pageItem = document.createElement("li")
-          if (isActive) pageItem.classList.add("active")
-          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
-          paginationContainer.appendChild(pageItem)
-        }
+          const pageItem = document.createElement("li");
+          if (isActive) pageItem.classList.add("active");
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`;
+          paginationContainer.appendChild(pageItem);
+        };
 
-        // Show "Previous" button if not on first page
         if (currentPage > 1) {
-          const prevItem = document.createElement("li")
-          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}">« Previous</a>`
-          paginationContainer.appendChild(prevItem)
+          const prevItem = document.createElement("li");
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}"><i class="fa fa-chevron-left" style="font-size: 0.8em; pointer-events:none;"></i></a>`;
+          paginationContainer.appendChild(prevItem);
         }
 
-        // For small number of pages, show all pages without ellipsis
         if (totalPages <= maxVisiblePages) {
           for (let i = 1; i <= totalPages; i++) {
-            createPageLink(i, i === currentPage)
+            createPageLink(i, i === currentPage);
           }
         } else {
-          // Show first page
-          createPageLink(1, currentPage === 1)
+          createPageLink(1, currentPage === 1);
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3);
 
-          // Calculate range of pages to show around current page
-          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
-          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
-
-          // Adjust range if current page is near the end
           if (rangeEnd === totalPages - 1) {
-            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3);
           }
 
-          // Show ellipsis after first page if needed
           if (rangeStart > 2) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`;
           }
 
-          // Show pages in range
           for (let i = rangeStart; i <= rangeEnd; i++) {
-            createPageLink(i, i === currentPage)
+            createPageLink(i, i === currentPage);
           }
 
-          // Show ellipsis before last page if needed
           if (rangeEnd < totalPages - 1) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`;
           }
 
-          // Show last page if not already shown
           if (totalPages > 1) {
-            createPageLink(totalPages, currentPage === totalPages)
+            createPageLink(totalPages, currentPage === totalPages);
           }
         }
 
-        // Show "Next" button if not on last page
         if (currentPage < totalPages) {
-          const nextItem = document.createElement("li")
-          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}">Next »</a>`
-          paginationContainer.appendChild(nextItem)
+          const nextItem = document.createElement("li");
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}"><i class="fa fa-chevron-right" style="font-size: 0.8em; pointer-events:none;"></i></a>`;
+          paginationContainer.appendChild(nextItem);
         }
       }
 
-       // Update page and fetch data
       function updatePage(page) {
         let currentSearch = search.value;
-        dateRange = dateRangeInput.value;
         currentPage = page;
-        fetchInvoice(currentPage, currentSearch, dateRange, limit);
+        fetchInvoice(currentPage, currentSearch, limit);
       }
 
-      // Event listener for pagination links
       paginationContainer.addEventListener('click', function(event) {
         if (event.target.classList.contains('pagination-link')) {
           event.preventDefault();
@@ -543,24 +661,26 @@ block script
         }
       });
 
-      // Search and limit event listeners
+      search.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchBtn.click();
+        }
+      });
+
       searchBtn.addEventListener('click', () => {
         selectedRows.clear();
-        selectedData.length = 0;
         currentSearch = search.value;
-        dateRange = dateRangeInput.value;
-        fetchInvoice(1, currentSearch, dateRange, limit);
+        fetchInvoice(1, currentSearch, limit);
       });
       
       limitSelect.addEventListener('change', () => {
         limit = limitSelect.value;
         currentSearch = search.value;
-        dateRange = dateRangeInput.value;
         currentPage = 1;
-        fetchInvoice(currentPage, currentSearch, dateRange, limit);
+        fetchInvoice(currentPage, currentSearch, limit);
       });
 
-      // Toggle items row visibility when user clicks "View Items"
       tableBody.addEventListener('click', function(event) {
         const btn = event.target.closest('.toggleItems');
         if (!btn) return;
@@ -573,98 +693,7 @@ block script
         itemsRow.style.display = itemsRow.style.display === 'none' || itemsRow.style.display === '' ? 'table-row' : 'none';
       });
 
-      function updateSelectedData(rowId, email, mrno, patientName) {
-          if (add) {
-            selectedData.push({ id: rowId, email, mrno, patientName });
-          } else {
-            const index = selectedData.findIndex(item => item.id === rowId);
-            if (index !== -1) selectedData.splice(index, 1);
-          } 
-      }
-
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      
-      // Initialize the daterangepicker
-      $('#daterange-btn').daterangepicker({
-        startDate: yesterday,
-        endDate: today,
-        ranges: {
-          'Today': [moment(), moment()],
-          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-          'This Month': [moment().startOf('month'), moment().endOf('month')],
-          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        },
-        locale: {
-          format: 'MMMM DD, YYYY'
-        }
-      }, function(start, end, label) {
-        const startDate = start.format('MMMM DD, YYYY');
-        const endDate = end.format('MMMM DD, YYYY');
-        
-        dateRangeDisplay.innerText = `${startDate} - ${endDate}`;
-        dateRangeInput.value = `${startDate} - ${endDate}`;
-      });
-
-      const initialStart = moment(yesterday).format('MMMM DD, YYYY');
-      const initialEnd = moment(today).format('MMMM DD, YYYY');
-      dateRangeDisplay.innerText = `${initialStart} - ${initialEnd}`;
-      dateRangeInput.value = `${initialStart} - ${initialEnd}`;
-
-      $('.btn-download').on('click', function () {
-        const dateRangeDisplay = document.querySelector('#date-range-display');
-        const $downloadBtn = $(".btn-download");
-        const originalText = $downloadBtn.html();
-        let dateRange = dateRangeDisplay.textContent.trim();
-
-        if (!dateRange) {
-            swal("Warning", "No date range selected!", "warning");
-            return;
-        }
-
-        $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
-
-        $.ajax({
-          url: `/api/callcenter/service-status/export-excel?`, // Move dateRange to query param
-          method: "GET", // ✅ MUST match controller
-          xhrFields: { responseType: "blob" },
-          success: function (blob, status, xhr) {
-              const contentDisposition = xhr.getResponseHeader("Content-Disposition");
-              let filename = "X_Ray_Tracker.xlsx";
-              if (contentDisposition) {
-                  const match = contentDisposition.match(/filename="(.+)"/);
-                  if (match && match.length > 1) {
-                      filename = match[1];
-                  }
-              }
-
-              const blobUrl = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = blobUrl;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              window.URL.revokeObjectURL(blobUrl);
-              document.body.removeChild(a);
-          },
-          error: function (xhr, status, err) {
-              console.error("XHR:", xhr);
-              console.error("Status:", status);
-              console.error("Error:", err);
-              swal("Error", "Failed to download. Please try again.", "error");
-          },
-          complete: function () {
-              // Restore button state
-              $downloadBtn.prop("disabled", false).html(originalText);
-          }
-      });
-
-    });      
-
-      fetchInvoice(currentPage, currentSearch, dateRangeInput.value, limit);
+      fetchInvoice(currentPage, search.value, limit);
     });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -1121,31 +1150,30 @@ block script
         function calculateTotals() {
 
             let subtotal = 0;
-            let discountEligibleSubtotal = 0;       
+            let discountEligibleSubtotal = 0;
 
-            cart.forEach(item => {      
-
+            cart.forEach(item => {
                 const lineTotal = num(item.totalPrice);
-                subtotal += lineTotal;      
+                subtotal += lineTotal;
 
-                // Only items WITHOUT item discount are eligible for overall discount
-                if (!item.itemDiscountPercent || item.itemDiscountPercent === 0) {
+                const hasItemDiscount = num(item.itemDiscountAmount) > 0;
+                if (!hasItemDiscount) {
                     discountEligibleSubtotal += lineTotal;
                 }
-            });     
+            });
 
             const taxPercent = num(taxAmount?.value);
-            const discountPercent = num(discountAmount?.value);     
+            const discountPercent = num(discountAmount?.value);
 
-            // TAX on full subtotal (you can change if needed)
-            const taxValue = subtotal * taxPercent / 100;       
+            // TAX on full subtotal
+            const taxValue = subtotal * taxPercent / 100;
 
             // OVERALL DISCOUNT only on eligible items
-            const discountValue = discountEligibleSubtotal * discountPercent / 100;     
+            const discountValue = discountEligibleSubtotal * discountPercent / 100;
 
-            const grandTotal = subtotal + taxValue - discountValue;     
+            const grandTotal = subtotal + taxValue - discountValue;
 
-            setValue(subtotalInput, subtotal.toFixed(2));       
+            setValue(subtotalInput, subtotal.toFixed(2));
 
             if (taxValueInput) taxValueInput.value = taxValue.toFixed(2);
             if (discountValueInput) discountValueInput.value = discountValue.toFixed(2);
@@ -1170,11 +1198,34 @@ block script
             // Calculate values
             const subtotal = Number(subtotalInput?.value || 0);
             const grandTotal = Number(grandTotalInput?.value || 0);
-            const taxPercent = Number(taxAmount?.value || 0);
-            const discountPercent = Number(discountAmount?.value || 0);
 
-            const taxValue = subtotal * taxPercent / 100;
-            const discountValue = subtotal * discountPercent / 100;
+            const taxPercent =
+                Number(taxAmount?.value || 0);
+
+            const discountPercent =
+                Number(discountAmount?.value || 0);
+
+            // ========================
+            // DISCOUNT ELIGIBLE SUBTOTAL
+            // ========================
+            let discountEligibleSubtotal = 0;
+
+            cart.forEach(item => {
+                const hasItemDiscount = Number(item.itemDiscountAmount || 0) > 0;
+                if (!hasItemDiscount) {
+                    discountEligibleSubtotal += Number(item.totalPrice || 0);
+                }
+            });
+
+            // ========================
+            // FINAL TAX / DISCOUNT
+            // ========================
+            const taxValue =
+                subtotal * taxPercent / 100;
+
+            const discountValue =
+                discountEligibleSubtotal *
+                discountPercent / 100;
 
             // Build payload according to your controller
             const payload = {
@@ -1191,6 +1242,7 @@ block script
                 // Controller expects these exact names
                 taxAmount: taxValue,
                 discountAmount: discountValue,
+                totalAmount: subtotal,
 
                 // Optional totals
                 subtotal,
@@ -1339,9 +1391,44 @@ block script
                 // Repository returns invoiceNotes, not notes
                 setValue(notes, invoice.invoiceNotes || invoice.notes || '');
 
-                // Tax and discount amounts
-                setValue(taxAmount, Number(invoice.taxAmount || 0));
-                setValue(discountAmount, Number(invoice.discountAmount || 0));
+                // ========================
+                // SUBTOTAL FROM ITEMS
+                // ========================
+                const subtotal = (invoice.items || []).reduce((sum, item) => {
+                    return sum + Number(item.totalPrice || 0);
+                }, 0);
+
+                // ========================
+                // OVERALL DISCOUNT PERCENT
+                // ========================
+                const discountValue = Number(invoice.discountAmount || 0);
+                const discountEligibleSubtotal = (invoice.items || []).reduce(
+                    (sum, item) => {
+                        const hasItemDiscount = Number(item.itemDiscountAmount || 0) > 0;
+                        return hasItemDiscount
+                            ? sum
+                            : sum + Number(item.totalPrice || 0);
+                    },
+                    0
+                );
+
+                const discountPercent =
+                    discountEligibleSubtotal > 0
+                        ? (discountValue / discountEligibleSubtotal) * 100
+                        : 0;
+
+                setValue(discountAmount, discountPercent.toFixed(2));
+
+                // ========================
+                // TAX PERCENT
+                // ========================
+                const taxValue = Number(invoice.taxAmount || 0);
+                const taxPercent =
+                    subtotal > 0
+                        ? (taxValue / subtotal) * 100
+                        : 0;
+
+                setValue(taxAmount, taxPercent.toFixed(2));
 
                 // Load items into cart
                 cart = (invoice.items || []).map(item => {

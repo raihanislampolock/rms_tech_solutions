@@ -202,7 +202,14 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
         }
 
         const query = `
-             SELECT
+            WITH paged_invoices AS (
+                SELECT i.id
+                FROM public.rms_invoices i
+                ${whereSQL}
+                ORDER BY i."createdAt" DESC
+                LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+            )
+            SELECT
                 i.id,
                 i."invoiceNumber",
                 i."companyName",
@@ -213,6 +220,14 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
                 ii."quantity" as "deliveredQuantity",
                 ii."unitPrice",
                 ii."totalPrice",
+                ii."itemDiscountAmount",
+                i."discountAmount",
+                i."taxAmount",
+                (
+                    SUM(ii."totalPrice") OVER (PARTITION BY i.id)
+                    - COALESCE(i."discountAmount", 0)
+                    + COALESCE(i."taxAmount", 0)
+                ) AS "grandTotal",
                 ii.notes as "itemNotes",
                 it."itemName",
                 it."itemType",
@@ -223,14 +238,37 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
                 u.username,
                 u."empId" as "createdBy",
                 u2."empId" as "updatedBy"
-            FROM public.rms_invoices i
+            FROM paged_invoices pi
+            LEFT JOIN public.rms_invoices i ON i.id = pi.id
             LEFT JOIN public.rms_invoice_items ii ON i.id = ii."invoiceId"
             LEFT JOIN public.rms_items it ON ii."itemId" = it.id
             LEFT JOIN public.users u ON i."createdBy" = u."userId"
             LEFT JOIN public.users u2 ON i."updatedBy" = u2."userId"
-            ${whereSQL}
+            GROUP BY
+                i.id,
+                i."invoiceNumber",
+                i."companyName",
+                i."companyEmail",
+                i."invoiceStatus",
+                i.notes,
+                i."discountAmount",
+                i."taxAmount",
+                i."createdAt",
+                i."updatedAt",
+                ii."itemId",
+                ii."quantity",
+                ii."unitPrice",
+                ii."totalPrice",
+                ii."itemDiscountAmount",
+                ii.notes,
+                it."itemName",
+                it."itemType",
+                it."itemModel",
+                it."itemConfigurations",
+                u.username,
+                u."empId",
+                u2."empId"
             ORDER BY i."createdAt" DESC
-            LIMIT $${params.length + 1} OFFSET $${params.length + 2}
         `;
 
         params.push(limit, offset);
@@ -316,8 +354,6 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
             items: []
         };
 
-        console.log(invoice.taxAmount);
-
         for (const row of result) {
             if (row.itemId) {
                 invoice.items.push({
@@ -350,10 +386,17 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
         await qr.startTransaction();
 
         try {
-            // Calculate totals
+            // Calculate totals and preserve line discounts
             let totalAmount = 0;
+
             items.forEach(item => {
-                item.totalPrice = (item.quantity || 0) * (item.unitPrice || 0);
+                const quantity = Number(item.quantity || 0);
+                const unitPrice = Number(item.unitPrice || 0);
+                const itemDiscountAmount = Number(item.itemDiscountAmount || 0);
+
+                item.totalPrice = quantity * unitPrice - itemDiscountAmount;
+                if (item.totalPrice < 0) item.totalPrice = 0;
+
                 totalAmount += item.totalPrice;
             });
 
@@ -383,6 +426,7 @@ export class RmsInvoiceRepository implements IRmsInvoiceRepository {
                     quantity: item.quantity ?? 0,
                     unitPrice: item.unitPrice ?? 0,
                     totalPrice: item.totalPrice ?? 0,
+                    itemDiscountAmount: Number(item.itemDiscountAmount || 0),
                     notes: item.notes ?? undefined,
                     createdBy: data.updatedBy
                 });
