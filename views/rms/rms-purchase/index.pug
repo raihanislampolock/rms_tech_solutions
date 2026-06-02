@@ -1,230 +1,394 @@
 extends ../../layout
+
 block style
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
   style.
-    .selected-row {
-      background-color: #580db4 !important;
-      color: white !important;
+    /* === Modern Layout & Card Styling === */
+    .modern-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid #edf2f7;
+      margin-bottom: 2rem;
+      overflow: hidden;
     }
-    
-    .select-report {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    #tableHead {
-      background-color: #580db4;
-      color: white;
-    }
-    
-    /* =========================
-       FORM CHECK
-       ========================= */
-    .form-check {
-      margin-top: 1rem;
+
+    .modern-toolbar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #edf2f7;
+      background-color: #fff;
       display: flex;
+      justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
       gap: 1rem;
     }
 
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 1rem 1rem 0.3rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: none;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
-    
-    .form-check-input {
-      width: 2rem;
-      height: 2rem;
-      margin: 0;
-      cursor: pointer;
-      accent-color: #580db4;
+
+    /* === Modern Inputs & Selects === */
+    .modern-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
     }
-    
-    .form-check-label {
-      font-size: 1rem;
-      color: #555;
-      cursor: pointer;
-      margin-left: 0.1rem;
-      margin-top: 0.5rem;
+
+    .modern-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
+      outline: none;
+      color: #2d3748;
     }
-    
-    /* =========================
-       MODAL WIDTH
-       ========================= */
-    #add-edit-quotation-modal .modal-dialog {
-      max-width: 60%;
-      width: auto;
-    }
-    
-    /* =========================
-       SERVICE TABLE
-       ========================= */
-    #serviceTable {
-      font-size: 16px;
-    }
-    
-    #serviceTable th,
-    #serviceTable td {
-      padding: 10px 14px;
-    }
-    
-    #serviceTable tfoot td {
-      font-size: 15px;
-      font-weight: 400;
-    }
-    
-    /* =========================
-       SELECT BOX (FIX UI)
-       ========================= */
-    select {
-      color: #580db4;
+
+    .modern-control:focus {
+      border-color: #580db4;
+      box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
       background-color: #fff;
     }
-    
-    /* IMPORTANT: Fix invisible dropdown items */
-    select option {
-      color: #580db4 !important;
-      background-color: #fff !important;
-    }
-    
-    /* =========================
-       SELECT2 (SAFE KEEP IF USED ELSEWHERE)
-       ========================= */
-    .select2-container--default .select2-selection--single {
-      height: 38px !important;
-      line-height: 38px !important;
-      background-color: #fff !important;
-      border: 1px solid #ced4da !important;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      color: #333 !important;
-      line-height: 36px !important;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      height: 36px !important;
-    }
-    
-    /* =========================
-       DROPDOWN VISIBILITY FIX
-       ========================= */
-    #itemSelect {
-      color: #000 !important;
-    }
-    
-    /* Fix dropdown hidden text issue */
-    select option {
-      color: #000 !important;
-    }
-    
-    /* Ensure modal does not break dropdown */
-    .modal {
-      overflow: visible !important;
+
+    /* === Modern Buttons === */
+    .btn-modern {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
 
+    .btn-modern-primary {
+      background-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .btn-modern-primary:hover {
+      background-color: #480a96;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(88, 13, 180, 0.3);
+      color: white;
+    }
+
+    .btn-modern-info {
+      background-color: #0ea5e9;
+      color: white;
+      box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-modern-info:hover {
+      background-color: #0284c7;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(14, 165, 233, 0.3);
+      color: white;
+    }
+
+    .btn-modern-warning {
+      background-color: #f59e0b;
+      color: white;
+      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .btn-modern-warning:hover {
+      background-color: #d97706;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+      color: white;
+    }
+
+    .btn-modern-icon {
+      padding: 0.5rem 0.75rem;
+    }
+
+    /* === Modern Table Styling === */
+    .modern-table-container {
+      padding: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .table.modern-table {
+      margin-bottom: 0;
+      border-collapse: collapse !important;
+      width: 100%;
+    }
+
+    .modern-table thead th {
+      position: sticky;
+      top: 0;
+      background-color: #580db4;
+      color: white;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border: none;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .modern-table thead th a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modern-table tbody td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .modern-table tbody tr.main-row {
+      background-color: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .modern-table tbody tr.main-row:hover {
+      background-color: #fbf8ff;
+    }
+
+    /* Status System Badges */
+    .badge {
+      padding: 0.45rem 0.8rem !important;
+      border-radius: 8px !important;
+      font-weight: 600 !important;
+      font-size: 0.8rem !important;
+      letter-spacing: 0.3px;
+      display: inline-block;
+      border: none;
+    }
+    .badge-success { background-color: #d1fae5 !important; color: #065f46 !important; }
+    .badge-order { background-color: #d1fae5 !important; color: #07097d !important; }
+    .badge-warning { background-color: #fef3c7 !important; color: #580db4 !important; }
+    .badge-pending { background-color: #fef3c7 !important; color: #692b05 !important; }
+    .badge-danger { background-color: #fee2e2 !important; color: #991b1b !important; }
+
+    /* Action Icons in Table */
+    .action-icon {
+      color: #718096;
+      background: #edf2f7;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .action-icon:hover {
+      background: #580db4;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .action-icon.pdf-icon:hover { background: #e53e3e; }
+    .action-icon.email-icon:hover { background: #3182ce; }
+    
+    /* View Items Button */
+    .btn-view-items {
+      background-color: #ebf4ff;
+      color: #3182ce;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-view-items:hover {
+      background-color: #3182ce;
+      color: white;
+    }
+
+    /* === Footer & Pagination === */
+    .modern-footer {
+      padding: 1.25rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modern-footer .title-filter {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .pagination {
+      margin: 0;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination li a, .pagination li span {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: #4a5568;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .pagination li.active a {
+      background-color: #580db4;
+      border-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .pagination li a:hover:not(.active) {
+      background-color: #edf2f7;
+      color: #580db4;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+    }
+
+    .selected-row {
+      background-color: rgba(88, 13, 180, 0.05) !important;
+      border-left: 3px solid #580db4;
+    }
+    
+    /* Child Table UI */
+    .child-table-wrapper {
+      padding: 1rem 1.5rem 1.5rem 3rem !important;
+      background-color: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .child-table {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+    }
+    .child-table th {
+      background-color: #edf2f7 !important;
+      color: #4a5568 !important;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem !important;
+      position: static !important;
+      text-align: center;
+    }
+    .child-table td {
+      background-color: #ffffff;
+      padding: 0.75rem 1rem !important;
+      font-size: 0.85rem;
+      text-align: center;
+    }
 
 block content
-    section.content-header
-      h1.text-lg.font-weight-bold.mb-3
-        | RMS Purchase Dashboard
-
-      ol.breadcrumb
+  section.content-header.mb-4
+    div(style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;")
+      h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Purchase Dashboard
+      ol.breadcrumb(style="margin: 0;")
         li
-          a(href='/dashboard')
-            strong(style="color: #580db4") Dashboard 
+          a(href='/dashboard' style="color: #580db4; font-weight: 500; text-decoration: none;")
+            i.fa.fa-home.mr-1
+            | Dashboard
         li
-            strong(style="color: #580db4") RMS TecH Solutions
+          span(style="color: #718096; margin: 0 0.5rem;")
+          span(style="color: #4a5568; font-weight: 500;") RMS TecH Solutions
         li
-            strong(style="color: #580db4") RMS Purchase
-        li
-          a(href='/rms/rms-purchase')
-            strong(style="color: #580db4") Purchase Dashboard
+          span(style="color: #718096; margin: 0 0.5rem;")
+          a(href='/rms/rms-purchase' style="color: #718096; text-decoration: none;") Purchase Dashboard
         
-    section.content
-        .row
-          .col-md-12.col-xs-12
-             .box.box-parrot
-                .box-header.with-border
-                    .pull-left
-                        span.title-filter(style='display:flex;align-items:center;') Search:
-                         input.form-control.input-sm(type='text', placeholder='Enter search by Name,', name='search' autocomplete='off' style='margin-left:10px' id='search')
-                         button.btn.btn-sm.btn-default.btn-filter.date-range-btn#daterange-btn(type="button" style='display:none;')
-                            span#date-range-display Select date range
-                            input#date-range-input(type="hidden" name="" value="")
-                         button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:5px' id='searchBtn')
-                          span.fa.fa-search      
-                    .pull-left 
-                        button.btn.btn-sm.btn-primary.btn-add(type='button' style='margin-left:20px' data-toggle='modal' data-target='#add-edit-purchase-modal') 
-                            span.fa.fa-plus                                   
-                    .pull-right
-                        span.title-filter(style='display:flex;align-items:center') Show:
-                            select.form-control.input-filter.input-sm(id='limitSelect')
-                                option 10
-                                option 25
-                                option 50
-                                option 100                                
-                .box-body
-                    .table.table-responsive
-                        table.table.table-striped.table-hover
-                            thead
-                                tr
-                                    th
-                                      a(href='#') Action &nbsp;
-                                        i.fa.fa-sort-alpha-asc
-                                    th
-                                      a(href='#') PR PDF &nbsp;
-                                        i.fa.fa-sort-alpha-asc
-                                    th
-                                      a(href='#') View PR &nbsp;
-                                        i.fa.fa-sort-alpha-asc    
-                                    th
-                                      a(href='#') PR Email &nbsp;
-                                        i.fa.fa-sort-alpha-asc    
-                                    th
-                                      a(href='#') Purchase PDF &nbsp;
-                                        i.fa.fa-sort-alpha-asc    
-                                    th
-                                      a(href='#') Purchase Number
-                                    th
-                                      a(href='#') Supplier Name
-                                    th
-                                      a(href='#') Supplier Email
-                                    th
-                                      a(href='#') Purchase Status
-                                    th
-                                      a(href='#') Notes
-                                    th
-                                      a(href='#') View Items
-                                    th
-                                      a(href='#') Created By
-                                    th
-                                      a(href='#') Updated By
-                                    th
-                                      a(href='#') Created Date
-                                    th
-                                      a(href='#') Updated Date         
-                            tbody#purchaseTableBody
-                                tr
-                                    td.text-center(colspan='19') No data to display. Use the search filters above to load data.
+  section.content
+    .row
+      .col-xs-12
+        .modern-card
+          //- Toolbar Area
+          .modern-toolbar
+            .toolbar-group
+              .modern-input-group
+                span Search:
+                input.modern-control#search(type='text', placeholder='Search Name, Purchase ID...', name='search' autocomplete='off' style='width: 250px;')
+                button.btn-modern.btn-modern-primary.btn-modern-icon#searchBtn(type='button')
+                  i.fa.fa-search
+              
+              button.btn-modern.btn-modern-primary(type='button' data-toggle='modal' data-target='#add-edit-purchase-modal') 
+                i.fa.fa-plus
+                | Direct Purchase
+                
+            .toolbar-group
+              .modern-input-group
+                span Show:
+                select.modern-control#limitSelect(style='width: 80px;')
+                  option 10
+                  option 25
+                  option 50
+                  option 100
 
+          //- Table Area
+          .modern-table-container
+            table.table.modern-table#purchaseTable
+              thead
+                tr
+                  th Edit
+                  th Download Inventory PDF 
+                  th View Inventory
+                  th Email
+                  th Purchase Invoice File
+                  th Invoice Number
+                  th Supplier Name
+                  th Supplier Email
+                  th Purchase Status
+                  th Purchase Notes
+                  th Inventory Items
+                  th Created By
+                  th Updated By
+                  th Created Date
+                  th Updated Date
+              tbody#purchaseTableBody
+                tr
+                  td.text-center(colspan='13' style="padding: 3rem;") 
+                    span(style="color: #a0aec0; font-size: 1.1rem;") No data captured. Apply parameters or lookups above.
 
-                .box-footer.clearfix
-                    .pull-left
-                        span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
-                    ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
+          //- Footer Area
+          .modern-footer
+            span.title-filter#title-filter Showing no entries
+            ul.pagination#paginationContainer
 
-    include ./create                  
+  // INCLUDE MODAL REGISTRY LINES
+  include ./create               
 
 block script
-  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
@@ -236,316 +400,263 @@ block script
       let search = document.getElementById('search');
       const searchBtn = document.getElementById('searchBtn');
       const limitSelect = document.getElementById('limitSelect');
-      const dateRangeDisplay = document.querySelector('#date-range-display');
-      const dateRangeInput = document.getElementById('date-range-input');
-
-      const updateMargin = () => {
-        if (dateRangeDisplay.textContent.trim() === "Select date range") {
-        dateRangeDisplay.style.marginRight = "70px";
-        } else {
-        dateRangeDisplay.style.marginRight = "0";
-        }
-      };
-
-        // Initial check
-        updateMargin();
-
-        // Observe changes in text content
-        const observer = new MutationObserver(updateMargin);
-        observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
 
       let currentPage = 1;
       let currentSearch = '';
       let limit = limitSelect.value;
-      let dateRange = '';
       const selectedRows = new Set();
-      const selectedData = [];
 
-      async function fetchPurchase(page = 1, search = '', dateRange='', limit = 10) {
-        tableBody.innerHTML = `<tr><td colspan="19" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
+      async function fetchPurchase(page = 1, search = '', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="13" class="text-center" style="padding: 3rem;"><i class="fa fa-spinner fa-spin" style="font-size: 32px; color: #580db4;"></i></td></tr>`;
         try {
           const response = await fetch(`/api/rms/rms-purchase/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();
 
           if (data?.data?.length > 0) {
-              const grouped = {};
+            const groupedArray = [];
+            const groupMap = {};
 
-              data.data.forEach(row => {
-                  if (!grouped[row.id]) {
-                      grouped[row.id] = {
-                          id: row.id,
-                          files: row.files,
-                          purchaseNumber: row.purchaseNumber,
-                          supplierName: row.supplierName,
-                          supplierEmail: row.supplierEmail,
-                          purchaseStatus: row.purchaseStatus,
-                          notes: row.notes,
-                          createdBy: row.createdBy,
-                          updatedBy: row.updatedBy,
-                          createdAt: row.createdAt,
-                          updatedAt: row.updatedAt,
-                          items: []
-                      };
-                  }
+            data.data.forEach(row => {
+              if (!groupMap[row.id]) {
+                groupMap[row.id] = {
+                  id: row.id,
+                  files: row.files,
+                  purchaseNumber: row.purchaseNumber,
+                  supplierName: row.supplierName,
+                  supplierEmail: row.supplierEmail,
+                  purchaseStatus: row.purchaseStatus,
+                  notes: row.notes,
+                  createdBy: row.createdBy,
+                  updatedBy: row.updatedBy,
+                  createdAt: row.createdAt,
+                  updatedAt: row.updatedAt,
+                  items: []
+                };
+                groupedArray.push(groupMap[row.id]);
+              }
 
-                  grouped[row.id].items.push({
-                      itemName: row.itemName,
-                      itemType: row.itemType,
-                      itemModel: row.itemModel,
-                      itemConfigurations: row.itemConfigurations,
-                      itemPrice: row.itemPrice,
-                      unitPrice: row.unitPrice,
-                      quantity: row.quantity,
-                      unitPrice: row.unitPrice,
-                      totalPrice: row.totalPrice,
-                      files: row.files
-                  });
+              groupMap[row.id].items.push({
+                itemName: row.itemName,
+                itemType: row.itemType,
+                itemModel: row.itemModel,
+                itemConfigurations: row.itemConfigurations,
+                itemPrice: row.itemPrice,
+                unitPrice: row.unitPrice,
+                quantity: row.quantity,
+                unitPrice: row.unitPrice,
+                totalPrice: row.totalPrice,
+                files: row.files
               });
+            });
 
-              // =========================
-              // ✅ RENDER GROUPED UI
-              // =========================
-              tableBody.innerHTML = Object.values(grouped).map(p => {
-              
-                  const totalQty = p.items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
-                  const totalUnite = p.items.reduce((sum, i) => sum + (Number(i.unitPrice) || 0), 0);
-                  const totalBuy = p.items.reduce((sum, i) => sum + (Number(i.totalPrice) || 0), 0);
+            // Pipeline Sorting (Newest First)
+            groupedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                  const format = (num) => Number(num || 0).toLocaleString();
+            // Render Rows
+            tableBody.innerHTML = groupedArray.map(c => {
+              const totalQty = c.items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+              const totalUnite = c.items.reduce((sum, i) => sum + (Number(i.unitPrice) || 0), 0);
+              const totalBuy = c.items.reduce((sum, i) => sum + (Number(i.totalPrice) || 0), 0);
+              const format = (num) => Number(num || 0).toLocaleString();
 
-                  return `
+              let statusBadge = 'badge-warning';
+              if(c.purchaseStatus === 'Received' || c.purchaseStatus === 'Ordered') statusBadge = 'badge-success';
+              if(c.purchaseStatus === 'Ordered' || c.purchaseStatus === 'Ordered') statusBadge = 'badge-order';
+              if(c.purchaseStatus === 'Pending' || c.purchaseStatus === 'Pending') statusBadge = 'badge-pending';
+              if(c.purchaseStatus === 'Cancelled' || c.purchaseStatus === 'Cancelled') statusBadge = 'badge-danger';
 
-                  <!-- MAIN PURCHASE ROW -->
-                  <tr style="background:#f5f5f5;font-weight:bold;">
+              return `
+              <tr class="main-row" data-id="${c.id}">
+                <td>
+                  <a href="#" class="action-icon editPurchase" data-purchase-id="${c.id}" data-toggle="modal" data-target="#add-edit-purchase-modal" title="Modify Purchase Properties">
+                    <i class="fa fa-edit"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="/api/rms/rms-purchase/generate-pdf/${c.id}" class="action-icon pdf-icon" target="_blank" title="Download System Ledger Package PDF">
+                    <i class="fa fa-download fa-lg"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="/api/rms/rms-purchase/view-pdf/${c.id}" class="action-icon pdf-icon" target="_blank" title="Review Document Vector Stream">
+                    <i class="fa fa-eye fa-lg"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="#" class="action-icon email-icon sendPurchaseEmail" data-purchase-id="${c.id}" data-supplier-email="${c.supplierEmail}" data-supplier-name="${c.supplierName}" title="Dispatch Statement to Customer">
+                    <i class="fa fa-envelope"></i>
+                  </a>
+                </td>
+                <td>
+                  ${
+                    c.files
+                      ? (
+                          c.files.match(/\.(jpg|jpeg|png|webp|gif)$/i)
+                            ? `<a href="/${c.files}" target="_blank">
+                                 <img src="/${c.files}" 
+                                      style="width:60px;height:60px;object-fit:cover;border-radius:5px;" />
+                               </a>`
+                            : c.files.match(/\.pdf$/i)
+                              ? `<a href="/${c.files}" target="_blank" title="View PDF">
+                                   <i class="fa fa-file-pdf-o fa-2x" style="color:red;"></i>
+                                 </a>`
+                              : `<a href="/${c.files}" target="_blank">View File</a>`
+                        )
+                      : 'No File'
+                  }
+                </td>
 
-                      <td>
-                          <a href="#"
-                             class="editPurchase fa fa-edit"
-                             data-purchase-id="${p.id}"
-                             data-toggle="modal"
-                             data-target="#add-edit-purchase-modal">
-                          </a>
-                      </td>
+                <td style="font-weight: 600; color: #580db4;">${c.purchaseNumber ?? '-'}</td>
+                <td>${c.supplierName ?? '-'}</td>
+                <td>${c.supplierEmail ?? '-'}</td>
+                <td>
+                  <span class="badge ${statusBadge} text-uppercase">
+                    ${c.purchaseStatus ?? 'Pending'}
+                  </span>
+                </td>
+                <td>${c.notes ?? ''}</td>
+                <td>
+                  <button class="btn-view-items toggleItems" data-id="${c.id}">
+                    <i class="fa fa-list-ul mr-1"></i> Lines (${c.items.length})
+                  </button>
+                </td>
 
-                      <td>
-                          <a href="/api/rms/rms-purchase/generate-pdf/${p.id}"
-                             class="fa fa-file-pdf-o fa-2x"
-                             target="_blank"
-                             title="Generate PDF">
-                          </a>
-                      </td>
+                <td>${c.createdBy ?? 'System'}</td>
+                <td>${c.updatedBy ?? '-'}</td>
+                <td>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '-'}</td>
+                <td>${c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : '-'}</td>
+              </tr>
 
-                      <td>    
-                          <a href="/api/rms/rms-purchase/view-pdf/${p.id}"
-                             class="fa fa-file-pdf-o fa-2x"
-                             target="_blank"
-                             title="View PDF">
-                          </a>
-                      </td>
-
-                      <td>
-                        <a href="#"
-                           class="sendPurchaseEmail fa fa-envelope fa-2x"
-                           data-purchase-id="${p.id}"
-                           data-supplier-email="${p.supplierEmail}"
-                           data-supplier-name="${p.supplierName}"
-                           title="Send via Email">
-                        </a>
-                      </td>
-
-                      <td>
-                        ${
-                          p.files
-                            ? (
-                                p.files.match(/\.(jpg|jpeg|png|webp|gif)$/i)
-                                  ? `<a href="/${p.files}" target="_blank">
-                                       <img src="/${p.files}" 
-                                            style="width:60px;height:60px;object-fit:cover;border-radius:5px;" />
-                                     </a>`
-                                  : p.files.match(/\.pdf$/i)
-                                    ? `<a href="/${p.files}" target="_blank" title="View PDF">
-                                         <i class="fa fa-file-pdf-o fa-2x" style="color:red;"></i>
-                                       </a>`
-                                    : `<a href="/${p.files}" target="_blank">View File</a>`
-                              )
-                            : 'No File'
-                        }
-                      </td>
-
-                      <td>${p.purchaseNumber ?? ''}</td>
-                      <td>${p.supplierName ?? ''}</td>
-                      <td>${p.supplierEmail ?? ''}</td>
-                      <td>${p.purchaseStatus ?? ''}</td>
-                      <td>${p.notes ?? ''}</td>
-
-                      <!-- View Items -->
-                      <td>
-                          <button class="btn btn-sm btn-info toggleItems" data-id="${p.id}">
-                              View Items (${p.items.length})
-                          </button>
-                      </td>
-
-                      <td>${p.createdBy ?? ''}</td>
-                      <td>${p.updatedBy ?? ''}</td>
-                      <td>${p.createdAt ?? ''}</td>
-                      <td>${p.updatedAt ?? ''}</td>
-
-                  </tr>
-
-                  <!-- ITEMS ROW -->
-                  <tr id="items-${p.id}" style="display:none;">
-                      <td colspan="12">
-                          <table class="table table-bordered">
-
-                              <thead style="background:#580db4;color:white;">
-                                  <tr>
-                                      <th>Item</th>
-                                      <th>Description</th>
-                                      <th>Type</th>
-                                      <th>Model</th>
-                                      <th>Spec</th>
-                                      <th>Qty</th>
-                                      <th>Unit Price</th>
-                                      <th>Total Price</th>
-                                  </tr>
-                              </thead>
-
-                              <tbody>
-                                  ${p.items.map(i => `
-                                      <tr>
-                                          <td>${i.itemName ?? ''}</td>
-                                          <td>${i.description ?? ''}</td>
-                                          <td>${i.itemType ?? ''}</td>
-                                          <td>${i.itemModel ?? ''}</td>
-                                          <td>${i.itemConfigurations ?? ''}</td>
-                                          <td>${i.quantity ?? ''}</td>
-                                          <td>${i.unitPrice ?? ''}</td>
-                                          <td>${i.totalPrice ?? ''}</td>
-                                      </tr>
-                                  `).join('')}
-
-                                  <!-- TOTAL ROW -->
-                                  <tr style="background:#e8f5e9;font-weight:bold;">
-                                      <td colspan="5" style="text-align:right;">TOTAL</td>
-                                      <td>${format(totalQty)}</td>
-                                      <td>${format(totalUnite)}</td>
-                                      <td>${format(totalBuy)}</td>
-                                  </tr>
-
-                              </tbody>
-                          </table>
-                      </td>
-                  </tr>
-
-                  `;
-              }).join('');
+              <tr id="items-${c.id}" style="display:none; background-color: transparent;">
+                <td colspan="15" class="child-table-wrapper">
+                  <table class="child-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Model</th>
+                        <th>Spec</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${c.items.map(i => `
+                        <tr>
+                          <td style="font-weight: 500;">${i.itemName ?? '-'}</td>
+                          <td>${i.description ?? '-'}</td>
+                          <td><code style="color: #ed4014;">${i.itemType ?? '-'}</code></td>
+                          <td>${i.itemModel ?? '-'}</td>
+                          <td style="font-weight: 700;">${i.itemConfigurations ?? '0'}</td>
+                          <td style="font-weight: 700;">${format(i.quantity)}</td>
+                          <td style="font-weight: 700; color: #065f46;">${format(i.unitPrice)}</td>
+                          <td style="color: #991b1b;">${format(i.totalPrice)}</td>
+                        </tr>
+                      `).join('')}
+                      <tr style="background:#f1f5f9;">
+                        <td colspan="5" style="text-align:right; font-weight: 700; color: #2d3748;">GRAND TOTAL:</td>
+                        <td style="font-weight: 700; color: #2d3748;">${totalQty} Units</td>
+                        <td style="font-weight: 700; color: #065f46;">${totalUnite} BDT</td>
+                        <td style="font-weight: 700; color: #991b1b;">${totalBuy} BDT</td>
+                        <td colspan="4"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              `;
+            }).join('');
 
             selectedRows.forEach((id) => {
               const row = tableBody.querySelector(`[data-id="${id}"]`);
               if (row) row.classList.add('selected-row');
-          });
+            });
 
-          const totalRecords = data.total;
-          const startRecord = (currentPage - 1) * limit + 1;
-          const endRecord = Math.min(currentPage * limit, totalRecords);
+            const totalRecords = data.total;
+            const startRecord = (currentPage - 1) * limit + 1;
+            const endRecord = Math.min(currentPage * limit, totalRecords);
 
-          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+            document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records assigned`;
 
           } else {
-            tableBody.innerHTML = `<tr><td colspan="19" class="text-center">No data found</td></tr>`;
-            document.querySelector('#title-filter').textContent = 'No entries to display';
+            tableBody.innerHTML = `<tr><td colspan="13" class="text-center" style="padding: 3rem; color: #a0aec0;">No data records extracted matching this criteria query scope.</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries matching filters';
             return;
           }
 
-          // Generate pagination buttons
-          const totalPages = Math.ceil(data.totalRecords / limit);
-          renderPagination(totalPages, page);
+          renderPagination(Math.ceil(data.total / limit), page);
 
         } catch (error) {
-          console.error('Error fetching reports:', error);
-          tableBody.innerHTML = `<tr><td colspan="18" class="text-center">Error loading data</td></tr>`;
+          console.error('Core Exception in purchase parsing framework:', error);
+          tableBody.innerHTML = `<tr><td colspan="13" class="text-center" style="padding: 3rem; color: #e53e3e;"><i class="fa fa-exclamation-triangle"></i> Execution Error pipeline mapping failed.</td></tr>`;
           document.querySelector('#title-filter').textContent = 'Error loading entries';
         }
       }
 
       function renderPagination(totalPages, currentPage) {
-        paginationContainer.innerHTML = ""
+        paginationContainer.innerHTML = "";
+        if (!totalPages || totalPages <= 0) return;
 
-        const maxVisiblePages = 5
-        const firstPages = 2
-        const lastPages = 2
+        const maxVisiblePages = 5;
 
-        // Helper function to create pagination link
         const createPageLink = (page, isActive = false) => {
-          const pageItem = document.createElement("li")
-          if (isActive) pageItem.classList.add("active")
-          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
-          paginationContainer.appendChild(pageItem)
-        }
+          const pageItem = document.createElement("li");
+          if (isActive) pageItem.classList.add("active");
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`;
+          paginationContainer.appendChild(pageItem);
+        };
 
-        // Show "Previous" button if not on first page
         if (currentPage > 1) {
-          const prevItem = document.createElement("li")
-          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}">« Previous</a>`
-          paginationContainer.appendChild(prevItem)
+          const prevItem = document.createElement("li");
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}"><i class="fa fa-chevron-left" style="font-size: 0.8em; pointer-events:none;"></i></a>`;
+          paginationContainer.appendChild(prevItem);
         }
 
-        // For small number of pages, show all pages without ellipsis
         if (totalPages <= maxVisiblePages) {
           for (let i = 1; i <= totalPages; i++) {
-            createPageLink(i, i === currentPage)
+            createPageLink(i, i === currentPage);
           }
         } else {
-          // Show first page
-          createPageLink(1, currentPage === 1)
+          createPageLink(1, currentPage === 1);
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3);
 
-          // Calculate range of pages to show around current page
-          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
-          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
-
-          // Adjust range if current page is near the end
           if (rangeEnd === totalPages - 1) {
-            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3);
           }
 
-          // Show ellipsis after first page if needed
           if (rangeStart > 2) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`;
           }
 
-          // Show pages in range
           for (let i = rangeStart; i <= rangeEnd; i++) {
-            createPageLink(i, i === currentPage)
+            createPageLink(i, i === currentPage);
           }
 
-          // Show ellipsis before last page if needed
           if (rangeEnd < totalPages - 1) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`;
           }
 
-          // Show last page if not already shown
           if (totalPages > 1) {
-            createPageLink(totalPages, currentPage === totalPages)
+            createPageLink(totalPages, currentPage === totalPages);
           }
         }
 
-        // Show "Next" button if not on last page
         if (currentPage < totalPages) {
-          const nextItem = document.createElement("li")
-          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}">Next »</a>`
-          paginationContainer.appendChild(nextItem)
+          const nextItem = document.createElement("li");
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}"><i class="fa fa-chevron-right" style="font-size: 0.8em; pointer-events:none;"></i></a>`;
+          paginationContainer.appendChild(nextItem);
         }
       }
 
-       // Update page and fetch data
       function updatePage(page) {
         let currentSearch = search.value;
-        dateRange = dateRangeInput.value;
         currentPage = page;
-        fetchPurchase(currentPage, currentSearch, dateRange, limit);
+        fetchPurchase(currentPage, currentSearch, limit);
       }
 
-      // Event listener for pagination links
       paginationContainer.addEventListener('click', function(event) {
         if (event.target.classList.contains('pagination-link')) {
           event.preventDefault();
@@ -556,115 +667,27 @@ block script
         }
       });
 
-      // Search and limit event listeners
+      search.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchBtn.click();
+        }
+      });
+
       searchBtn.addEventListener('click', () => {
         selectedRows.clear();
-        selectedData.length = 0;
         currentSearch = search.value;
-        dateRange = dateRangeInput.value;
-        fetchPurchase(1, currentSearch, dateRange, limit);
+        fetchPurchase(1, currentSearch, limit);
       });
       
       limitSelect.addEventListener('change', () => {
         limit = limitSelect.value;
         currentSearch = search.value;
-        dateRange = dateRangeInput.value;
         currentPage = 1;
-        fetchPurchase(currentPage, currentSearch, dateRange, limit);
+        fetchPurchase(currentPage, currentSearch, limit);
       });
 
-      function updateSelectedData(rowId, email, mrno, patientName) {
-          if (add) {
-            selectedData.push({ id: rowId, email, mrno, patientName });
-          } else {
-            const index = selectedData.findIndex(item => item.id === rowId);
-            if (index !== -1) selectedData.splice(index, 1);
-          } 
-      }
-
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      
-      // Initialize the daterangepicker
-      $('#daterange-btn').daterangepicker({
-        startDate: yesterday,
-        endDate: today,
-        ranges: {
-          'Today': [moment(), moment()],
-          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-          'This Month': [moment().startOf('month'), moment().endOf('month')],
-          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        },
-        locale: {
-          format: 'MMMM DD, YYYY'
-        }
-      }, function(start, end, label) {
-        const startDate = start.format('MMMM DD, YYYY');
-        const endDate = end.format('MMMM DD, YYYY');
-        
-        dateRangeDisplay.innerText = `${startDate} - ${endDate}`;
-        dateRangeInput.value = `${startDate} - ${endDate}`;
-      });
-
-      const initialStart = moment(yesterday).format('MMMM DD, YYYY');
-      const initialEnd = moment(today).format('MMMM DD, YYYY');
-      dateRangeDisplay.innerText = `${initialStart} - ${initialEnd}`;
-      dateRangeInput.value = `${initialStart} - ${initialEnd}`;
-
-      $('.btn-download').on('click', function () {
-        const dateRangeDisplay = document.querySelector('#date-range-display');
-        const $downloadBtn = $(".btn-download");
-        const originalText = $downloadBtn.html();
-        let dateRange = dateRangeDisplay.textContent.trim();
-
-        if (!dateRange) {
-            swal("Warning", "No date range selected!", "warning");
-            return;
-        }
-
-        $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
-
-        $.ajax({
-          url: `/api/callcenter/service-status/export-excel?`, // Move dateRange to query param
-          method: "GET", // ✅ MUST match controller
-          xhrFields: { responseType: "blob" },
-          success: function (blob, status, xhr) {
-              const contentDisposition = xhr.getResponseHeader("Content-Disposition");
-              let filename = "X_Ray_Tracker.xlsx";
-              if (contentDisposition) {
-                  const match = contentDisposition.match(/filename="(.+)"/);
-                  if (match && match.length > 1) {
-                      filename = match[1];
-                  }
-              }
-
-              const blobUrl = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = blobUrl;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              window.URL.revokeObjectURL(blobUrl);
-              document.body.removeChild(a);
-          },
-          error: function (xhr, status, err) {
-              console.error("XHR:", xhr);
-              console.error("Status:", status);
-              console.error("Error:", err);
-              swal("Error", "Failed to download. Please try again.", "error");
-          },
-          complete: function () {
-              // Restore button state
-              $downloadBtn.prop("disabled", false).html(originalText);
-          }
-      });
-
-    });      
-
-      fetchPurchase(currentPage, currentSearch, dateRangeInput.value, limit);
+      fetchPurchase(currentPage, search.value, limit);
     });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -672,6 +695,21 @@ block script
         let cart = [];
         let editMode = false;
         let editId = null;
+
+        const purchaseGrandTotal = document.getElementById('purchaseGrandTotal');
+
+        function updateGrandTotal() {
+          if (!purchaseGrandTotal) return;
+          
+          // Calculate total sum using array reduce
+          const totalSum = cart.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+          
+          // Format and update text node natively
+          purchaseGrandTotal.textContent = '' + totalSum.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+          });
+        }
 
         document.addEventListener('click', function (e) {
           if (!e.target.classList.contains('sendPurchaseEmail')) return;
@@ -878,29 +916,40 @@ block script
             tbody.innerHTML = '';
 
             if (!cart.length) {
-                tbody.innerHTML = `<tr><td colspan="6">No items added</td></tr>`;
+                tbody.innerHTML = `
+                    <tr class="no-data-row">
+                        <td class="text-center" colspan="6" style="padding: 2.5rem; color: #a0aec0; font-size: 0.95rem;">
+                            <i class="fa fa-folder-open mr-2" style="font-size: 1.2rem; vertical-align: middle; color: #cbd5e0;"></i>
+                            No entries added to payload registry yet.
+                        </td>
+                    </tr>`;
+                
+                // FIXED: Must recalculate to clear the total back to $0.00 before exiting early!
+                updateGrandTotal(); 
                 return;
             }
 
             cart.forEach((item, i) => {
-            
                 const total = item.quantity * item.unitPrice;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${item.itemName}</td>
-                        <td>${item.description || ''}</td>
-                        <td>${item.quantity}</td>
-                        <td>${item.unitPrice.toFixed(2)}</td>
-                        <td>${total.toFixed(2)}</td>
-                        <td>
-                            <button class="btn btn-danger btn-sm removeItem" data-index="${i}">
+                        <td style="padding: 0.85rem 1.25rem; font-size: 0.95rem; color: #2d3748;">${item.itemName}</td>
+                        <td style="padding: 0.85rem 1.25rem; font-size: 0.95rem; color: #4a5568;">${item.description || ''}</td>
+                        <td style="padding: 0.85rem 1.25rem; font-size: 0.95rem; text-align: center; color: #2d3748;">${item.quantity}</td>
+                        <td style="padding: 0.85rem 1.25rem; font-size: 0.95rem; text-align: right; color: #2d3748;">${item.unitPrice.toFixed(2)}</td>
+                        <td style="padding: 0.85rem 1.25rem; font-size: 0.95rem; text-align: right; font-weight: 600; color: #2d3748;">${total.toFixed(2)}</td>
+                        <td style="padding: 0.85rem 1.25rem; text-align: center;">
+                            <button type="button" class="btn btn-sm btn-outline-danger removeItem" data-index="${i}" style="border-radius: 6px; padding: 0.25rem 0.5rem;">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </td>
                     </tr>
                 `;
             });
+
+            // Recalculates total values perfectly when matching item arrays are altered
+            updateGrandTotal(); 
         }
 
         // ========================

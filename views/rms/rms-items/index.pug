@@ -1,351 +1,296 @@
 extends ../../layout
+
 block style
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
   link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
   link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
   style.
-    .selected-row {
-      background-color: #580db4 !important;
-      color: white !important;
+    /* === Modern Layout & Card Styling === */
+    .modern-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid #edf2f7;
+      margin-bottom: 2rem;
+      overflow: hidden;
     }
 
-    .form-group {
-      position: relative;
-      margin-bottom: 7px;
+    .modern-toolbar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #edf2f7;
+      background-color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 1rem 1rem 0.3rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: none;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s, box-shadow 0.3s, padding-top 0.3s;
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus {
-        border-color: #580db4;
-        box-shadow: 0 0 4px rgba(15, 55, 186, 0.6);
+    /* === Modern Inputs & Selects === */
+    .modern-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
     }
 
-    .form-group label {
-        position: absolute;
-        top: 0.7rem;
-        left: 1rem;
-        transform: translateY(0);
-        font-size: 1rem;
-        color: #aaa;
-        pointer-events: none;
-        transition: all 0.3s;
-        background-color: white;
-        padding: 0 5px;
+    .modern-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
+      outline: none;
+      color: #2d3748;
     }
 
-    .form-group input:focus + label,
-    .form-group input:not(:placeholder-shown) + label,
-    .form-group textarea:focus + label,
-    .form-group textarea:not(:placeholder-shown) + label {
-        top: -0.6rem; /* Move the label to the top padding */
-        font-size: 0.8rem;
-        color: #580db4;
-        padding: 0 5px; /* Keeps label inside */
+    .modern-control:focus {
+      border-color: #580db4;
+      box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
+      background-color: #fff;
     }
 
-    .form-group-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
+    /* === Modern Buttons === */
+    .btn-modern {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
 
-    .form-check {
-        margin-top: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .form-check-input {
-        width: 2rem;
-        height: 2rem;
-        margin: 0;
-        cursor: pointer;
-        accent-color: #580db4;
-    }
-
-    .form-check-label {
-        font-size: 1rem;
-        color: #555;
-        cursor: pointer;
-        margin-left: 0.1rem;
-        margin-top: 0.5rem;
-    }
-
-    #add-edit-appointment-modal .modal-dialog {
-        max-width: 80%;
-        width: auto;
-    }
-
-    #show-appointment-modal .modal-dialog {
-        max-width: 90%;
-        width: auto;
-    }
-
-    .btn-group .btn-small {
-        padding: 2px 8px;
-        font-size: 12px;
-        line-height: 1.5;
-        border-radius: 3px;
-        background-color: #580db4;
-        color: white;
-        border: none;
-    }
-    .btn-group .btn-small:hover,
-    .btn-group .btn-small:focus {
-        background-color: #580db4;
-    }
-    .btn-group .dropdown-menu {
-        font-size: 12px;
-        min-width: 100px;
-    }
-    .caret {
-        margin-left: 2px;
-    }
-
-    /* Ensure the container has limited height and overflow */
-    .table-responsive {
-      max-height: 400px; /* Adjust height as needed */
-      overflow-y: auto;
-      position: relative;
-    }
-
-    /* Fix the table header */
-    .table-responsive table thead {
-      position: sticky;
-      top: 0;
-      background-color: #fff; /* Match table background */
-      z-index: 2;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
-    }
-
-    #tableHead {
+    .btn-modern-primary {
       background-color: #580db4;
       color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
     }
 
-    .green {
-      background-color: #00a65a !important;
-    }
-    .cancelled {
-      background-color: #dd4b39 !important;
-    }
-
-
-    /* Reset modal styles */
-    #multi-appointment-modal .modal {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 1050;
-        display: none;
-        outline: 0;
-        overflow: hidden;
-    }
-
-    /* Prevent body scrolling */
-    body.modal-open {
-        overflow: hidden;
-        padding-right: 0 !important;
-    }
-
-    /* Modal dialog styles */
-    #multi-appointment-modal .modal-dialog {
-        position: relative;
-        width: auto;
-        margin: 0;
-        max-width: 1000px;
-        height: 100%;
-        display: flex;
-        align-items: stretch;
-    }
-
-    /* Modal content styles */
-    #multi-appointment-modal .modal-content {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100vh;
-        background-color: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 0;
-        outline: 0;
-    }
-
-    /* Modal header styles - Fixed to have title on left and close button on right */
-    #multi-appointment-modal .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px;
-        flex-direction: row; /* Ensure correct direction */
-    }
-
-     #multi-appointment-modal .modal-header .modal-title {
-        margin: 0;
-        line-height: 1.5;
-        order: 0; /* Ensure title is first */
-    }
-
-    #multi-appointment-modal .modal-header .close {
-        order: 1; /* Ensure close button is last */
-        padding: 1rem;
-        margin: -1rem -1rem -1rem auto;
-    }
-
-    /* Modal body styles */
-    #multi-appointment-modal .modal-body {
-        position: relative;
-        flex: 1 1 auto;
-        padding: 15px;
-    }
-
-    /* Scrollable area styles */
-    #multi-appointment-modal .scrollable-area {
-        height: calc(100vh - 130px); /* Adjust based on header and footer height */
-        overflow-y: scroll !important; /* Force scrollbar to always show */
-        overflow-x: hidden;
-    }
-
-    /* Modal footer styles */
-    #multi-appointment-modal .modal-footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 15px;
-    }
-
-    /* Custom scrollbar styles */
-    #multi-appointment-modal .scrollable-area::-webkit-scrollbar {
-        width: 6px;
-        display: block;
-    }
-
-    #multi-appointment-modal .scrollable-area::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    #multi-appointment-modal .scrollable-area::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
-    }
-
-    #multi-appointment-modal .scrollable-area::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-
-    .btn-green {
-      background-color: green;
+    .btn-modern-primary:hover {
+      background-color: #480a96;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(88, 13, 180, 0.3);
       color: white;
-      border: none;
     }
-    
-    .btn-green:hover {
-      background-color: darkgreen;
+
+    .btn-modern-icon {
+      padding: 0.5rem 0.75rem;
+    }
+
+    /* === Modern Table Styling === */
+    .modern-table-container {
+      padding: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .table.modern-table {
+      margin-bottom: 0;
+      border-collapse: collapse !important;
+      width: 100%;
+    }
+
+    .modern-table thead th {
+      position: sticky;
+      top: 0;
+      background-color: #580db4;
+      color: white;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border: none;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .modern-table tbody td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .modern-table tbody tr.main-row {
+      background-color: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .modern-table tbody tr.main-row:hover {
+      background-color: #fbf8ff;
+    }
+
+    /* Action Icons in Table */
+    .action-icon {
+      color: #718096;
+      background: #edf2f7;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .action-icon:hover {
+      background: #580db4;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* === Footer & Pagination === */
+    .modern-footer {
+      padding: 1.25rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modern-footer .title-filter {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .pagination {
+      margin: 0;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination li a, .pagination li span {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: #4a5568;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .pagination li.active a {
+      background-color: #580db4;
+      border-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .pagination li a:hover:not(.active) {
+      background-color: #edf2f7;
+      color: #580db4;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
     }
 
 block content
-  section.content-header
-    h1
-      | RMS Items&nbsp;&nbsp; 
-
-
-    ol.breadcrumb
-      li
-        a(href='/dashboard')
-          strong(style="color: #580db4") Dashboard 
-      li
-        a(href='/rms/rms-items')
-          strong(style="color: #580db4") RMS TecH Solutions
+  section.content-header.mb-4
+    div(style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;")
+      h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Items Dashboard
+      ol.breadcrumb(style="margin: 0;")
+        li
+          a(href='/dashboard' style="color: #580db4; font-weight: 500; text-decoration: none;")
+            i.fa.fa-home.mr-1
+            | Dashboard
+        li
+          span(style="color: #4a5568; font-weight: 500;") RMS TecH Solutions
+        li
+          span(style="color: #4a5568; font-weight: 500;") RMS Items  
+        li
+          a(href='/rms/rms-items' style="color: #580db4; text-decoration: none;") Items Dashboard
+        
   section.content
     .row
-      .col-md-12.col-xs-12
-        .box.box-parrot
-          .box-header.with-border
-            .pull-left
-              span.title-filter(style='display:flex;align-items:center;') Search:
-                input.form-control.input-sm(type='text' placeholder='Enter search criteria' name='search' autocomplete='off' style='margin-left:10px' id='search')
-                button.btn.btn-sm.btn-primary.btn-filter(type='submit' style='margin-left:3px' id='searchBtn') 
-                  span.fa.fa-filter
-            .pull-left    
-                button.btn.btn-sm.btn-primary.btn-add(type='submit' style='margin-left:15px' data-toggle='modal' data-target='#add-edit-items-modal') 
-                    span.fa.fa-plus                          
-            .pull-left
-                button.btn.btn-sm.btn-primary.btn-download(type='submit' style='margin-left:15px') 
-                    span.fa.fa-download
-            .pull-right
-              span.title-filter(style='display:flex;align-items:center') Show:
-                select.form-control.input-filter.input-sm(id='limitSelect')
+      .col-xs-12
+        .modern-card
+          //- Toolbar Area
+          .modern-toolbar
+            .toolbar-group
+              .modern-input-group
+                span Search:
+                input.modern-control#search(type='text', placeholder='Search Items...', name='search' autocomplete='off' style='width: 250px;')
+                button.btn-modern.btn-modern-primary.btn-modern-icon#searchBtn(type='button')
+                  i.fa.fa-search
+              
+              button.btn-modern.btn-modern-primary.btn-add-items(type='button' data-toggle='modal' data-target='#add-edit-items-modal') 
+                i.fa.fa-plus
+                | Add New Item
+                
+            .toolbar-group
+              .modern-input-group
+                span Show:
+                select.modern-control#limitSelect(style='width: 80px;')
                   option 10
                   option 25
                   option 50
                   option 100
 
-            .box-body 
-              .table.table-responsive
-                table.table.table-bordered.table-striped#itemsTable
-                  thead
-                    tr
-                      th 
-                        a(href='#') Action &nbsp;
-                          <i class="fa fa-sort-alpha-asc"></i>
-                      th 
-                        a(href='#') Item Type  
-                      th 
-                        a(href='#') Item Name
-                      th 
-                        a(href='#') Manufacture-Origin    
-                      th 
-                        a(href='#') Item Model  
-                      th 
-                        a(href='#') Item Price
-                      th 
-                        a(href='#') Item Configuration
-                      th 
-                        a(href='#') Upload File 
-                      th 
-                        a(href='#') Created By
-                      th 
-                        a(href='#') Updated By     
-                      th 
-                        a(href='#') Created Date
-                      th 
-                        a(href='#') Updated Date           
-                  tbody#itemsTableBody
-                    tr 
-                      td.text-center(colspan='12') No data to display. Use the search filters above to load data.
+          //- Table Area
+          .modern-table-container
+            table.table.modern-table#itemsTable
+              thead
+                tr
+                  th Action
+                  th File Preview
+                  th Item Type
+                  th Item Name
+                  th Manufacture Origin
+                  th Item Model
+                  th Item Price
+                  th Configuration Specifications
+                  th Created By
+                  th Updated By
+                  th Created Date
+                  th Updated Date
+              tbody#itemsTableBody
+                tr
+                  td.text-center(colspan='12' style="padding: 3rem;") 
+                    span(style="color: #a0aec0; font-size: 1.1rem;") No data captured. Apply parameters or lookups above.
 
-          .box-footer.clearfix
-            .pull-left
-              span.title-filter#title-filter(style='display:flex;align-items:center;') Showing no entries
-            ul.pagination.pagination-sm.no-margin.pull-right#paginationContainer
-  include ./create
+          //- Footer Area
+          .modern-footer
+            span.title-filter#title-filter Showing no entries
+            ul.pagination#paginationContainer
+
+  // INCLUDE MODAL REGISTRY LINES
+  include ./create                
 
 block script
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
+  
   script.
     document.addEventListener('DOMContentLoaded', function() {
       const tableBody = document.getElementById('itemsTableBody');
-      if (!tableBody) {
-        console.error("Element with id 'itemsTableBody' not found.");
-        return;
-      }
       const paginationContainer = document.getElementById('paginationContainer');
-      const searchStr = document.getElementById('search');
+      let search = document.getElementById('search');
       const searchBtn = document.getElementById('searchBtn');
       const limitSelect = document.getElementById('limitSelect');
 
@@ -354,142 +299,127 @@ block script
       let limit = limitSelect.value;
 
       async function fetchItems(page = 1, search = '', limit = 10) {
-        tableBody.innerHTML = `<tr><td colspan="12" class="text-center"><i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #580db4;"></i></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="12" class="text-center" style="padding: 3rem;"><i class="fa fa-spinner fa-spin" style="font-size: 32px; color: #580db4;"></i></td></tr>`;
         try {
           const response = await fetch(`/api/rms/rms-items/all?page=${page}&search=${search}&limit=${limit}`);
           const data = await response.json();
-          console.log("API Response:", data);
 
           if (data?.data?.length > 0) {
-            tableBody.innerHTML = data.data.map(items => {
-            return `
-              <tr style='cursor:pointer' class="table-row">
+            // Render Rows
+            tableBody.innerHTML = data.data.map(item => {
+              const format = (num) => Number(num || 0).toLocaleString();
+
+              // Setup File Element Preview
+              let fileMarkup = `<small class="text-muted">None</small>`;
+              if (item.files) {
+                fileMarkup = `<img src="/${item.files}" style="width:42px; height:42px; object-fit:cover; border-radius:6px; border:1px solid #edf2f7;" />`;
+              }
+
+              return `
+              <tr class="main-row" data-id="${item.id}">
                 <td>
-                  <a href="" id='editItems' class="fa fa-edit" data-items-id="${items.id}" style="font-size: 1em;" data-toggle='modal' data-target='#add-edit-items-modal'></a>
+                  <a href="#" class="action-icon edit-item-btn" data-items-id="${item.id}" title="Modify Item Properties">
+                    <i class="fa fa-edit"></i>
+                  </a>
                 </td>
-                <td>${items.itemType}</td>
-                <td>${items.itemName}</td>
-                <td>${items.manufactureOrigin}</td>
-                <td>${items.itemModel}</td>
-                <td>${items.itemPrice}</td>
-                <td>${items.itemConfigurations}</td>               
-                <td>
-                  ${
-                    items.files
-                      ? `<a href="/${items.files}" target="_blank">
-                           <img src="/${items.files}" style="width:60px;height:60px;object-fit:cover;border-radius:5px;" />
-                         </a>`
-                      : 'No File'
-                  }
-                </td>
-                <td>${items.createdBy}</td>
-                <td>${items.updatedBy}</td>
-                <td>${items.created_at}</td>
-                <td>${items.updated_at}</td>
+                <td>${fileMarkup}</td>
+                <td style="font-weight: 500;">${item.itemType ?? '-'}</td>
+                <td style="color: #580db4; font-weight: 600;">${item.itemName ?? '-'}</td>
+                <td>${item.manufactureOrigin ?? '-'}</td>
+                <td><code style="color: #ed4014;">${item.itemModel ?? '-'}</code></td>
+                <td style="font-weight: 700; color: #065f46;">${item.itemPrice ? format(item.itemPrice) + ' BDT' : '-'}</td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.itemConfigurations ?? '-'}</td>
+                <td>${item.createdBy ?? 'System'}</td>
+                <td>${item.updatedBy ?? '-'}</td>
+                <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+                <td>${item.updated_at ? new Date(item.updated_at).toLocaleDateString() : '-'}</td>
               </tr>
-          `;
-          }).join('');
+              `;
+            }).join('');
 
-          const totalRecords = data.total;
-          const startRecord = (currentPage - 1) * limit + 1;
-          const endRecord = Math.min(currentPage * limit, totalRecords);
+            const totalRecords = data.total;
+            const startRecord = (currentPage - 1) * limit + 1;
+            const endRecord = Math.min(currentPage * limit, totalRecords);
 
-          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+            document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records assigned`;
 
           } else {
-            tableBody.innerHTML = `<tr><td colspan="12" class="text-center">No data found</td></tr>`;
-            document.querySelector('#title-filter').textContent = 'No entries to display';
+            tableBody.innerHTML = `<tr><td colspan="12" class="text-center" style="padding: 3rem; color: #a0aec0;">No data records extracted matching this criteria query scope.</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries matching filters';
             return;
-          }          
+          }
 
-          // Generate pagination buttons
-          const totalPages = Math.ceil(data.total / limit);
-          renderPagination(totalPages, currentPage);
+          renderPagination(Math.ceil(data.total / limit), page);
 
         } catch (error) {
-          console.error('Error fetching reports:', error);
-          tableBody.innerHTML = `<tr><td colspan="12" class="text-center">Error loading data</td></tr>`;
+          console.error('Core Exception in item parsing framework:', error);
+          tableBody.innerHTML = `<tr><td colspan="12" class="text-center" style="padding: 3rem; color: #e53e3e;"><i class="fa fa-exclamation-triangle"></i> Execution Error pipeline mapping failed.</td></tr>`;
           document.querySelector('#title-filter').textContent = 'Error loading entries';
         }
       }
 
       function renderPagination(totalPages, currentPage) {
-        paginationContainer.innerHTML = ""
+        paginationContainer.innerHTML = "";
+        if (!totalPages || totalPages <= 0) return;
 
-        const maxVisiblePages = 5
-        const firstPages = 2
-        const lastPages = 2
+        const maxVisiblePages = 5;
 
-        // Helper function to create pagination link
         const createPageLink = (page, isActive = false) => {
-          const pageItem = document.createElement("li")
-          if (isActive) pageItem.classList.add("active")
-          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
-          paginationContainer.appendChild(pageItem)
-        }
+          const pageItem = document.createElement("li");
+          if (isActive) pageItem.classList.add("active");
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`;
+          paginationContainer.appendChild(pageItem);
+        };
 
-        // Show "Previous" button if not on first page
         if (currentPage > 1) {
-          const prevItem = document.createElement("li")
-          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}">« Previous</a>`
-          paginationContainer.appendChild(prevItem)
+          const prevItem = document.createElement("li");
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}"><i class="fa fa-chevron-left" style="font-size: 0.8em; pointer-events:none;"></i></a>`;
+          paginationContainer.appendChild(prevItem);
         }
 
-        // For small number of pages, show all pages without ellipsis
         if (totalPages <= maxVisiblePages) {
           for (let i = 1; i <= totalPages; i++) {
-            createPageLink(i, i === currentPage)
+            createPageLink(i, i === currentPage);
           }
         } else {
-          // Show first page
-          createPageLink(1, currentPage === 1)
+          createPageLink(1, currentPage === 1);
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3);
 
-          // Calculate range of pages to show around current page
-          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
-          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
-
-          // Adjust range if current page is near the end
           if (rangeEnd === totalPages - 1) {
-            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3);
           }
 
-          // Show ellipsis after first page if needed
           if (rangeStart > 2) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`;
           }
 
-          // Show pages in range
           for (let i = rangeStart; i <= rangeEnd; i++) {
-            createPageLink(i, i === currentPage)
+            createPageLink(i, i === currentPage);
           }
 
-          // Show ellipsis before last page if needed
           if (rangeEnd < totalPages - 1) {
-            paginationContainer.innerHTML += `<li><span>...</span></li>`
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`;
           }
 
-          // Show last page if not already shown
           if (totalPages > 1) {
-            createPageLink(totalPages, currentPage === totalPages)
+            createPageLink(totalPages, currentPage === totalPages);
           }
         }
 
-        // Show "Next" button if not on last page
         if (currentPage < totalPages) {
-          const nextItem = document.createElement("li")
-          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}">Next »</a>`
-          paginationContainer.appendChild(nextItem)
+          const nextItem = document.createElement("li");
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}"><i class="fa fa-chevron-right" style="font-size: 0.8em; pointer-events:none;"></i></a>`;
+          paginationContainer.appendChild(nextItem);
         }
-      }          
+      }
 
-        // Update page and fetch data
       function updatePage(page) {
-        currentSearch = searchStr.value;
+        let currentSearch = search.value;
         currentPage = page;
         fetchItems(currentPage, currentSearch, limit);
-      }   
+      }
 
-      // Event listener for pagination links
       paginationContainer.addEventListener('click', function(event) {
         if (event.target.classList.contains('pagination-link')) {
           event.preventDefault();
@@ -498,21 +428,29 @@ block script
             updatePage(page);
           }
         }
-      });      
+      });
 
-      // Search and limit event listeners
+      search.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchBtn.click();
+        }
+      });
+
       searchBtn.addEventListener('click', () => {
-        currentSearch = searchStr.value;
+        currentSearch = search.value;
         fetchItems(1, currentSearch, limit);
       });
+      
       limitSelect.addEventListener('change', () => {
         limit = limitSelect.value;
+        currentSearch = search.value;
         currentPage = 1;
         fetchItems(currentPage, currentSearch, limit);
       });
 
-      fetchItems(currentPage, currentSearch, limit);
-    });  
+      fetchItems(currentPage, search.value, limit);
+    });
 
     // Reset items form
     $(document).on('click', '.btn-add-items', function () {
@@ -608,7 +546,7 @@ block script
     }
 
     // Load Items for Editing
-    $(document).on('click', '#editItems', function () {
+    $(document).on('click', '.edit-item-btn', function () {
       const id = $(this).attr('data-items-id');
       loadItemsForEdit(id);
     });

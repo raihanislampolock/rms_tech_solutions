@@ -344,7 +344,7 @@ block content
               thead
                 tr
                   th 
-                    a(href='#') Action 
+                    a(href='#') Edit 
                       i.fa.fa-sort-alpha-asc.ml-1
                   th 
                     a(href='#') Download PDF
@@ -496,12 +496,12 @@ block script
                 </td>
                 <td>
                   <a href="/api/rms/rms-quotation/generate-pdf/${q.id}" class="action-icon pdf-icon" target="_blank" title="Download PDF">
-                    <i class="fa fa-file-download"></i>
+                    <i class="fa fa-download fa-lg"></i>
                   </a>
                 </td>
                 <td>
                   <a href="/api/rms/rms-quotation/view-pdf/${q.id}" class="action-icon pdf-icon" target="_blank" title="View PDF">
-                    <i class="fa fa-file-pdf"></i>
+                    <i class="fa fa-eye fa-lg"></i>
                   </a>
                 </td>
                 <td>
@@ -595,7 +595,7 @@ block script
           }
 
           // Generate pagination buttons
-          const totalPages = Math.ceil(data.totalRecords / limit);
+          const totalPages = Math.ceil(data.total / limit);
           renderPagination(totalPages, page);
 
         } catch (error) {

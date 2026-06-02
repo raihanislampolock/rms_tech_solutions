@@ -140,6 +140,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 (pi.quantity * pi."unitPrice"::numeric) AS "totalPrice",
                 u."empId" AS "createdBy",
                 u2."empId" AS "updatedBy",
+                u.username,
                 p."createdAt",
                 p."updatedAt"
             FROM public.rms_purchases p
@@ -187,6 +188,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 p."createdAt",
                 p."updatedAt",
                 pi."itemId",
+                u.username,
                 i."itemName",
                 i."itemType",
                 i."itemModel",
@@ -201,6 +203,8 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
                 ON pi."purchaseId" = p.id
             LEFT JOIN rms_items i
                 ON i.id = pi."itemId"
+            LEFT JOIN public.users u
+                ON p."createdBy" = u."userId"    
             WHERE p.id = $1
         `;
 
@@ -217,6 +221,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
             purchaseStatus: rows[0].purchaseStatus,
             notes: rows[0].notes,
             files: rows[0].files,
+            username: rows[0].username,
             createdAt: rows[0].createdAt,
             updatedAt: rows[0].updatedAt,
 

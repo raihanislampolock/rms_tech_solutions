@@ -23,6 +23,7 @@ export interface IRmsPurchase {
     purchaseStatus?: string | null;
     notes?: string | null;
     files?: string | null;
+    username?: string;
     createdBy?: string | null;
     updatedBy?: string | null;
     createdAt?: Date;

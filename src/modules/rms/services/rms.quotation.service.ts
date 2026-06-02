@@ -153,7 +153,7 @@ export class RmsQuotationService {
 
             // ================= HELPERS =================
             const drawHeaderFooter = (p: any) => {
-                p.drawImage(headerImage, { x: 0, y: height - 100, width, height: 100 });
+                p.drawImage(headerImage, { x: 0, y: height - 85, width, height: 85 });
                 p.drawImage(footerImage, { x: 0, y: 0, width, height: 45 });
             };
 
@@ -425,13 +425,13 @@ export class RmsQuotationService {
             let termIndex = 1;
 
             const timelineText = quotation.timeLine || quotation.timeLine;
-            dynamicTerms.push(`${termIndex++}. Timeline: ${timelineText || '10 working days.'}`);
+            dynamicTerms.push(`${termIndex++}. Timeline: ${timelineText || 'N/A'}`);
 
             const paymentText = quotation.payment;
-            dynamicTerms.push(`${termIndex++}. Payment: ${paymentText || '50% Advance, 50% on Delivery.'}`);
+            dynamicTerms.push(`${termIndex++}. Payment: ${paymentText || 'N/A'}`);
 
             const warrantyText = quotation.warranty;
-            dynamicTerms.push(`${termIndex++}. Warranty: ${warrantyText || '12 Months Manufacturing.'}`);
+            dynamicTerms.push(`${termIndex++}. Warranty: ${warrantyText || 'N/A'}`);
 
             const remarksText = quotation.remarks;
             if (remarksText && remarksText !== '-') {
@@ -439,13 +439,6 @@ export class RmsQuotationService {
             }
 
             // ================= FINAL BLOCK SAFETY HEIGHT CHECK =================
-            // Estimate the height of the entire trailing signature and terms section:
-            // - Total Amount (15pt) + In Words (20pt)
-            // - Space spacing (40pt)
-            // - Terms Title (15pt) + Terms Lines (dynamicTerms.length * 12pt)
-            // - Space spacing (20pt)
-            // - Best Regards text (15pt) + Signature space spacing (50pt) + Signature image (50pt)
-            // - Names & Designation text lines (30pt)
             const finalBlockEstimate = 205 + (dynamicTerms.length * 12);
 
             // If rendering this entire block takes us below the safe margin limit, start a fresh page
