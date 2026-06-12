@@ -4,6 +4,8 @@ import { RmsPurchaseService } from "../services/rms.purchase.service";
 import { upload } from "../../../middlewares/upload";
 import fs from "fs";
 import path from "path";
+import ExcelJS from "exceljs";
+import { IRmsPurchase } from "../interfaces/rms.purchase.interface";
 
 export class RmsPurchaseController extends Controller {
 
@@ -25,6 +27,7 @@ export class RmsPurchaseController extends Controller {
         this.onGet("/api/rms/rms-purchase/generate-pdf/:id", [], this.auth.private, this.generatePdf);
         this.onPost("/api/rms/rms-purchase/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
         this.onGet("/api/rms/rms-purchase/view-pdf/:id", [], this.auth.private, this.viewPdf);
+        this.onGet("/api/rms/rms-purchase/export/excel", [], this.auth.private, this.exportExcel);
 
     }
 
@@ -374,6 +377,171 @@ export class RmsPurchaseController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message
+            });
+        }
+    }
+
+    public async exportExcel(
+        req: HttpRequest,
+        resp: HttpResponse,
+        next: NextFunc
+    ) {
+        try {
+            const { search } = req.query;
+
+            const searchStr =
+                typeof search === "string"
+                    ? search.trim()
+                    : "";
+
+            const { data }: { data: any[] } =
+                await this.rmsPurchaseService.getAll(
+                    searchStr,
+                    1,
+                    1000000
+                );
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("RMS Purchases");
+
+            worksheet.columns = [
+                { header: "Purchase No", key: "purchaseNumber", width: 20 },
+                { header: "Supplier Name", key: "supplierName", width: 30 },
+                { header: "Supplier Email", key: "supplierEmail", width: 30 },
+                { header: "Purchase Status", key: "purchaseStatus", width: 20 },
+
+                { header: "Item ID", key: "itemId", width: 15 },
+                { header: "Item Name", key: "itemName", width: 30 },
+                { header: "Item Type", key: "itemType", width: 20 },
+                { header: "Item Model", key: "itemModel", width: 25 },
+                { header: "Manufacture Origin", key: "manufactureOrigin", width: 25 },
+
+                { header: "Quantity", key: "quantity", width: 15 },
+                { header: "Unit Price", key: "unitPrice", width: 15 },
+                { header: "Total Price", key: "totalPrice", width: 18 },
+
+                { header: "Item Configurations", key: "itemConfigurations", width: 80 },
+                { header: "Item Notes", key: "itemNotes", width: 40 },
+                { header: "Purchase Notes", key: "purchaseNotes", width: 40 },
+
+                { header: "Created By", key: "createdBy", width: 15 },
+                { header: "Updated By", key: "updatedBy", width: 15 },
+                { header: "Username", key: "username", width: 20 },
+
+                { header: "Created At", key: "createdAt", width: 25 },
+                { header: "Updated At", key: "updatedAt", width: 25 }
+            ];
+
+            // One row per item
+            data.forEach((row: any) => {
+                worksheet.addRow({
+                    purchaseNumber: row.purchaseNumber ?? "",
+                    supplierName: row.supplierName ?? "",
+                    supplierEmail: row.supplierEmail ?? "",
+                    purchaseStatus: row.purchaseStatus ?? "",
+
+                    itemId: row.itemId ?? "",
+                    itemName: row.itemName ?? "",
+                    itemType: row.itemType ?? "",
+                    itemModel: row.itemModel ?? "",
+                    manufactureOrigin: row.manufactureOrigin ?? "",
+
+                    quantity: row.quantity ?? 0,
+                    unitPrice: row.unitPrice ?? 0,
+                    totalPrice: row.totalPrice ?? 0,
+
+                    itemConfigurations: row.itemConfigurations ?? "",
+                    itemNotes: row.itemNotes ?? "",
+                    purchaseNotes: row.notes ?? "",
+
+                    createdBy: row.createdBy ?? "",
+                    updatedBy: row.updatedBy ?? "",
+                    username: row.username ?? "",
+
+                    createdAt: row.createdAt
+                        ? new Date(row.createdAt).toLocaleString()
+                        : "",
+
+                    updatedAt: row.updatedAt
+                        ? new Date(row.updatedAt).toLocaleString()
+                        : ""
+                });
+            });
+
+            // Header Style
+            const headerRow = worksheet.getRow(1);
+
+            headerRow.eachCell((cell) => {
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FFFFFFFF" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: {
+                        argb: "580DB4"
+                    }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle"
+                };
+
+                cell.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" }
+                };
+            });
+
+            worksheet.eachRow((row, rowNumber) => {
+                row.height = 22;
+
+                if (rowNumber > 1) {
+                    row.eachCell((cell) => {
+                        cell.alignment = {
+                            vertical: "middle",
+                            wrapText: true
+                        };
+                    });
+                }
+            });
+
+            worksheet.views = [
+                {
+                    state: "frozen",
+                    ySplit: 1
+                }
+            ];
+
+            resp.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
+
+            resp.setHeader(
+                "Content-Disposition",
+                `attachment; filename=rms_purchases_${Date.now()}.xlsx`
+            );
+
+            await workbook.xlsx.write(resp);
+
+            resp.end();
+        } catch (error: any) {
+            console.error(
+                "Error exporting RMS Purchase Excel:",
+                error
+            );
+
+            return resp.status(500).json({
+                status: false,
+                message:
+                    "An error occurred while exporting RMS Purchase Excel",
+                error: error.message
             });
         }
     }

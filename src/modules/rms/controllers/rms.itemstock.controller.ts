@@ -1,6 +1,8 @@
 import { Controller } from "../../../core/Controller";
 import { NextFunc, HttpRequest, HttpResponse } from "../../../core/Types";
 import { RmsItemStockService } from "../services/rms.itemstock.service";
+import { IRmsItemStock } from "../interfaces/rms.itemstock.interface";
+import ExcelJS from "exceljs";
 
 export class RmsItemStockController extends Controller {
 
@@ -17,6 +19,7 @@ export class RmsItemStockController extends Controller {
         this.onGet("/api/rms/rms-stock/all", [], this.auth.private, this.getAll);
         this.onGet("/api/rms/rms-stock/edit/:id", [], this.auth.private, this.edit);
         this.onGet("/api/rms/rms-stock/by-item/:itemId", [], this.auth.private, this.getByItemId);
+        this.onGet("/api/rms/rms-stock/export/excel", [], this.auth.private, this.exportExcel);
     }
 
     public async index(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
@@ -115,6 +118,88 @@ export class RmsItemStockController extends Controller {
                 status: false,
                 message: "Failed to fetch stock",
                 data: error.message,
+            });
+        }
+    }
+
+    public async exportExcel(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const { search, dateRange } = req.query;
+
+            const searchStr = typeof search === "string" ? search.trim() : undefined;
+
+
+            // ✅ Fetch ALL filtered data (no pagination)
+            const { data }: { data: any[] } =
+                await this.rmsItemStockService.getAll(
+                    searchStr || "",
+                    1,
+                    1000000 // large limit for export
+                );
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("RMS Stock");
+
+            // ✅ Excel columns
+            worksheet.columns = [
+                { header: "Item Name", key: "itemName", width: 18 },
+                { header: "Item Type", key: "itemType", width: 18 },
+                { header: "On Hand Quantity", key: "onHandQuantity", width: 25 },
+                { header: "Reserved Quantity", key: "reservedQuantity", width: 25 },
+                { header: "Available Quantity", key: "availableQuantity", width: 25 },
+                { header: "Last Purchase Price", key: "lastPurchasePrice", width: 20 },
+                { header: "Last Purchase Date", key: "lastPurchaseDate", width: 20 },
+                { header: "Notes", key: "notes", width: 15 }
+            ];
+
+            // ✅ Add rows
+            data.forEach(row => {
+                worksheet.addRow({
+                    itemName: row.itemName ?? "",
+                    itemType: row.itemType ?? "",
+                    onHandQuantity: row.onHandQuantity ?? 0,
+                    reservedQuantity: row.reservedQuantity ?? 0,
+                    availableQuantity: row.availableQuantity ?? 0,
+                    lastPurchasePrice: row.lastPurchasePrice ?? 0,
+                    lastPurchaseDate: row.lastPurchaseDate ?? "",
+                    notes: row.notes ?? ""
+                });
+            });
+
+            // ✅ Header styling
+            worksheet.getRow(1).eachCell(cell => {
+                cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "580db4" } // RMS Colour
+                };
+                cell.alignment = { horizontal: "center" };
+            });
+
+            worksheet.eachRow(row => {
+                row.height = 22;
+            });
+
+            // ✅ Response headers
+            resp.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
+            resp.setHeader(
+                "Content-Disposition",
+                `attachment; filename=rms_stock_${Date.now()}.xlsx`
+            );
+
+            await workbook.xlsx.write(resp);
+            resp.end();
+
+        } catch (error: any) {
+            console.error("Error exporting RMS Stock Excel:", error);
+            return resp.status(500).json({
+                status: false,
+                message: "An error occurred while exporting RMS Stock Excel",
+                error: error.message,
             });
         }
     }

@@ -160,8 +160,8 @@ export class RmsPurchaseService {
             const A4_HEIGHT = 841.89;
 
             const margin = 40;
-            const HEADER_HEIGHT = 85; 
-            const FOOTER_HEIGHT = 60; 
+            const HEADER_HEIGHT = 85;
+            const FOOTER_HEIGHT = 60;
             const BOTTOM_LIMIT = FOOTER_HEIGHT + 110; // Extra room for the new dual-column signatures
 
             let page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
@@ -204,7 +204,7 @@ export class RmsPurchaseService {
                             line = testLine;
                         }
                     }
-                    if (line) lines.push(line); 
+                    if (line) lines.push(line);
                 }
                 return lines;
             };
@@ -314,7 +314,7 @@ export class RmsPurchaseService {
 
                 // Explicit maximum text boundary limits to avoid grid bleeding
                 const wrappedLines = wrapTextByWidth(description, 245, helvetica, 9);
-                const rowHeight = Math.max(wrappedLines.length * 13 + 12, 24); 
+                const rowHeight = Math.max(wrappedLines.length * 13 + 12, 24);
 
                 if (yPosition < BOTTOM_LIMIT + rowHeight) {
                     addPage();
@@ -380,22 +380,22 @@ export class RmsPurchaseService {
                 x: margin, y: yPosition, size: 9, font: helvetica, color: rgb(0.3, 0.3, 0.3),
             });
 
-            if (yPosition < 140) { 
+            if (yPosition < 140) {
                 addPage();
             }
-        
+
             // Hardcode a fixed Y position so it is always perfectly anchored right above the footer graphic
-            const fixedSignatureY = 125; 
-        
+            const fixedSignatureY = 125;
+
             // Column Left Anchor Point: Prepared By
             const leftSignX = margin;
             page.drawLine({ start: { x: leftSignX, y: fixedSignatureY }, end: { x: leftSignX + 150, y: fixedSignatureY }, thickness: 0.75, color: rgb(0.6, 0.6, 0.6) });
             page.drawText('Prepared By', { x: leftSignX, y: fixedSignatureY - 14, size: 9, font: helveticaBold, color: rgb(0.2, 0.2, 0.2) });
             page.drawText(purchase.username || "System User", { x: leftSignX, y: fixedSignatureY - 26, size: 9, font: helvetica, color: rgb(0.4, 0.4, 0.4) });
-        
+
             // Column Right Anchor Point: Authorized Signature
             const rightSignX = A4_WIDTH - margin - 150;
-            
+
             // Draw signature graphic relative to the fixed row anchor line bounds
             page.drawImage(signatureImage, {
                 x: rightSignX + 15,
@@ -403,11 +403,11 @@ export class RmsPurchaseService {
                 width: 95,
                 height: 40,
             });
-        
+
             page.drawLine({ start: { x: rightSignX, y: fixedSignatureY }, end: { x: rightSignX + 150, y: fixedSignatureY }, thickness: 0.75, color: rgb(0.6, 0.6, 0.6) });
             page.drawText('Authorized Signature', { x: rightSignX, y: fixedSignatureY - 14, size: 9, font: helveticaBold, color: rgb(0.2, 0.2, 0.2) });
             page.drawText('RMS Technologies', { x: rightSignX, y: fixedSignatureY - 26, size: 9, font: helvetica, color: rgb(0.4, 0.4, 0.4) });
-        
+
             // Compile Binary Output Buffer
             const pdfBytes = await pdfDoc.save();
 
@@ -432,41 +432,41 @@ export class RmsPurchaseService {
         const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
         const convertBelow1000 = (num: number): string => {
-            let words = '';
+            let text = '';
 
             if (num >= 100) {
-                words += units[Math.floor(num / 100)] + ' Hundred ';
+                text += units[Math.floor(num / 100)] + ' Hundred ';
                 num %= 100;
             }
 
             if (num >= 20) {
-                words += tens[Math.floor(num / 10)] + ' ';
+                text += tens[Math.floor(num / 10)] + ' ';
                 num %= 10;
             } else if (num >= 10) {
-                words += teens[num - 10] + ' ';
+                text += teens[num - 10] + ' ';
                 num = 0;
             }
 
             if (num > 0) {
-                words += units[num] + ' ';
+                text += units[num] + ' ';
             }
 
-            return words.trim();
+            return text.trim();
         };
 
         if (amount === 0) return 'Zero';
 
-        let words = '';
+        let output = '';
 
         if (amount >= 1000) {
-            words += convertBelow1000(Math.floor(amount / 1000)) + ' Thousand ';
+            output += convertBelow1000(Math.floor(amount / 1000)) + ' Thousand ';
             amount %= 1000;
         }
 
         if (amount > 0) {
-            words += convertBelow1000(amount);
+            output += convertBelow1000(amount);
         }
 
-        return words.trim();
+        return output.trim();
     }
 }

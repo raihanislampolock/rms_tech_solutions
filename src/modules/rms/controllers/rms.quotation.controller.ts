@@ -1,6 +1,7 @@
 import { Controller } from "../../../core/Controller";
 import { NextFunc, HttpRequest, HttpResponse } from "../../../core/Types";
 import { RmsQuotationService } from "../services/rms.quotation.service";
+import ExcelJS from "exceljs";
 
 export class RmsQuotationController extends Controller {
 
@@ -22,6 +23,7 @@ export class RmsQuotationController extends Controller {
         this.onGet("/api/rms/rms-quotation/generate-pdf/:id", [], this.auth.private, this.generatePdf);
         this.onGet("/api/rms/rms-quotation/view-pdf/:id", [], this.auth.private, this.viewPdf);
         this.onPost("/api/rms/rms-quotation/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
+        this.onGet("/api/rms/rms-quotation/export/excel", [], this.auth.private, this.exportExcel);
     }
 
     // ✅ PAGE
@@ -325,6 +327,193 @@ export class RmsQuotationController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message
+            });
+        }
+    }
+
+    public async exportExcel(
+        req: HttpRequest,
+        resp: HttpResponse,
+        next: NextFunc
+    ) {
+        try {
+            const { search } = req.query;
+
+            const searchStr =
+                typeof search === "string"
+                    ? search.trim()
+                    : "";
+
+            const { data }: { data: any[] } =
+                await this.rmsQuotationService.getAll(
+                    searchStr,
+                    1,
+                    1000000
+                );
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("RMS Quotations");
+
+            worksheet.columns = [
+                { header: "Quotation Ref No", key: "refNumber", width: 25 },
+
+                { header: "Company Name", key: "companyName", width: 35 },
+                { header: "Company Email", key: "companyEmail", width: 35 },
+
+                { header: "Subject", key: "subject", width: 40 },
+                { header: "Description", key: "discriptions", width: 60 },
+
+                { header: "Timeline", key: "timeLine", width: 25 },
+                { header: "Payment Terms", key: "payment", width: 40 },
+                { header: "Warranty", key: "warranty", width: 30 },
+                { header: "Remarks", key: "remarks", width: 40 },
+
+                { header: "Item Name", key: "itemName", width: 30 },
+                { header: "Item Type", key: "itemType", width: 20 },
+                { header: "Item Model", key: "itemModel", width: 25 },
+                { header: "Manufacture Origin", key: "manufactureOrigin", width: 25 },
+
+                { header: "Quantity", key: "quarterly", width: 15 },
+
+                { header: "Item Price", key: "itemPrice", width: 18 },
+                { header: "RMS Price", key: "rmsPrice", width: 18 },
+
+                { header: "Total Item Price", key: "totalItemPrice", width: 20 },
+                { header: "Total RMS Price", key: "totalRmsPrice", width: 20 },
+
+                { header: "Item Configurations", key: "itemConfigurations", width: 80 },
+
+                { header: "Files", key: "files", width: 40 },
+
+                { header: "Created By", key: "createdBy", width: 15 },
+                { header: "Updated By", key: "updatedBy", width: 15 },
+
+                { header: "Created At", key: "createdAt", width: 25 },
+                { header: "Updated At", key: "updatedAt", width: 25 }
+            ];
+
+            // One row per item
+            data.forEach((row: any) => {
+                worksheet.addRow({
+                    refNumber: row.refNumber ?? "",
+
+                    companyName: row.companyName ?? "",
+                    companyEmail: row.companyEmail ?? "",
+
+                    subject: row.subject ?? "",
+                    discriptions: row.discriptions ?? "",
+
+                    timeLine: row.timeLine ?? "",
+                    payment: row.payment ?? "",
+                    warranty: row.warranty ?? "",
+                    remarks: row.remarks ?? "",
+
+                    itemName: row.itemName ?? "",
+                    itemType: row.itemType ?? "",
+                    itemModel: row.itemModel ?? "",
+                    manufactureOrigin: row.manufactureOrigin ?? "",
+
+                    quarterly: row.quarterly ?? 0,
+
+                    itemPrice: row.itemPrice ?? 0,
+                    rmsPrice: row.rmsPrice ?? 0,
+
+                    totalItemPrice: row.totalItemPrice ?? 0,
+                    totalRmsPrice: row.totalRmsPrice ?? 0,
+
+                    itemConfigurations: row.itemConfigurations ?? "",
+
+                    files: Array.isArray(row.files)
+                        ? row.files.join(", ")
+                        : row.files ?? "",
+
+                    createdBy: row.createdBy ?? "",
+                    updatedBy: row.updatedBy ?? "",
+
+                    createdAt: row.created_at
+                        ? new Date(row.created_at).toLocaleString()
+                        : "",
+
+                    updatedAt: row.updated_at
+                        ? new Date(row.updated_at).toLocaleString()
+                        : ""
+                });
+            });
+
+            // Header Style
+            const headerRow = worksheet.getRow(1);
+
+            headerRow.eachCell((cell) => {
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FFFFFFFF" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: {
+                        argb: "580DB4"
+                    }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle"
+                };
+
+                cell.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" }
+                };
+            });
+
+            worksheet.eachRow((row, rowNumber) => {
+                row.height = 22;
+
+                if (rowNumber > 1) {
+                    row.eachCell((cell) => {
+                        cell.alignment = {
+                            vertical: "middle",
+                            wrapText: true
+                        };
+                    });
+                }
+            });
+
+            worksheet.views = [
+                {
+                    state: "frozen",
+                    ySplit: 1
+                }
+            ];
+
+            resp.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
+
+            resp.setHeader(
+                "Content-Disposition",
+                `attachment; filename=rms_quotations_${Date.now()}.xlsx`
+            );
+
+            await workbook.xlsx.write(resp);
+
+            resp.end();
+        } catch (error: any) {
+            console.error(
+                "Error exporting RMS Quotation Excel:",
+                error
+            );
+
+            return resp.status(500).json({
+                status: false,
+                message:
+                    "An error occurred while exporting RMS Quotation Excel",
+                error: error.message
             });
         }
     }

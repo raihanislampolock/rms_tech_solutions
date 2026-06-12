@@ -4,6 +4,8 @@ import { RmsItemsService } from "../services/rms.items.service";
 import { upload } from "../../../middlewares/upload";
 import fs from "fs";
 import path from "path";
+import { IRmsItems } from "../interfaces/rms.items.interface";
+import ExcelJS from "exceljs";
 
 export class RmsItemsController extends Controller {
 
@@ -21,6 +23,7 @@ export class RmsItemsController extends Controller {
         this.onGet("/api/rms/rms-items/all", [], this.auth.private, this.getAll);
         this.onGet("/api/rms/rms-items/edit/:id", [], this.auth.private, this.edit);
         this.onPut("/api/rms/rms-items/update/:id", [upload.single("file")], this.auth.private, this.update);
+        this.onGet("/api/rms/rms-items/export/excel", [], this.auth.private, this.exportExcel);
     }
 
     public async index(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
@@ -149,83 +152,169 @@ export class RmsItemsController extends Controller {
 
     // ✅ UPDATE ITEM
     public async update(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
-      try {
-        const id = Number(req.params.id);
+        try {
+            const id = Number(req.params.id);
 
-        if (!id) {
-          return resp.status(400).json({
-            status: false,
-            message: "Invalid item id",
-          });
-        }
-
-        // 🔥 Get existing item first
-        const existing = await this.rmsItemsService.edit(id);
-
-        if (!existing) {
-          return resp.status(404).json({
-            status: false,
-            message: "Item not found",
-          });
-        }
-
-        // 🔥 Get body values
-        const {
-          itemType,
-          manufactureOrigin,
-          itemName,
-          itemPrice,
-          itemConfigurations,
-          itemModel,
-        } = req.body;
-
-        // 🔥 Get uploaded file
-        const file = (req as any).file;
-
-        let filePath = existing.files;
-
-        // ✅ If new file uploaded → delete old file
-        if (file) {
-          // delete old file if exists
-          if (existing.files) {
-            const oldPath = path.join(process.cwd(), existing.files);
-
-            if (fs.existsSync(oldPath)) {
-              fs.unlinkSync(oldPath); // 🗑 delete old file
+            if (!id) {
+                return resp.status(400).json({
+                    status: false,
+                    message: "Invalid item id",
+                });
             }
-          }
 
-          // save new file path
-          filePath = `uploads/${file.filename}`;
+            // 🔥 Get existing item first
+            const existing = await this.rmsItemsService.edit(id);
+
+            if (!existing) {
+                return resp.status(404).json({
+                    status: false,
+                    message: "Item not found",
+                });
+            }
+
+            // 🔥 Get body values
+            const {
+                itemType,
+                manufactureOrigin,
+                itemName,
+                itemPrice,
+                itemConfigurations,
+                itemModel,
+            } = req.body;
+
+            // 🔥 Get uploaded file
+            const file = (req as any).file;
+
+            let filePath = existing.files;
+
+            // ✅ If new file uploaded → delete old file
+            if (file) {
+                // delete old file if exists
+                if (existing.files) {
+                    const oldPath = path.join(process.cwd(), existing.files);
+
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath); // 🗑 delete old file
+                    }
+                }
+
+                // save new file path
+                filePath = `uploads/${file.filename}`;
+            }
+
+            const updatedBy = req.user?.userId || "system";
+
+            // ✅ Prevent null overwrite
+            const result = await this.rmsItemsService.update(id, {
+                itemType: itemType ?? existing.itemType,
+                manufactureOrigin: manufactureOrigin ?? existing.manufactureOrigin,
+                itemName: itemName ?? existing.itemName,
+                itemPrice: itemPrice ?? existing.itemPrice,
+                itemConfigurations: itemConfigurations ?? existing.itemConfigurations,
+                itemModel: itemModel ?? existing.itemModel,
+                files: filePath,
+                updatedBy,
+            });
+
+            return resp.json({
+                status: true,
+                message: "RMS item updated successfully",
+                data: result,
+            });
+
+        } catch (error: any) {
+            console.error("Update RMS Item Error:", error);
+            return resp.status(500).json({
+                status: false,
+                message: "Failed to update item",
+                data: error.message,
+            });
         }
+    }
 
-        const updatedBy = req.user?.userId || "system";
+    public async exportExcel(req: HttpRequest, resp: HttpResponse, next: NextFunc) {
+        try {
+            const { search, dateRange } = req.query;
 
-        // ✅ Prevent null overwrite
-        const result = await this.rmsItemsService.update(id, {
-          itemType: itemType ?? existing.itemType,
-          manufactureOrigin: manufactureOrigin ?? existing.manufactureOrigin,
-          itemName: itemName ?? existing.itemName,
-          itemPrice: itemPrice ?? existing.itemPrice,
-          itemConfigurations: itemConfigurations ?? existing.itemConfigurations,
-          itemModel: itemModel ?? existing.itemModel,
-          files: filePath,
-          updatedBy,
-        });
+            const searchStr = typeof search === "string" ? search.trim() : undefined;
 
-        return resp.json({
-          status: true,
-          message: "RMS item updated successfully",
-          data: result,
-        });
 
-      } catch (error: any) {
-        console.error("Update RMS Item Error:", error);
-        return resp.status(500).json({
-          status: false,
-          message: "Failed to update item",
-          data: error.message,
-        });
-      }
+            // ✅ Fetch ALL filtered data (no pagination)
+            const { data }: { data: IRmsItems[] } =
+                await this.rmsItemsService.getAll(
+                    searchStr || "",
+                    1,
+                    1000000 // large limit for export
+                );
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("RMS Items");
+
+            // ✅ Excel columns
+            worksheet.columns = [
+                { header: "Item Name", key: "itemName", width: 18 },
+                { header: "Item Type", key: "itemType", width: 18 },
+                { header: "Manufacture Origin", key: "manufactureOrigin", width: 25 },
+                { header: "Item Price", key: "itemPrice", width: 15 },
+                { header: "Item Configurations", key: "itemConfigurations", width: 100 },
+                { header: "Item Model", key: "itemModel", width: 20 },
+                { header: "Created By", key: "createdBy", width: 15 },
+                { header: "Updated By", key: "updatedBy", width: 15 },
+                { header: "Created At", key: "created_at", width: 22 },
+                { header: "Updated At", key: "updated_at", width: 22 }
+            ];
+
+            // ✅ Add rows
+            data.forEach(row => {
+                worksheet.addRow({
+                    itemName: row.itemName ?? "",
+                    itemType: row.itemType ?? "",
+                    manufactureOrigin: row.manufactureOrigin ?? "",
+                    itemPrice: row.itemPrice ?? "",
+                    itemConfigurations: row.itemConfigurations ?? "",
+                    itemModel: row.itemModel ?? "",
+                    createdBy: row.createdBy ?? "",
+                    updatedBy: row.updatedBy ?? "",
+                    created_at: row.created_at || "",
+                    updated_at: row.updated_at || ""
+                });
+            });
+
+            // ✅ Header styling
+            worksheet.getRow(1).eachCell(cell => {
+                cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "580db4" } // RMS Colour
+                };
+                cell.alignment = { horizontal: "center" };
+            });
+
+            worksheet.eachRow(row => {
+                row.height = 22;
+            });
+
+            // ✅ Response headers
+            resp.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
+            resp.setHeader(
+                "Content-Disposition",
+                `attachment; filename=rms_items_${Date.now()}.xlsx`
+            );
+
+            await workbook.xlsx.write(resp);
+            resp.end();
+
+        } catch (error: any) {
+            console.error("Error exporting RMS Items Excel:", error);
+            return resp.status(500).json({
+                status: false,
+                message: "An error occurred while exporting RMS Items Excel",
+                error: error.message,
+            });
+        }
     }
 }

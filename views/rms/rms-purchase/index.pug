@@ -345,6 +345,10 @@ block content
               button.btn-modern.btn-modern-primary(type='button' data-toggle='modal' data-target='#add-edit-purchase-modal') 
                 i.fa.fa-plus
                 | Direct Purchase
+
+              button.btn-modern.btn-modern-primary.btn-modern-icon.btn-download(type='button' title="Download Export") 
+                i.fa.fa-download  
+                | Download Purchase  
                 
             .toolbar-group
               .modern-input-group
@@ -400,6 +404,23 @@ block script
       let search = document.getElementById('search');
       const searchBtn = document.getElementById('searchBtn');
       const limitSelect = document.getElementById('limitSelect');
+      const exportExcelBtn = document.querySelector('.btn-download');
+
+      if (exportExcelBtn) {
+          exportExcelBtn.addEventListener('click', function () {
+          
+              const searchVal = document.getElementById('search').value || '';
+      
+              const params = new URLSearchParams();
+      
+              if (searchVal.trim()) {
+                  params.append('search', searchVal.trim());
+              }
+      
+              window.location.href =
+                  `/api/rms/rms-purchase/export/excel?${params.toString()}`;
+          });
+      }
 
       let currentPage = 1;
       let currentSearch = '';

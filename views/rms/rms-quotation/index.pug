@@ -328,6 +328,7 @@ block content
                 
               button.btn-modern.btn-modern-primary.btn-modern-icon.btn-download(type='button' title="Download Export") 
                 i.fa.fa-download
+                | Download Quotation 
                 
             .toolbar-group
               .modern-input-group
@@ -402,6 +403,8 @@ block script
       const limitSelect = document.getElementById('limitSelect');
       const dateRangeDisplay = document.querySelector('#date-range-display');
       const dateRangeInput = document.getElementById('date-range-input');
+      const exportExcelBtn = document.querySelector('.btn-download');
+
 
       const updateMargin = () => {
         if (dateRangeDisplay.textContent.trim() === "Select date range") {
@@ -774,12 +777,12 @@ block script
         $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
 
         $.ajax({
-          url: `/api/callcenter/service-status/export-excel?`, // Move dateRange to query param
+          url: `/api/rms/rms-quotation/export/excel?`, // Move dateRange to query param
           method: "GET", // ✅ MUST match controller
           xhrFields: { responseType: "blob" },
           success: function (blob, status, xhr) {
               const contentDisposition = xhr.getResponseHeader("Content-Disposition");
-              let filename = "X_Ray_Tracker.xlsx";
+              let filename = "RMS_Quotations.xlsx";
               if (contentDisposition) {
                   const match = contentDisposition.match(/filename="(.+)"/);
                   if (match && match.length > 1) {

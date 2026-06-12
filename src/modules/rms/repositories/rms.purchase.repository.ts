@@ -204,7 +204,7 @@ export class RmsPurchaseRepository implements IRmsPurchaseRepository {
             LEFT JOIN rms_items i
                 ON i.id = pi."itemId"
             LEFT JOIN public.users u
-                ON p."createdBy" = u."userId"    
+                ON p."createdBy" = u."userId"
             WHERE p.id = $1
         `;
 
