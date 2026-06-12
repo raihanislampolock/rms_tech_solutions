@@ -427,24 +427,31 @@ export class RmsPurchaseService {
     }
 
     private numberToWords(amount: number): string {
-        const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-        const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        const units = [
+            '',
+            'One', 'Two', 'Three', 'Four', 'Five',
+            'Six', 'Seven', 'Eight', 'Nine'
+        ];
 
-        const convertBelow1000 = (num: number): string => {
+        const teens = [
+            'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen',
+            'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'
+        ];
+
+        const tens = [
+            '', '', 'Twenty', 'Thirty', 'Forty',
+            'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'
+        ];
+
+        const convertBelow100 = (num: number): string => {
             let text = '';
-
-            if (num >= 100) {
-                text += units[Math.floor(num / 100)] + ' Hundred ';
-                num %= 100;
-            }
 
             if (num >= 20) {
                 text += tens[Math.floor(num / 10)] + ' ';
                 num %= 10;
             } else if (num >= 10) {
                 text += teens[num - 10] + ' ';
-                num = 0;
+                return text.trim();
             }
 
             if (num > 0) {
@@ -454,19 +461,52 @@ export class RmsPurchaseService {
             return text.trim();
         };
 
-        if (amount === 0) return 'Zero';
+        const convertBelow1000 = (num: number): string => {
+            let text = '';
 
-        let output = '';
+            if (num >= 100) {
+                text += units[Math.floor(num / 100)] + ' Hundred ';
+                num %= 100;
+            }
 
-        if (amount >= 1000) {
-            output += convertBelow1000(Math.floor(amount / 1000)) + ' Thousand ';
-            amount %= 1000;
+            if (num > 0) {
+                text += convertBelow100(num) + ' ';
+            }
+
+            return text.trim();
+        };
+
+        if (amount === 0) return 'Zero Taka';
+
+        let result = '';
+
+        const crore = Math.floor(amount / 10000000);
+        amount %= 10000000;
+
+        const lakh = Math.floor(amount / 100000);
+        amount %= 100000;
+
+        const thousand = Math.floor(amount / 1000);
+        amount %= 1000;
+
+        const hundredPart = amount;
+
+        if (crore > 0) {
+            result += convertBelow1000(crore) + ' Crore ';
         }
 
-        if (amount > 0) {
-            output += convertBelow1000(amount);
+        if (lakh > 0) {
+            result += convertBelow1000(lakh) + ' Lakh ';
         }
 
-        return output.trim();
+        if (thousand > 0) {
+            result += convertBelow1000(thousand) + ' Thousand ';
+        }
+
+        if (hundredPart > 0) {
+            result += convertBelow1000(hundredPart) + ' ';
+        }
+
+        return result.trim() + ' Taka Only';
     }
 }
