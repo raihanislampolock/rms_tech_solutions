@@ -394,7 +394,15 @@ export class RmsQuotationService {
                 const price = Number(item.rmsPrice) || 0;
                 const sub = qty * price;
 
-                const itemTxt = `${item.itemName}${item.itemConfigurations ? '\n' + item.itemConfigurations : ''}`;
+                const itemTxt = [
+                    item.itemName && `Item Name: ${item.itemName}`,
+                    item.itemType && `Item Type: ${item.itemType}`,
+                    item.itemManufactureOrigin && `Manufacture Origin: ${item.itemManufactureOrigin}`,
+                    item.itemModel && `Item Model: ${item.itemModel}`,
+                    item.itemConfigurations && `Configuration / Specifications: ${item.itemConfigurations}`
+                ]
+                .filter(Boolean)
+                .join("\n");
                 const wrappedItem = wrapText(itemTxt, 235, font, 9);
                 const rowH = Math.max(wrappedItem.length * 14 + 10, 30);
 

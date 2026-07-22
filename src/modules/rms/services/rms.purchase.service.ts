@@ -161,7 +161,7 @@ export class RmsPurchaseService {
 
             const margin = 40;
             const HEADER_HEIGHT = 85;
-            const FOOTER_HEIGHT = 60;
+            const FOOTER_HEIGHT = 45;
             const BOTTOM_LIMIT = FOOTER_HEIGHT + 110; // Extra room for the new dual-column signatures
 
             let page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
@@ -385,7 +385,7 @@ export class RmsPurchaseService {
             }
 
             // Hardcode a fixed Y position so it is always perfectly anchored right above the footer graphic
-            const fixedSignatureY = 125;
+            const fixedSignatureY = 80;
 
             // Column Left Anchor Point: Prepared By
             const leftSignX = margin;
@@ -398,7 +398,7 @@ export class RmsPurchaseService {
 
             // Draw signature graphic relative to the fixed row anchor line bounds
             page.drawImage(signatureImage, {
-                x: rightSignX + 15,
+                x: rightSignX + 1,
                 y: fixedSignatureY + 5,
                 width: 95,
                 height: 40,

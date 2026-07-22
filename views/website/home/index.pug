@@ -1,0 +1,31 @@
+extends ../layouts/main
+
+block content
+
+    include ../components/hero
+
+    section.py-5
+
+        .container
+
+            .text-center.mb-5
+
+                h2.fw-bold Featured Products
+
+                p.text-muted
+                    | Explore our latest enterprise IT solutions.
+
+            .row
+
+                if featuredProducts && featuredProducts.length
+
+                    each product in featuredProducts
+
+                        include ../components/product-card
+
+                else
+
+                    .col-12.text-center
+
+                        h5.text-muted
+                            | No featured products available.

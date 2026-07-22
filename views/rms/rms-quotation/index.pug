@@ -294,15 +294,15 @@ block content
       h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Quotation Dashboard
       ol.breadcrumb(style="margin: 0;")
         li
-          a(href='/dashboard' style="color: #580db4; font-weight: 500; text-decoration: none;")
+          a(href='/dashboard' style="color: #580db4;")
             i.fa.fa-home.mr-1
-            | Dashboard
+            |  Dashboard
         li
-          span(style="color: #718096; margin: 0 0.5rem;") /
-          span(style="color: #4a5568; font-weight: 500;") RMS TecH Solutions
+          span(style="color: #718096; font-weight: 500;") RMS TecH Solutions
         li
-          span(style="color: #718096; margin: 0 0.5rem;") /
-          a(href='/rms/rms-quotation' style="color: #718096; text-decoration: none;") Quotation Dashboard
+          span(style="color: #718096; font-weight: 500;") RMS Quotation  
+        li
+          a(href='/rms/rms-quotation' style="color: #580db4; text-decoration: none;") Quotation Dashboard
         
   section.content
     .row
@@ -393,6 +393,7 @@ block script
   script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
   script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
   
   script.
     document.addEventListener('DOMContentLoaded', function() {
@@ -938,6 +939,20 @@ block script
           });
         });
 
+        $('#itemSelect').select2({
+            placeholder: 'Select an Item...',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#add-edit-quotation-modal')
+        });
+
+        $('#termsConditionId').select2({
+            placeholder: 'Choose Terms & Conditions...',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#add-edit-quotation-modal')
+        });
+
         const itemSelect = document.getElementById('itemSelect');
         const itemPrice = document.getElementById('itemPrice');
         const itemModel = document.getElementById('itemModel');
@@ -954,6 +969,9 @@ block script
             cart = [];
 
             document.getElementById('quotation-form').reset();
+
+            $('#itemSelect').val(null).trigger('change');
+            $('#termsConditionId').val(null).trigger('change');
             renderCart();
         }
 
@@ -987,14 +1005,15 @@ block script
         // =========================
         // 1️⃣ ITEM CHANGE
         // =========================
-        itemSelect.addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex];
+        $('#itemSelect').on('change', function () {
 
+            const selectedOption = this.options[this.selectedIndex];
+        
             if (!selectedOption || !selectedOption.value) {
                 clearItemFields();
                 return;
             }
-
+        
             itemPrice.value = selectedOption.dataset.price || '';
             itemModel.value = selectedOption.dataset.model || '';
             itemType.value = selectedOption.dataset.type || '';
@@ -1042,7 +1061,7 @@ block script
             cart.push(item);
             renderCart();
 
-            itemSelect.value = '';
+            $('#itemSelect').val(null).trigger('change');
             clearItemFields();
             rmsPrice.value = '';
         });
@@ -1138,7 +1157,9 @@ block script
                 document.getElementById('companyEmail').value = data.companyEmail || '';
                 document.getElementById('subject').value = data.subject || '';
                 document.getElementById('discriptions').value = data.discriptions || '';
-                document.getElementById('termsConditionId').value = data.termsConditionId || '';
+                $('#termsConditionId')
+                  .val(data.termsConditionId)
+                  .trigger('change');
         
                 cart = (data.items || []).map(i => ({
                     itemId: i.itemId,

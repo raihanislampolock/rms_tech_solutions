@@ -60,6 +60,16 @@ import { RmsInvoiceService } from "./modules/rms/services/rms.invoice.service";
 import { RmsTermsAndConditionsController } from "./modules/rms/controllers/rms.terms.and.conditions.controller";
 import { RmsTermsAndConditionsRepository } from "./modules/rms/repositories/rms.terms.and.conditions.repository";
 import { RmsTermsAndConditionsService } from "./modules/rms/services/rms.terms.and.conditions.service";
+import { WebsiteController } from "./modules/website/controllers/website.controller";
+import { WebsiteService } from "./modules/website/services/website.service";
+import { WebsiteProductRepository  } from "./modules/website/repositories/website.product.repository";
+import { WebsiteProductService } from "./modules/website/services/website.product.service";
+import { WebsiteCartService } from "./modules/website/services/website.cart.service";
+import { WebsiteCartController } from "./modules/website/controllers/website.cart.controller";
+import { WebsiteCheckoutController } from "./modules/website/controllers/website.checkout.controller";
+import { WebsiteOrderService } from "./modules/website/services/website.order.service";
+import { WebsiteOrderRepository } from "./modules/website/repositories/website.order.repository";
+import { WebsiteOrderController } from "./modules/website/controllers/website.order.controller";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -119,6 +129,8 @@ app.set("RmsChallanRepository", new RmsChallanRepository());
 app.set("RmsInvoiceRepository", new RmsInvoiceRepository());
 app.set("RmsItemStockRepository", new RmsItemStockRepository());
 app.set("RmsTermsAndConditionsRepository", new RmsTermsAndConditionsRepository());
+app.set("WebsiteProductRepository", new WebsiteProductRepository());
+app.set("WebsiteOrderRepository", new WebsiteOrderRepository());
 
 
 app.set("SignUpService", new SignUpService(app.get("UserRepository"), AppDataSource));
@@ -134,6 +146,10 @@ app.set("RmsInvoiceService", new RmsInvoiceService(app.get("RmsInvoiceRepository
 app.set("RmsPurchaseService", new RmsPurchaseService(app.get("RmsPurchaseRepository")));
 app.set("RmsItemStockService", new RmsItemStockService(app.get("RmsItemStockRepository")));
 app.set("RmsTermsAndConditionsService", new RmsTermsAndConditionsService(app.get("RmsTermsAndConditionsRepository")));
+app.set("WebsiteService", new WebsiteService());
+app.set("WebsiteProductService", new WebsiteProductService( app.get("WebsiteProductRepository")));
+app.set("WebsiteCartService", new WebsiteCartService());
+app.set("WebsiteOrderService", new WebsiteOrderService(app.get("WebsiteOrderRepository")));
 
 
 // Initialize and set the mailer to use
@@ -153,6 +169,10 @@ app.registerController(new RmsInvoiceController());
 app.registerController(new RmsPurchaseController());
 app.registerController(new RmsItemStockController());
 app.registerController(new RmsTermsAndConditionsController());
+app.registerController(new WebsiteController());
+app.registerController(new WebsiteCartController());
+app.registerController(new WebsiteCheckoutController());
+app.registerController(new WebsiteOrderController());
 
 // Finally setup the cron jobs
 // cron.schedule("* * * * *", async () => {

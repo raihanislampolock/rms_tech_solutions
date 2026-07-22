@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import { PathParams } from "express-serve-static-core";
 import { IUserToken } from "./IUserProvider";
-import { Session, SessionData } from 'express-session';
+import { SessionData } from 'express-session';
 import { Express } from "express";
 
 export interface CustomSessionData extends SessionData {
@@ -13,12 +13,7 @@ export interface CustomSessionData extends SessionData {
 
 export interface HttpRequest extends Request {
     user: IUserToken;
-    session: Session & Partial<CustomSessionData>;
-}
-
-export interface HttpRequest extends Request {
-    user: IUserToken;
-    session: Session & Partial<CustomSessionData>;
+    session: any;
 
     // ✅ Add files property for multer
     files?: Express.Multer.File[];

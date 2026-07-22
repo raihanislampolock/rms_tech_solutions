@@ -63,7 +63,7 @@ export class LoginController extends Controller {
             resp.cookie('auth_token', jwtToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production' && req.protocol === 'https',  // Only secure in production with HTTPS
-                maxAge: 120 * 60 * 1000,
+                maxAge: 3 * 60 * 60 * 1000, // 3 hours in milliseconds
                 sameSite: 'strict'
             });
 
@@ -90,7 +90,7 @@ export class LoginController extends Controller {
         });
 
         // Destroy the session
-        req.session.destroy((err) => {
+        req.session.destroy((err: Error | null) => {
             if (err) {
                 return next(err);  // Handle error
             }

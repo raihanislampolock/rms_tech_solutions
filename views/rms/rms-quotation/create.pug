@@ -153,8 +153,13 @@ style.
     font-size: 0.9rem;
   }
 
+  .modal-xxl {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
+
 #add-edit-quotation-modal.modal.fade(data-backdrop='static', data-keyboard='false')
-  .modal-dialog.modal-dialog-centered.modal-xl
+  .modal-dialog.modal-dialog-centered.modal-xxl
     .modal-content.modern-modal
       form#quotation-form(role='form', method='POST')
 
@@ -162,7 +167,7 @@ style.
         .modal-header(style="border-bottom: 1px solid #edf2f7; padding: 1.5rem;")
           h5.modal-title(style="color: #580db4; font-weight: 600; font-size: 1.25rem;") 
             i.fa.fa-file-invoice.mr-2
-            | RMS Quotation
+            |   RMS Quotation
           button.close(type='button', data-dismiss='modal', style="opacity: 1;")
             span(aria-hidden='true', style="color: #a0aec0; font-size: 1.5rem;") &times;
 
@@ -209,7 +214,7 @@ style.
             .col-md-4
               .form-group.static-label-group
                 label(for='itemSelect') Select Item
-                select.form-control.modern-input(id='itemSelect', style='width:100%')
+                select.form-control.modern-input.select2(id='itemSelect', style='width:100%')
                   option(value='' disabled selected) Select an Item...
                   
                   if items && items.length > 0
@@ -222,7 +227,7 @@ style.
                         data-model=item.itemModel,
                         data-type=item.itemType,
                         data-config=item.itemConfigurations
-                      ) #{item.itemName}
+                      ) #{item.itemName} - #{item.itemModel} - #{item.itemType}
 
             .col-md-4
               .form-group.floating-label-group
@@ -299,7 +304,7 @@ style.
             .col-md-12
               .form-group.static-label-group
                 label(for='termsConditionId') Select Template
-                select.form-control.modern-input(id='termsConditionId')
+                select.form-control.modern-input.select2(id='termsConditionId')
                   option(value='') Choose Terms & Conditions...
                   
                   if termsConditions && termsConditions.length > 0

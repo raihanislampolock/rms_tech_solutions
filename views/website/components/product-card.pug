@@ -1,0 +1,29 @@
+.col-lg-3.col-md-6.mb-4
+
+    .card.product-card.h-100.shadow-sm.border-0
+
+        img.card-img-top(
+            src=product.files && product.files !== '' ? product.files : 'dist/img/products/no-image.png'
+            alt=product.itemName
+        )
+
+        .card-body.d-flex.flex-column
+
+            h5.card-title= product.itemName
+
+            if product.itemModel
+                p.text-muted.mb-2
+                    | Model: #{product.itemModel}
+
+            h4.text-primary.mb-3
+                | ৳ #{product.itemPrice}
+
+            if Number(product.availableQuantity) > 0
+                span.badge.bg-success.mb-3 In Stock
+            else
+                span.badge.bg-danger.mb-3 Out of Stock
+
+            a.btn.btn-rms.mt-auto(
+                href=`/website/products/${product.slug || product.id}`
+            )
+                | View Details

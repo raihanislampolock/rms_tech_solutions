@@ -10,6 +10,19 @@ export interface IDictionary<T> {
     Values(): T[];
 }
 
+export function GET(path: string) {
+    return function (
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        Reflect.defineMetadata("route", {
+            method: "GET",
+            path
+        }, descriptor.value);
+    };
+}
+
 export class Dictionary<T> implements IDictionary<T> {
     private items: { [index: string]: T } = {};
 
@@ -64,4 +77,5 @@ export class Dictionary<T> implements IDictionary<T> {
 
         return values;
     }
+
 }

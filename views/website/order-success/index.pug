@@ -1,0 +1,21 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5.text-center
+
+        h2.text-success
+            | Order Placed Successfully!
+
+        p.mt-3
+            | Thank you for your order.
+
+        h4.mt-4
+            | Order Number:
+            strong.text-primary
+                | #{orderNumber}
+
+        a.btn.btn-primary.mt-4(
+            href="/website"
+        )
+            | Continue Shopping

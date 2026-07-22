@@ -54,6 +54,7 @@
     "formidable": "^2.1.1",
     "fs": "0.0.1-security",
     "generate-password": "^1.5.1",
+    "get": "^1.4.0",
     "html-pdf": "^1.5.0",
     "jsonwebtoken": "^9.0.3",
     "moment": "^2.30.1",

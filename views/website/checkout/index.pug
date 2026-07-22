@@ -1,0 +1,148 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5
+
+        h2.mb-4 Checkout
+
+        .row
+
+            .col-lg-7
+
+                form(
+                    method="POST"
+                    action="/website/checkout"
+                )
+
+                    .card.shadow-sm.mb-4
+
+                        .card-header
+
+                            h5.mb-0 Customer Information
+
+                        .card-body
+
+                            .mb-3
+
+                                label.form-label Full Name
+
+                                input.form-control(
+                                    type="text"
+                                    name="customerName"
+                                    required
+                                )
+
+                            .mb-3
+
+                                label.form-label Email
+
+                                input.form-control(
+                                    type="email"
+                                    name="email"
+                                )
+
+                            .mb-3
+
+                                label.form-label Phone
+
+                                input.form-control(
+                                    type="text"
+                                    name="phone"
+                                    required
+                                )
+
+                            .mb-3
+
+                                label.form-label Company
+
+                                input.form-control(
+                                    type="text"
+                                    name="company"
+                                )
+
+                            .mb-3
+
+                                label.form-label Address
+
+                                textarea.form-control(
+                                    name="address"
+                                    rows="3"
+                                    required
+                                )
+
+                            .row
+
+                                .col-md-6
+
+                                    .mb-3
+
+                                        label.form-label City
+
+                                        input.form-control(
+                                            type="text"
+                                            name="city"
+                                        )
+
+                                .col-md-6
+
+                                    .mb-3
+
+                                        label.form-label Country
+
+                                        input.form-control(
+                                            type="text"
+                                            name="country"
+                                            value="Bangladesh"
+                                        )
+
+                            .mb-3
+
+                                label.form-label Notes
+
+                                textarea.form-control(
+                                    name="notes"
+                                    rows="4"
+                                )
+
+                            button.btn.btn-success.btn-lg.w-100(
+                                type="submit"
+                            )
+
+                                | Place Order
+
+            .col-lg-5
+
+                .card.shadow-sm
+
+                    .card-header
+
+                        h5.mb-0 Order Summary
+
+                    .card-body
+
+                        each product in products
+
+                            .d-flex.justify-content-between.mb-3
+
+                                div
+
+                                    strong= product.itemName
+
+                                    br
+
+                                    small.text-muted
+                                        | Qty: #{product.quantity}
+
+                                div
+
+                                    | ৳ #{Number(product.itemPrice) * Number(product.quantity)}
+
+                        hr
+
+                        .d-flex.justify-content-between
+
+                            h5 Grand Total
+
+                            h5.text-primary
+                                | ৳ #{grandTotal}

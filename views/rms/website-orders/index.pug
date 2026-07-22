@@ -1,0 +1,885 @@
+extends ../../layout
+block style
+  link(rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+  link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css')
+  style.
+    /* === Modern Layout & Card Styling === */
+    .modern-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid #edf2f7;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .modern-toolbar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #edf2f7;
+      background-color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* === Modern Inputs & Selects === */
+    .modern-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
+    }
+
+    .modern-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
+      outline: none;
+      color: #2d3748;
+    }
+
+    .modern-control:focus {
+      border-color: #580db4;
+      box-shadow: 0 0 0 3px rgba(88, 13, 180, 0.1);
+      background-color: #fff;
+    }
+
+    /* === Modern Buttons === */
+    .btn-modern {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-modern-primary {
+      background-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .btn-modern-primary:hover {
+      background-color: #480a96;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(88, 13, 180, 0.3);
+      color: white;
+    }
+
+    .btn-modern-outline {
+      background-color: white;
+      color: #4a5568;
+      border: 1px solid #cbd5e0;
+    }
+
+    .btn-modern-outline:hover {
+      background-color: #f8f9fa;
+      border-color: #a0aec0;
+      color: #2d3748;
+    }
+
+    .btn-modern-icon {
+      padding: 0.5rem 0.75rem;
+    }
+
+    /* === Modern Table Styling === */
+    .modern-table-container {
+      padding: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .table.modern-table {
+      margin-bottom: 0;
+      border-collapse: collapse !important;
+      width: 100%;
+    }
+
+    .modern-table thead th {
+      position: sticky;
+      top: 0;
+      background-color: #580db4;
+      color: white;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border: none;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .modern-table thead th:first-child,
+    .modern-table tbody td:first-child {
+      padding-left: 1.5rem !important; 
+    }
+    
+    .modern-table thead th:last-child,
+    .modern-table tbody td:last-child {
+      padding-right: 1.5rem !important; 
+    }
+
+    .modern-table thead th a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modern-table tbody td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+      font-size: 0.95rem;
+    }
+
+    .modern-table tbody tr.main-row {
+      background-color: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .modern-table tbody tr.main-row:hover {
+      background-color: #fbf8ff;
+    }
+
+    /* Action Icons in Table */
+    .action-icon {
+      color: #718096;
+      background: #edf2f7;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .action-icon:hover {
+      background: #580db4;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .action-icon.pdf-icon:hover { background: #e53e3e; }
+    .action-icon.email-icon:hover { background: #3182ce; }
+    
+    /* View Items Button */
+    .btn-view-items {
+      background-color: #ebf4ff;
+      color: #3182ce;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-view-items:hover {
+      background-color: #3182ce;
+      color: white;
+    }
+
+    /* === Footer & Pagination === */
+    .modern-footer {
+      padding: 1.25rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modern-footer .title-filter {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .pagination {
+      margin: 0;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination li a, .pagination li span {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: #4a5568;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .pagination li.active a {
+      background-color: #580db4;
+      border-color: #580db4;
+      color: white;
+      box-shadow: 0 2px 4px rgba(88, 13, 180, 0.2);
+    }
+
+    .pagination li a:hover:not(.active) {
+      background-color: #edf2f7;
+      color: #580db4;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+    }
+
+    .selected-row {
+      background-color: rgba(88, 13, 180, 0.05) !important;
+      border-left: 3px solid #580db4;
+    }
+    
+    /* Child Table UI */
+    .child-table-wrapper {
+      padding: 1rem 1.5rem 1.5rem 3rem !important;
+      background-color: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .child-table {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+    }
+    .child-table th {
+      background-color: #edf2f7 !important;
+      color: #4a5568 !important;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem !important;
+      position: static !important; /* Overrides sticky header */
+    }
+    .child-table td {
+      background-color: #ffffff;
+      padding: 0.75rem 1rem !important;
+      font-size: 0.85rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      min-width: 100px;
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      color: #fff;
+    }
+
+    .status-pending {
+      background: #f59e0b;
+      color: #fff;
+    }
+
+    .status-processing {
+      background: #0ea5e9;
+    }
+
+    .status-confirmed {
+      background: #2563eb;
+    }
+
+    .status-shipped {
+      background: #7c3aed;
+    }
+
+    .status-delivered {
+      background: #16a34a;
+    }
+
+    .status-cancelled {
+      background: #dc2626;
+    }
+
+block content
+  section.content-header.mb-4
+    div(style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;")
+      h1(style="margin: 0; font-weight: 600; color: #2d3748;") RMS Website Orders Dashboard
+      ol.breadcrumb(style="margin: 0;")
+        li
+          a(href='/dashboard' style="color: #580db4;")
+            i.fa.fa-home.mr-1
+            |  Dashboard
+        li
+          span(style="color: #718096; font-weight: 500;") RMS TecH Solutions
+        li
+          span(style="color: #718096; font-weight: 500;") RMS Website  
+        li
+          a(href='/rms/website-orders' style="color: #580db4; text-decoration: none;") RMS Website Orders 
+        
+  section.content
+    .row
+      .col-xs-12
+        .modern-card
+          //- Toolbar Area
+          .modern-toolbar
+            .toolbar-group
+              .modern-input-group
+                span Search:
+                input.modern-control#search(type='text', placeholder='Search by Name...', name='search' autocomplete='off' style='width: 250px;')
+                button.btn-modern.btn-modern-primary.btn-modern-icon#searchBtn(type='button')
+                  i.fa.fa-search
+              
+              button.btn-modern.btn-modern-outline.date-range-btn#daterange-btn(type="button" style='display:none;')
+                i.fa.fa-calendar-alt.mr-2(style="color:#580db4;")
+                span#date-range-display Select date range
+                input#date-range-input(type="hidden" name="" value="")
+                
+              button.btn-modern.btn-modern-primary.btn-modern-icon.btn-download(type='button' title="Download Export") 
+                i.fa.fa-download
+                | Download Orders Excel 
+                
+            .toolbar-group
+              .modern-input-group
+                span Show:
+                select.modern-control#limitSelect(style='width: 80px;')
+                  option 10
+                  option 25
+                  option 50
+                  option 100
+
+          //- Table Area
+          .modern-table-container
+            table.table.modern-table#ordersTable
+              thead
+                tr
+                  th 
+                    a(href='#') Edit 
+                      i.fa.fa-sort-alpha-asc.ml-1 
+                  th 
+                    a(href='#') Order No     
+                  th 
+                    a(href='#') Customer
+                  th 
+                    a(href='#') Phone Number 
+                  th 
+                    a(href='#') Total Amount
+                  th 
+                    a(href='#') Status
+                  th 
+                    a(href='#') Date           
+              tbody#ordersTableBody
+                tr
+                  td.text-center(colspan='16' style="padding: 3rem;") 
+                    span(style="color: #a0aec0; font-size: 1.1rem;") No data to display. Use the search filters above to load data.
+
+          //- Footer Area
+          .modern-footer
+            span.title-filter#title-filter Showing no entries
+            ul.pagination#paginationContainer
+
+  include ./create                  
+
+block script
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
+  script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+  
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('ordersTableBody');
+      const paginationContainer = document.getElementById('paginationContainer');
+      let search = document.getElementById('search');
+      const searchBtn = document.getElementById('searchBtn');
+      const limitSelect = document.getElementById('limitSelect');
+      const dateRangeDisplay = document.querySelector('#date-range-display');
+      const dateRangeInput = document.getElementById('date-range-input');
+      const exportExcelBtn = document.querySelector('.btn-download');
+
+
+      const updateMargin = () => {
+        if (dateRangeDisplay.textContent.trim() === "Select date range") {
+          dateRangeDisplay.style.marginRight = "10px";
+        } else {
+          dateRangeDisplay.style.marginRight = "0";
+        }
+      };
+
+      // Initial check
+      updateMargin();
+
+      // Observe changes in text content
+      const observer = new MutationObserver(updateMargin);
+      observer.observe(dateRangeDisplay, { childList: true, characterData: true, subtree: true });
+
+      let currentPage = 1;
+      let currentSearch = '';
+      let limit = limitSelect.value;
+      let dateRange = '';
+      const selectedRows = new Set();
+      const selectedData = [];
+
+      function getStatusBadge(status) {
+
+          const classes = {
+              Pending: "status-pending",
+              Processing: "status-processing",
+              Confirmed: "status-confirmed",
+              Shipped: "status-shipped",
+              Delivered: "status-delivered",
+              Cancelled: "status-cancelled"
+          };
+      
+          return `
+              <span class="status-badge ${classes[status] || ''}">
+                  ${status || '-'}
+              </span>
+          `;
+      }
+
+      async function fetchOrders(page = 1, search = '', dateRange='', limit = 10) {
+        tableBody.innerHTML = `<tr><td colspan="16" class="text-center" style="padding: 3rem;"><i class="fa fa-spinner fa-spin" style="font-size: 32px; color: #580db4;"></i></td></tr>`;
+        try {
+          const response = await fetch(`/api/rms/website-orders?page=${page}&search=${search}&limit=${limit}`);
+          const data = await response.json();
+
+          if (data?.data?.length > 0) {
+            // Render Rows
+            tableBody.innerHTML = data.data.map(orders => {
+              const format = (num) => Number(num || 0).toLocaleString();
+
+              return `
+              <tr class="main-row" data-id="${orders.id}">
+                <td>
+                    <a href="#"
+                       class="action-icon edit-orders-btn"
+                       data-order-id="${orders.id}"
+                       title="View Order">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </td>
+                <td style="font-weight: 500;">${orders.orderNumber ?? '-'}</td>
+                <td style="color: #580db4; font-weight: 600;">${orders.customerName ?? '-'}</td>
+                <td>${orders.phone ?? '-'}</td>
+                <td style="font-weight: 700; color: #065f46;">${orders.grandTotal ? format(orders.grandTotal) + ' BDT' : '-'}</td>
+                <td>${getStatusBadge(orders.status)}</td>
+                <td>${orders.createdAt ? new Date(orders.createdAt).toLocaleDateString() : '-'}</td>
+              </tr>
+              `;
+            }).join('');
+
+            selectedRows.forEach((id) => {
+              const row = tableBody.querySelector(`[data-id="${id}"]`);
+              if (row) row.classList.add('selected-row');
+          });
+
+          const totalRecords = data.total;
+          const startRecord = (currentPage - 1) * limit + 1;
+          const endRecord = Math.min(currentPage * limit, totalRecords);
+
+          document.querySelector('#title-filter').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} entries`;
+
+          } else {
+            tableBody.innerHTML = `<tr><td colspan="16" class="text-center" style="padding: 3rem; color: #a0aec0;">No matching quotations found.</td></tr>`;
+            document.querySelector('#title-filter').textContent = 'No entries to display';
+            return;
+          }
+
+          // Generate pagination buttons
+          const totalPages = Math.ceil(data.total / limit);
+          renderPagination(totalPages, page);
+
+        } catch (error) {
+          console.error('Error fetching reports:', error);
+          tableBody.innerHTML = `<tr><td colspan="16" class="text-center" style="padding: 3rem; color: #e53e3e;">Error loading data. Please try again.</td></tr>`;
+          document.querySelector('#title-filter').textContent = 'Error loading entries';
+        }
+      }
+
+      function renderPagination(totalPages, currentPage) {
+        paginationContainer.innerHTML = ""
+        if (!totalPages || totalPages <= 0) return;
+
+        const maxVisiblePages = 5
+        const firstPages = 2
+        const lastPages = 2
+
+        // Helper function to create pagination link
+        const createPageLink = (page, isActive = false) => {
+          const pageItem = document.createElement("li")
+          if (isActive) pageItem.classList.add("active")
+          pageItem.innerHTML = `<a href="#" class="pagination-link" data-page="${page}">${page}</a>`
+          paginationContainer.appendChild(pageItem)
+        }
+
+        // Show "Previous" button if not on first page
+        if (currentPage > 1) {
+          const prevItem = document.createElement("li")
+          prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage - 1}"><i class="fa fa-chevron-left" style="font-size: 0.8em; pointer-events:none;"></i></a>`
+          paginationContainer.appendChild(prevItem)
+        }
+
+        // For small number of pages, show all pages without ellipsis
+        if (totalPages <= maxVisiblePages) {
+          for (let i = 1; i <= totalPages; i++) {
+            createPageLink(i, i === currentPage)
+          }
+        } else {
+          // Show first page
+          createPageLink(1, currentPage === 1)
+
+          // Calculate range of pages to show around current page
+          let rangeStart = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2))
+          const rangeEnd = Math.min(totalPages - 1, rangeStart + maxVisiblePages - 3)
+
+          // Adjust range if current page is near the end
+          if (rangeEnd === totalPages - 1) {
+            rangeStart = Math.max(2, rangeEnd - maxVisiblePages + 3)
+          }
+
+          // Show ellipsis after first page if needed
+          if (rangeStart > 2) {
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`
+          }
+
+          // Show pages in range
+          for (let i = rangeStart; i <= rangeEnd; i++) {
+            createPageLink(i, i === currentPage)
+          }
+
+          // Show ellipsis before last page if needed
+          if (rangeEnd < totalPages - 1) {
+            paginationContainer.innerHTML += `<li><span style="pointer-events:none;">...</span></li>`
+          }
+
+          // Show last page if not already shown
+          if (totalPages > 1) {
+            createPageLink(totalPages, currentPage === totalPages)
+          }
+        }
+
+        // Show "Next" button if not on last page
+        if (currentPage < totalPages) {
+          const nextItem = document.createElement("li")
+          nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${currentPage + 1}"><i class="fa fa-chevron-right" style="font-size: 0.8em; pointer-events:none;"></i></a>`
+          paginationContainer.appendChild(nextItem)
+        }
+      }
+
+       // Update page and fetch data
+      function updatePage(page) {
+        let currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        currentPage = page;
+        fetchOrders(currentPage, currentSearch, dateRange, limit);
+      }
+
+      // Event listener for pagination links
+      paginationContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('pagination-link')) {
+          event.preventDefault();
+          const page = parseInt(event.target.getAttribute('data-page'), 10);
+          if (!isNaN(page)) {
+            updatePage(page);
+          }
+        }
+      });
+
+      // Allow searching by pressing "Enter" key
+      search.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchBtn.click();
+        }
+      });
+
+      // Search and limit event listeners
+      searchBtn.addEventListener('click', () => {
+        selectedRows.clear();
+        selectedData.length = 0;
+        currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        fetchOrders(1, currentSearch, dateRange, limit);
+      });
+      
+      limitSelect.addEventListener('change', () => {
+        limit = limitSelect.value;
+        currentSearch = search.value;
+        dateRange = dateRangeInput.value;
+        currentPage = 1;
+        fetchOrders(currentPage, currentSearch, dateRange, limit);
+      });
+
+      function updateSelectedData(rowId, email, mrno, patientName, add) {
+          if (add) {
+            selectedData.push({ id: rowId, email, mrno, patientName });
+          } else {
+            const index = selectedData.findIndex(item => item.id === rowId);
+            if (index !== -1) selectedData.splice(index, 1);
+          } 
+      }
+
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      
+      // Initialize the daterangepicker
+      $('#daterange-btn').daterangepicker({
+        startDate: yesterday,
+        endDate: today,
+        ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        locale: {
+          format: 'MMMM DD, YYYY'
+        }
+      }, function(start, end, label) {
+        const startDate = start.format('MMMM DD, YYYY');
+        const endDate = end.format('MMMM DD, YYYY');
+        
+        dateRangeDisplay.innerText = `${startDate} - ${endDate}`;
+        dateRangeInput.value = `${startDate} - ${endDate}`;
+      });
+
+      const initialStart = moment(yesterday).format('MMMM DD, YYYY');
+      const initialEnd = moment(today).format('MMMM DD, YYYY');
+      dateRangeDisplay.innerText = `${initialStart} - ${initialEnd}`;
+      dateRangeInput.value = `${initialStart} - ${initialEnd}`;
+
+      $('.btn-download').on('click', function () {
+        const dateRangeDisplay = document.querySelector('#date-range-display');
+        const $downloadBtn = $(".btn-download");
+        const originalText = $downloadBtn.html();
+        let dateRange = dateRangeDisplay.textContent.trim();
+
+        if (!dateRange) {
+            swal("Warning", "No date range selected!", "warning");
+            return;
+        }
+
+        $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
+
+        $.ajax({
+          url: `/api/rms/rms-quotation/export/excel?`, // Move dateRange to query param
+          method: "GET", // ✅ MUST match controller
+          xhrFields: { responseType: "blob" },
+          success: function (blob, status, xhr) {
+              const contentDisposition = xhr.getResponseHeader("Content-Disposition");
+              let filename = "RMS_Quotations.xlsx";
+              if (contentDisposition) {
+                  const match = contentDisposition.match(/filename="(.+)"/);
+                  if (match && match.length > 1) {
+                      filename = match[1];
+                  }
+              }
+
+              const blobUrl = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = blobUrl;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+          },
+          error: function (xhr, status, err) {
+              console.error("XHR:", xhr);
+              console.error("Status:", status);
+              console.error("Error:", err);
+              swal("Error", "Failed to download. Please try again.", "error");
+          },
+          complete: function () {
+              // Restore button state
+              $downloadBtn.prop("disabled", false).html(originalText);
+          }
+      });
+
+    });      
+
+      fetchOrders(currentPage, currentSearch, dateRangeInput.value, limit);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      let editId = null;
+
+      // Open Edit Modal
+      document.addEventListener("click", function (e) {
+
+          const btn = e.target.closest(".edit-orders-btn");
+
+          if (!btn) return;
+
+          e.preventDefault();
+
+          const id = Number(btn.dataset.orderId);
+
+          if (!id) return;
+
+          loadOrder(id);
+
+      });
+
+      async function loadOrder(id) {
+
+          try {
+
+              const response = await fetch(`/api/rms/website-orders/edit/${id}`);
+              const result = await response.json();
+
+              if (!result.status) {
+
+                  swal("Error", result.message, "error");
+                  return;
+
+              }
+
+              const order = result.data;
+
+              editId = id;
+
+              // Customer Information
+              document.getElementById("orderNumber").value = order.orderNumber || "";
+              document.getElementById("customerName").value = order.customerName || "";
+              document.getElementById("phone").value = order.phone || "";
+              document.getElementById("email").value = order.email || "";
+              document.getElementById("company").value = order.company || "";
+              document.getElementById("address").value = order.address || "";
+              document.getElementById("city").value = order.city || "";
+              document.getElementById("country").value = order.country || "";
+              document.getElementById("notes").value = order.notes || "";
+              document.getElementById("grandTotal").value = order.grandTotal || "";
+
+              document.getElementById("status").value = order.status;
+
+              renderItems(order.items || []);
+
+              $("#edit-order-modal").modal("show");
+
+          } catch (err) {
+
+              console.error(err);
+              swal("Error", "Failed to load order.", "error");
+
+          }
+
+      }
+
+      function renderItems(items) {
+
+          const tbody = document.querySelector("#orderItemsTable tbody");
+
+          tbody.innerHTML = "";
+
+          if (!items.length) {
+
+              tbody.innerHTML = `
+                  <tr>
+                      <td colspan="5" class="text-center">
+                          No items found.
+                      </td>
+                  </tr>
+              `;
+
+              return;
+
+          }
+
+          items.forEach(item => {
+
+              tbody.innerHTML += `
+                  <tr>
+                      <td>${item.itemName}</td>
+                      <td>${item.itemModel ?? ""}</td>
+                      <td>${item.quantity}</td>
+                      <td>${Number(item.price).toFixed(2)}</td>
+                      <td>${Number(item.total).toFixed(2)}</td>
+                  </tr>
+              `;
+
+          });
+
+      }
+
+      document.getElementById("saveOrder")
+          .addEventListener("click", async function () {
+
+          try {
+
+              const response = await fetch(`/api/rms/website-orders/update/${editId}`, {
+
+                  method: "PUT",
+
+                  headers: {
+                      "Content-Type": "application/json"
+                  },
+
+                  body: JSON.stringify({
+                      status: document.getElementById("status").value
+                  })
+
+              });
+
+              const result = await response.json();
+
+              if (result.status) {
+
+                  swal(
+                      "Success",
+                      "Order updated successfully.",
+                      "success"
+                  ).then(() => {
+
+                      location.reload();
+
+                  });
+
+              } else {
+
+                  swal("Error", result.message, "error");
+
+              }
+
+          } catch (err) {
+
+              console.error(err);
+
+              swal(
+                  "Error",
+                  "Failed to update order.",
+                  "error"
+              );
+
+          }
+
+      });
+    });

@@ -1,6 +1,7 @@
 import { Controller } from "../../../core/Controller";
 import { NextFunc, HttpRequest, HttpResponse } from "../../../core/Types";
 import { RmsChallanService } from "../services/rms.challan.service";
+import ExcelJS from "exceljs";
 
 export class RmsChallanController extends Controller {
 
@@ -26,6 +27,7 @@ export class RmsChallanController extends Controller {
         this.onGet("/api/rms/rms-challan/generate-pdf/:id", [], this.auth.private, this.generatePdf);
         this.onGet("/api/rms/rms-challan/view-pdf/:id", [], this.auth.private, this.viewPdf);
         this.onPost("/api/rms/rms-challan/send-email/:id", [], this.auth.private, this.sendEmailWithPdf);
+        this.onGet("/api/rms/rms-challan/export/excel", [], this.auth.private, this.exportExcel);
     }
 
     // Page
@@ -406,6 +408,182 @@ export class RmsChallanController extends Controller {
             return resp.status(500).json({
                 status: false,
                 message: error.message || "Failed to send email"
+            });
+        }
+    }
+
+    public async exportExcel(
+        req: HttpRequest,
+        resp: HttpResponse,
+        next: NextFunc
+    ) {
+        try {
+            const { search } = req.query;
+
+            const searchStr =
+                typeof search === "string"
+                    ? search.trim()
+                    : "";
+
+            const { data }: { data: any[] } =
+                await this.rmsChallanService.getAll(
+                    searchStr,
+                    1,
+                    1000000
+                );
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("RMS Challans");
+
+            worksheet.columns = [
+                { header: "Challan No", key: "challanNumber", width: 25 },
+                { header: "Quotation ID", key: "quotationId", width: 15 },
+
+                { header: "Company Name", key: "companyName", width: 35 },
+                { header: "Company Email", key: "companyEmail", width: 35 },
+
+                { header: "Challan Notes", key: "challanNotes", width: 40 },
+                { header: "Item Notes", key: "itemNotes", width: 40 },
+
+                { header: "Challan Status", key: "challanStatus", width: 20 },
+
+                { header: "Item ID", key: "itemId", width: 15 },
+                { header: "Item Name", key: "itemName", width: 30 },
+                { header: "Item Type", key: "itemType", width: 20 },
+                { header: "Item Model", key: "itemModel", width: 25 },
+                { header: "Manufacture Origin", key: "manufactureOrigin", width: 25 },
+
+                { header: "Available Stock", key: "availableStock", width: 18 },
+                { header: "Delivered Quantity", key: "deliveredQuantity", width: 18 },
+
+                { header: "Item Price", key: "itemPrice", width: 18 },
+
+                { header: "Item Configurations", key: "itemConfigurations", width: 80 },
+
+                { header: "Created By", key: "createdBy", width: 15 },
+                { header: "Updated By", key: "updatedBy", width: 15 },
+
+                { header: "Created At", key: "createdAt", width: 25 },
+                { header: "Updated At", key: "updatedAt", width: 25 }
+            ];
+
+            // One row per item
+            data.forEach((row: any) => {
+                worksheet.addRow({
+                    challanNumber: row.challanNumber ?? "",
+                    quotationId: row.quotationId ?? "",
+
+                    companyName: row.companyName ?? "",
+                    companyEmail: row.companyEmail ?? "",
+
+                    challanNotes: row.challanNotes ?? "",
+                    itemNotes: row.itemNotes ?? "",
+
+                    challanStatus: row.challanStatus ?? "",
+
+                    itemId: row.itemId ?? "",
+                    itemName: row.itemName ?? "",
+                    itemType: row.itemType ?? "",
+                    itemModel: row.itemModel ?? "",
+                    manufactureOrigin: row.manufactureOrigin ?? "",
+
+                    availableStock: row.availableStock ?? 0,
+                    deliveredQuantity: row.deliveredQuantity ?? 0,
+
+                    itemPrice: row.itemPrice ?? 0,
+
+                    itemConfigurations:
+                        typeof row.itemConfigurations === "object"
+                            ? JSON.stringify(row.itemConfigurations, null, 2)
+                            : row.itemConfigurations ?? "",
+
+                    createdBy: row.createdBy ?? "",
+                    updatedBy: row.updatedBy ?? "",
+
+                    createdAt: row.created_at
+                        ? new Date(row.created_at).toLocaleString()
+                        : "",
+
+                    updatedAt: row.updated_at
+                        ? new Date(row.updated_at).toLocaleString()
+                        : ""
+                });
+            });
+
+            // Header Style
+            const headerRow = worksheet.getRow(1);
+
+            headerRow.eachCell((cell) => {
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FFFFFFFF" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: {
+                        argb: "580DB4"
+                    }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle"
+                };
+
+                cell.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" }
+                };
+            });
+
+            worksheet.eachRow((row, rowNumber) => {
+                row.height = 22;
+
+                if (rowNumber > 1) {
+                    row.eachCell((cell) => {
+                        cell.alignment = {
+                            vertical: "middle",
+                            wrapText: true
+                        };
+                    });
+                }
+            });
+
+            worksheet.views = [
+                {
+                    state: "frozen",
+                    ySplit: 1
+                }
+            ];
+
+            resp.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
+
+            resp.setHeader(
+                "Content-Disposition",
+                `attachment; filename=rms_challan_${Date.now()}.xlsx`
+            );
+
+            await workbook.xlsx.write(resp);
+
+            resp.end();
+        } catch (error: any) {
+            console.error(
+                "Error exporting RMS Challan Excel:",
+                error
+            );
+
+            return resp.status(500).json({
+                status: false,
+                message:
+                    "An error occurred while exporting RMS Challan Excel",
+                error: error.message
             });
         }
     }

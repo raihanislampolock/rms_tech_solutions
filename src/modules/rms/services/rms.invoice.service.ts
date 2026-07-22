@@ -203,8 +203,11 @@ export class RmsInvoiceService {
             // Load Assets
             const headerImageBytes = fs.readFileSync('src/public/dist/img/header.png');
             const footerImageBytes = fs.readFileSync('src/public/dist/img/footer.png');
+            const signatureBytes = fs.readFileSync('src/public/dist/img/rms-sig.png');
             const headerImage = await pdfDoc.embedPng(headerImageBytes);
             const footerImage = await pdfDoc.embedPng(footerImageBytes);
+            const signatureImage = await pdfDoc.embedPng(signatureBytes);
+
 
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -243,8 +246,8 @@ export class RmsInvoiceService {
             };
 
             const addHeader = () => {
-                page.drawImage(headerImage, { x: 0, y: pageHeight - 110, width: pageWidth, height: 110 });
-                y = pageHeight - 145;
+                page.drawImage(headerImage, { x: 0, y: pageHeight - 85, width: pageWidth, height: 85 });
+                y = pageHeight - 120;
 
                 // Invoice Title & Modern Accent
                 page.drawRectangle({ x: margin, y, width: 3, height: 25, color: accentColor });
@@ -252,12 +255,13 @@ export class RmsInvoiceService {
 
                 // Invoice Meta Info (Right Aligned)
                 const metaX = 400;
-                drawText(`Invoice No:`, metaX, y + 10, 10, bold);
-                drawText(invoice.invoiceNumber, metaX + 65, y + 10, 10);
-                drawText(`Date:`, metaX, y - 5, 10, bold);
-                drawText(new Date().toLocaleDateString(), metaX + 65, y - 5, 10);
+                drawText(`Invoice No:`, metaX, y + 20, 10, bold);
+                drawText(invoice.invoiceNumber, metaX + 65, y + 20, 10);
 
-                y -= 50;
+                drawText(`Date:`, metaX, y + 5, 10, bold);
+                drawText(new Date().toLocaleDateString(), metaX + 65, y + 5, 10);
+
+                y -= 30;
 
                 // Billing Info
                 drawText("BILL TO", margin, y, 10, bold, rgb(0.4, 0.4, 0.4));
@@ -269,7 +273,7 @@ export class RmsInvoiceService {
             };
 
             const addFooter = () => {
-                page.drawImage(footerImage, { x: 0, y: 0, width: pageWidth, height: 70 });
+                page.drawImage(footerImage, { x: 0, y: 0, width: pageWidth, height: 50 });
             };
 
             const col = {
@@ -383,14 +387,58 @@ export class RmsInvoiceService {
             // =========================
             // SIGNATURES
             // =========================
-            const sigY = 120;
-            page.drawLine({ start: { x: margin, y: sigY + 20 }, end: { x: pageWidth - margin, y: sigY + 20 }, thickness: 0.5, color: borderGray });
+            const sigY = 80;
 
-            drawText("Prepared By", margin, sigY, 9, bold);
-            drawText(invoice.username || "System User", margin, sigY - 15, 9);
+            // Left signature position
+            const leftSignX = margin;
 
-            drawText("Authorized Signature", 400, sigY, 9, bold);
-            drawText("RMS Technologies", 400, sigY - 15, 9);
+            // Right signature position
+            const rightSignX = pageWidth - margin - 150;
+
+            // Left signature line
+            page.drawLine({
+                start: { x: leftSignX, y: sigY + 20 },
+                end: { x: leftSignX + 150, y: sigY + 20 },
+                thickness: 0.75,
+                color: borderGray
+            });
+
+            drawText("Prepared By", leftSignX, sigY, 9, bold);
+            drawText(
+                invoice.username || "System User",
+                leftSignX,
+                sigY - 15,
+                9,
+                font,
+                rgb(0.4, 0.4, 0.4)
+            );
+
+            // Draw signature graphic relative to the fixed row anchor line bounds
+            page.drawImage(signatureImage, {
+                x: rightSignX + 1,
+                y: sigY + 25,
+                width: 90,
+                height: 40,
+            });
+
+            // Right signature line
+            page.drawLine({
+                start: { x: rightSignX, y: sigY + 20 },
+                end: { x: rightSignX + 150, y: sigY + 20 },
+                thickness: 0.75,
+                color: borderGray
+            });
+
+
+            drawText("Authorized Signature", rightSignX, sigY, 9, bold);
+            drawText(
+                "RMS Technologies",
+                rightSignX,
+                sigY - 15,
+                9,
+                font,
+                rgb(0.4, 0.4, 0.4)
+            );
 
             addFooter();
 

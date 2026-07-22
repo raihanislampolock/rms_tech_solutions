@@ -1,0 +1,64 @@
+nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
+
+    .container
+
+        a.navbar-brand(href="/website")
+
+            img(
+                src="/dist/img/rms-logo.svg"
+                alt="RMS Tech Solutions"
+                height="45"
+            )
+
+        button.navbar-toggler(
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbar"
+        )
+
+            span.navbar-toggler-icon
+
+        .collapse.navbar-collapse#navbar
+
+            ul.navbar-nav.ms-auto.align-items-lg-center
+
+                li.nav-item
+                    a.nav-link(
+                        href="/website"
+                        class=page=="home" ? "active" : ""
+                    ) Home
+
+                li.nav-item
+                    a.nav-link(
+                        href="/website/products"
+                    ) Products
+
+                li.nav-item
+                    a.nav-link(
+                        href="/website/services"
+                    ) Services
+
+                li.nav-item
+                    a.nav-link(
+                        href="/website/projects"
+                    ) Projects
+
+                li.nav-item
+                    a.nav-link(
+                        href="/website/about"
+                    ) About
+
+                li.nav-item
+                    a.nav-link(
+                        href="/website/contact"
+                    ) Contact
+
+                li.nav-item.ms-lg-3
+
+                    a.btn.btn-rms(
+                        href="/login"
+                    )
+
+                        i.fa-solid.fa-user.me-2
+
+                        | Login

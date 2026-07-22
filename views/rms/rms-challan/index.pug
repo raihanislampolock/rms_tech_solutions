@@ -319,11 +319,13 @@ block content
             i.fa.fa-home.mr-1
             | Dashboard
         li
-          span(style="color: #718096; margin: 0 0.5rem;") /
-          span(style="color: #4a5568; font-weight: 500;") RMS TecH Solutions
+          span(style="color: #4a5568; font-weight: 500;")
+            img(src='/dist/img/main-logo.svg' style='width:14px; margin-right:10px; color: #580db4;')
+            | RMS TecH Solutions
         li
-          span(style="color: #718096; margin: 0 0.5rem;") /
-          a(href='/rms/rms-challan' style="color: #718096; text-decoration: none;") Challan Dashboard
+          a(href='/rms/rms-challan' style="color: #580db4; text-decoration: none;")
+            img(src='/dist/img/delivery.svg' style='width:12px; margin-right:8px;') 
+            | Challan Dashboard
         
   section.content
     .row
@@ -353,6 +355,7 @@ block content
 
               button.btn-modern.btn-modern-primary.btn-modern-icon.btn-download(type='button' title="Download Export") 
                 i.fa.fa-download
+                | Download Challan
                 
             .toolbar-group
               .modern-input-group
@@ -756,12 +759,12 @@ block script
         $downloadBtn.prop("disabled", true).html(`<i class="fas fa-spinner fa-spin"></i> Downloading...`);
 
         $.ajax({
-          url: `/api/callcenter/service-status/export-excel?`,
+          url: `/api/rms/rms-challan/export/excel?dateRange=${encodeURIComponent(dateRange)}`,
           method: "GET",
           xhrFields: { responseType: "blob" },
           success: function (blob, status, xhr) {
               const contentDisposition = xhr.getResponseHeader("Content-Disposition");
-              let filename = "X_Ray_Tracker.xlsx";
+              let filename = "Challan.xlsx";
               if (contentDisposition) {
                   const match = contentDisposition.match(/filename="(.+)"/);
                   if (match && match.length > 1) {

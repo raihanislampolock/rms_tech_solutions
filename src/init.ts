@@ -20,6 +20,9 @@ import { RmsChallanItemModel } from "./modules/rms/models/rms.challan.item.model
 import { RmsInvoiceModel } from "./modules/rms/models/rms.invoice.model";
 import { RmsInvoiceItemModel } from "./modules/rms/models/rms.invoice.item.model";
 import { RmsTermsAndConditionsModel } from "./modules/rms/models/rms.terms.and.conditions.modal";
+import { WebsiteProductModel } from "./modules/website/models/website.product.model";
+import { WebsiteOrder } from "./modules/website/models/website_order";
+import { WebsiteOrderItem } from "./modules/website/models/website_order_items";
 
 
 const APP_CONFIG: Config = new Config(JSON.parse(fs.readFileSync("config.json").toString()));
@@ -34,7 +37,7 @@ export const AppDataSource = new DataSource({
     database: APP_CONFIG.postgres.dbName || 'rms_portal',
     entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsItemStockModel, RmsPurchaseModel,
                 RmsPurchaseItemModel, RmsStockTransactionModel, RmsQuotationModel, RmsQuotationItemModel, RmsStockMovementModel, RmsChallanModel,
-                RmsChallanItemModel, RmsInvoiceModel, RmsInvoiceItemModel, RmsTermsAndConditionsModel],
+                RmsChallanItemModel, RmsInvoiceModel, RmsInvoiceItemModel, RmsTermsAndConditionsModel, WebsiteProductModel, WebsiteOrder, WebsiteOrderItem],
     synchronize: true, // Automatically sync entity schema (disable in production)
     logging: false,
 });

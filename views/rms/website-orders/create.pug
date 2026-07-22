@@ -1,0 +1,131 @@
+#edit-order-modal.modal.fade(data-backdrop='static', data-keyboard='false')
+  .modal-dialog.modal-dialog-centered.modal-xl
+    .modal-content(style="border-radius:16px;border:none;overflow:hidden;")
+
+      .modal-header(style="background:#fff;border-bottom:1px solid #eee;")
+        h5.modal-title
+          i.fa.fa-shopping-cart.mr-2
+          | Website Order Details
+
+        button.close(type="button", data-dismiss="modal")
+          span &times;
+
+      .modal-body(style="max-height:75vh;overflow-y:auto;")
+
+        h5.text-primary.mb-3
+          i.fa.fa-user.mr-2
+          | Customer Information
+
+        .row
+
+          .col-md-4
+            .form-group
+              label Order Number
+              input.form-control#orderNumber(type="text" readonly)
+
+          .col-md-4
+            .form-group
+              label Customer Name
+              input.form-control#customerName(type="text" readonly)
+
+          .col-md-4
+            .form-group
+              label Phone
+              input.form-control#phone(type="text" readonly)
+
+          .col-md-4
+            .form-group
+              label Email
+              input.form-control#email(type="text" readonly)
+
+          .col-md-4
+            .form-group
+              label Company
+              input.form-control#company(type="text" readonly)
+
+          .col-md-4
+            .form-group
+              label City
+              input.form-control#city(type="text" readonly)
+
+          .col-md-12
+            .form-group
+              label Address
+              textarea.form-control#address(rows="2" readonly)
+
+          .col-md-6
+            .form-group
+              label Country
+              input.form-control#country(type="text" readonly)
+
+          .col-md-6
+            .form-group
+              label Notes
+              textarea.form-control#notes(rows="2" readonly)
+
+        hr
+
+        h5.text-primary.mb-3
+          i.fa.fa-list.mr-2
+          | Ordered Items
+
+        .table-responsive
+
+          table.table.table-bordered.table-hover#orderItemsTable
+
+            thead.thead-light
+
+              tr
+                th Item Name
+                th Model
+                th.text-center Quantity
+                th.text-right Price
+                th.text-right Total
+
+            tbody
+
+              tr
+
+                td.text-center(colspan="5")
+                  | No Items Found
+
+        hr
+
+        .row
+
+          .col-md-6
+
+            .form-group
+              label Grand Total
+
+              input.form-control#grandTotal(
+                type="text"
+                readonly
+              )
+
+          .col-md-6
+
+            .form-group
+              label Order Status
+
+              select.form-control#status
+
+                option(value="Pending") Pending
+                option(value="Processing") Processing
+                option(value="Confirmed") Confirmed
+                option(value="Shipped") Shipped
+                option(value="Delivered") Delivered
+                option(value="Cancelled") Cancelled
+
+      .modal-footer
+
+        button.btn.btn-primary#saveOrder(type="button")
+          i.fa.fa-save.mr-1(style="margin-right:4px;")
+          | Update Status
+
+        button.btn.btn-danger(
+          type="button"
+          data-dismiss="modal"
+        )
+          i.fa.fa-times.mr-1(style="margin-right:4px;")
+          | Close

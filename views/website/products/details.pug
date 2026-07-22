@@ -1,0 +1,67 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5
+
+        .row
+
+            .col-md-5
+
+                img.img-fluid(
+                    src=product.files || '/dist/img/products/no-image.png'
+                    alt=product.itemName
+                )
+
+            .col-md-7
+
+                h2= product.itemName
+
+                if product.itemModel
+                    p.text-muted
+                        | Model: #{product.itemModel}
+
+                h3.text-primary
+                    | ৳ #{product.itemPrice}
+
+                if Number(product.availableQuantity) > 0
+                    span.badge.bg-success In Stock
+                else
+                    span.badge.bg-danger Out of Stock
+
+                hr
+
+                if product.itemConfigurations
+                    p
+                        strong Configuration:
+                        br
+                        = product.itemConfigurations
+
+                if product.manufactureOrigin
+                    p
+                        strong Origin:
+                        br
+                        = product.manufactureOrigin
+
+                form(
+                    method="POST"
+                    action="/website/cart/add"
+                )
+
+                    input(
+                        type="hidden"
+                        name="id"
+                        value=product.id
+                    )
+
+                    input.form-control.mb-3(
+                        type="number"
+                        name="quantity"
+                        value="1"
+                        min="1"
+                        max=product.availableQuantity
+                    )
+
+                    button.btn.btn-primary(
+                        type="submit"
+                    ) Add To Cart

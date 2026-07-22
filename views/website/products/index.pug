@@ -1,0 +1,110 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5
+
+        .d-flex.justify-content-between.align-items-center.mb-4
+
+            h2.mb-0 Products
+
+            span.badge.bg-primary.fs-6
+                | #{products.length} Products
+
+        .row
+
+            each product in products
+
+                .col-lg-3.col-md-6.mb-4
+
+                    .card.h-100.shadow-sm.border-0
+
+                        img.card-img-top(
+                            src=product.files || '/dist/img/products/no-image.png'
+                            alt=product.itemName
+                            style="height:220px;object-fit:contain;padding:15px;background:#fff;"
+                        )
+
+                        .card-body.d-flex.flex-column
+
+                            h5.card-title.mb-2= product.itemName
+
+                            if product.itemModel
+                                p.text-muted.small.mb-2
+                                    | Model: #{product.itemModel}
+
+                            h4.text-primary.fw-bold.mb-3
+                                | ৳ #{product.itemPrice}
+
+                            .mt-auto
+
+                                a.btn.btn-outline-primary.w-100.mb-2(
+                                    href="/website/products/details/" + product.id
+                                )
+                                    i.bi.bi-eye.me-2
+                                    | View Details
+
+                                if Number(product.availableQuantity) > 0
+
+                                    form(
+                                        method="POST"
+                                        action="/website/cart/add"
+                                    )
+
+                                        input(
+                                            type="hidden"
+                                            name="id"
+                                            value=product.id
+                                        )
+
+                                        input(
+                                            type="hidden"
+                                            name="quantity"
+                                            value="1"
+                                        )
+
+                                        button.btn.btn-success.w-100(
+                                            type="submit"
+                                        )
+                                            i.bi.bi-cart-plus.me-2
+                                            | Add To Cart
+
+                                else
+
+                                    button.btn.bg-danger.btn-secondary.w-100(
+                                        disabled
+                                    )
+                                        | Out of Stock
+
+
+            if pagination && pagination.totalPages > 1
+
+                nav.mt-5
+            
+                    ul.pagination.justify-content-center
+            
+                        // Previous
+                        li.page-item(class=pagination.currentPage === 1 ? 'disabled' : '')
+            
+                            a.page-link(
+                                href=`/website/products?page=${pagination.currentPage - 1}&search=${filters.search || ''}&category=${filters.category || ''}`
+                            )
+                                | Previous
+            
+                        // Page Numbers
+                        each pageNum in [...Array(pagination.totalPages).keys()].map(i => i + 1)
+            
+                            li.page-item(class=pageNum === pagination.currentPage ? 'active' : '')
+            
+                                a.page-link(
+                                    href=`/website/products?page=${pageNum}&search=${filters.search || ''}&category=${filters.category || ''}`
+                                )
+                                    = pageNum
+            
+                        // Next
+                        li.page-item(class=pagination.currentPage === pagination.totalPages ? 'disabled' : '')
+            
+                            a.page-link(
+                                href=`/website/products?page=${pagination.currentPage + 1}&search=${filters.search || ''}&category=${filters.category || ''}`
+                            )
+                                | Next                                        

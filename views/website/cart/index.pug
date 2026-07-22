@@ -1,0 +1,124 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5
+
+        h2.mb-4 Shopping Cart
+
+        if products.length
+
+            .table-responsive
+
+                table.table.table-bordered.align-middle
+
+                    thead.table-light
+
+                        tr
+
+                            th Image
+                            th Product
+                            th Price
+                            th Qty
+                            th Subtotal
+                            th Action
+
+                    tbody
+
+                        each product in products
+
+                            tr
+
+                                td(style="width:120px")
+
+                                    img(
+                                        src=product.files
+                                        style="width:90px;height:90px;object-fit:contain;"
+                                    )
+
+                                td
+
+                                    strong= product.itemName
+
+                                    if product.itemModel
+
+                                        br
+
+                                        small.text-muted= product.itemModel
+
+                                td
+                                    | ৳ #{product.itemPrice}
+
+                                td
+
+                                    form(
+                                        method="POST"
+                                        action="/website/cart/update"
+                                    )
+                                
+                                        input(
+                                            type="hidden"
+                                            name="id"
+                                            value=product.id
+                                        )
+                                
+                                        input.form-control(
+                                            type="number"
+                                            name="quantity"
+                                            value=product.quantity
+                                            min="1"
+                                        )
+                                
+                                        button.btn.btn-sm.btn-primary.mt-2(
+                                            type="submit"
+                                        )
+                                            | Update
+
+                                td
+                                    | ৳ #{product.subtotal}
+
+                                td
+
+                                    form(
+                                        method="POST"
+                                        action="/website/cart/remove"
+                                    )
+
+                                        input(
+                                            type="hidden"
+                                            name="id"
+                                            value=product.id
+                                        )
+
+                                        button.btn.btn-danger.btn-sm
+                                            | Remove
+
+            .row.mt-4
+
+                .col-md-6
+
+                    a.btn.btn-outline-primary(
+                        href="/website/products"
+                    )
+                        | Continue Shopping
+
+                .col-md-6.text-end
+
+                    h3
+                        | Grand Total: ৳ #{grandTotal}
+
+                    a.btn.btn-success.mt-2(
+                        href="/website/checkout"
+                    )
+                        | Proceed to Checkout
+
+        else
+
+            .text-center.py-5
+
+                h3 Your cart is empty
+
+                a.btn.btn-primary.mt-3(
+                    href="/website/products"
+                )
+                    | Continue Shopping
