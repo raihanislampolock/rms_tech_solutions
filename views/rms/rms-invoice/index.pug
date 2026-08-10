@@ -798,6 +798,13 @@ block script
 
         const modal = $('#add-edit-invoice-modal');
 
+        $('#itemSelect').select2({
+            placeholder: 'Select an Item...',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#add-edit-invoice-modal')
+        });
+
         modal.on('shown.bs.modal', async function () {
         
             // Only reset when NOT editing and NOT loading from quotation
@@ -858,15 +865,27 @@ block script
         // ========================
         // ITEM SELECT CHANGE
         // ========================
-        itemSelect?.addEventListener('change', function () {
+        $('#itemSelect').on('change', function () {
+
             const opt = this.options[this.selectedIndex];
-
-            setValue(itemStock, opt.dataset.stock || '0');
-            setValue(unitPriceInput, num(opt.dataset.price).toFixed(2));
-
-            if (!quantity.value) quantity.value = '1';
-            if (!itemDiscountPercentInput.value) itemDiscountPercentInput.value = '0';
-
+        
+            if (!opt || !opt.value) {
+                itemStock.value = '';
+                unitPriceInput.value = '';
+                quantity.value = '1';
+                itemDiscountPercentInput.value = '0';
+                itemTotalInput.value = '0.00';
+                return;
+            }
+        
+            itemStock.value = opt.dataset.stock || 0;
+            unitPriceInput.value = Number(opt.dataset.price || 0).toFixed(2);
+        
+            if (!quantity.value) quantity.value = 1;
+            if (!itemDiscountPercentInput.value) {
+                itemDiscountPercentInput.value = 0;
+            }
+        
             calculateItemTotal();
         });
 
@@ -886,7 +905,7 @@ block script
             setValue(invoiceStatus, 'pending');
             setValue(notes);
 
-            setValue(itemSelect);
+            $('#itemSelect').val(null).trigger('change');
             setValue(itemStock);
             setValue(quantity, '1');
             setValue(unitPriceInput);
@@ -957,7 +976,7 @@ block script
             renderCart();
             calculateTotals();
 
-            setValue(itemSelect);
+            $('#itemSelect').val(null).trigger('change');
             setValue(itemStock);
             setValue(quantity, '1');
             setValue(unitPriceInput);

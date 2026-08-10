@@ -52,11 +52,20 @@ implements IWebsiteOrderRepository {
 
         try {
 
+            // Create customer if not exists
+            const customerId =
+                await this.createOrGetCustomer(
+                    runner.manager,
+                    customer
+                );
+
+            // Generate Order Number
             const orderNumber =
                 await this.generateOrderNumber(
                     runner.manager
                 );
 
+            // Calculate Grand Total
             let grandTotal = 0;
 
             for (const item of cart.items) {
@@ -67,6 +76,7 @@ implements IWebsiteOrderRepository {
 
             }
 
+            // Create Order
             const orderResult =
                 await runner.manager.query(
 
@@ -74,16 +84,28 @@ implements IWebsiteOrderRepository {
                     INSERT INTO website_order
                     (
 
+                        "customerId",
+
                         "orderNumber",
+
                         "customerName",
+
                         email,
+
                         phone,
+
                         company,
+
                         address,
+
                         city,
+
                         country,
+
                         notes,
+
                         "grandTotal",
+
                         status
 
                     )
@@ -91,7 +113,7 @@ implements IWebsiteOrderRepository {
                     VALUES
                     (
 
-                        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+                        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
 
                     )
 
@@ -99,6 +121,8 @@ implements IWebsiteOrderRepository {
                     `,
 
                     [
+
+                        customerId,
 
                         orderNumber,
 
@@ -129,6 +153,7 @@ implements IWebsiteOrderRepository {
             const orderId =
                 orderResult[0].id;
 
+            // Save Order Items
             for (const item of cart.items) {
 
                 await runner.manager.query(
@@ -418,6 +443,127 @@ implements IWebsiteOrderRepository {
             throw new Error("Failed to update Website Order.");
 
         }
+
+    }
+
+    private async createOrGetCustomer(
+        manager: any,
+        customer: any
+    ): Promise<number> {
+
+        // Check if customer already exists
+        const existing =
+            await manager.query(
+
+                `
+                SELECT id
+                FROM website_customers
+                WHERE
+                    LOWER(email) = LOWER($1)
+                    OR phone = $2
+                LIMIT 1
+                `,
+
+                [
+                    customer.email || null,
+                    customer.phone || null
+                ]
+
+            );
+
+        // If customer already exists
+        if (existing.length > 0) {
+
+            return existing[0].id;
+
+        }
+
+        // Generate Customer Code
+        const today = new Date();
+
+        const date =
+            today.getFullYear().toString() +
+            String(today.getMonth() + 1).padStart(2, "0") +
+            String(today.getDate()).padStart(2, "0");
+
+        const count =
+            await manager.query(
+
+                `
+                SELECT COUNT(*)::int AS total
+                FROM website_customers
+                WHERE DATE("createdAt") = CURRENT_DATE
+                `
+
+            );
+
+        const customerCode =
+            `CUS-${date}-${String(count[0].total + 1).padStart(5, "0")}`;
+
+        // Create new customer
+        const result =
+            await manager.query(
+
+                `
+                INSERT INTO website_customers
+                (
+
+                    "customerCode",
+
+                    "customerName",
+
+                    email,
+
+                    phone,
+
+                    company,
+
+                    address,
+
+                    city,
+
+                    country,
+
+                    status
+
+                )
+
+                VALUES
+                (
+
+                    $1,$2,$3,$4,$5,$6,$7,$8,$9
+
+                )
+
+                RETURNING id
+
+                `,
+
+                [
+
+                    customerCode,
+
+                    customer.customerName,
+
+                    customer.email || null,
+
+                    customer.phone || null,
+
+                    customer.company || null,
+
+                    customer.address || null,
+
+                    customer.city || null,
+
+                    customer.country || null,
+
+                    "Active"
+
+                ]
+
+            );
+
+        return result[0].id;
 
     }
 }

@@ -1,0 +1,130 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5
+
+        .row.justify-content-center
+
+            .col-lg-6
+
+                .card.shadow
+
+                    .card-header.bg-success.text-white
+
+                        h4.mb-0 Create Account
+
+                    .card-body
+
+                        form#registerForm
+
+                            .row
+
+                                .col-md-6.mb-3
+
+                                    label Full Name
+
+                                    input.form-control(
+                                        type="text"
+                                        id="customerName"
+                                        name="customerName"
+                                        required
+                                    )
+
+                                .col-md-6.mb-3
+
+                                    label Email
+
+                                    input.form-control(
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        required
+                                    )
+
+                            .row
+
+                                .col-md-6.mb-3
+
+                                    label Phone
+
+                                    input.form-control(
+                                        type="text"
+                                        id="phone"
+                                        name="phone"
+                                        required
+                                    )
+
+                                .col-md-6.mb-3
+
+                                    label Company
+
+                                    input.form-control(
+                                        type="text"
+                                        id="company"
+                                        name="company"
+                                    )
+
+                            .mb-3
+
+                                label Address
+
+                                textarea.form-control(
+                                    id="address"
+                                    name="address"
+                                    rows="2"
+                                )
+
+                            .row
+
+                                .col-md-6.mb-3
+
+                                    label City
+
+                                    input.form-control(
+                                        type="text"
+                                        id="city"
+                                        name="city"
+                                    )
+
+                                .col-md-6.mb-3
+
+                                    label Country
+
+                                    input.form-control(
+                                        type="text"
+                                        id="country"
+                                        name="country"
+                                        value="Bangladesh"
+                                    )
+
+                            .mb-3
+
+                                label Password
+
+                                input.form-control(
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    required
+                                )
+
+                            button.btn.btn-success.w-100(
+                                type="submit"
+                            )
+
+                                i.fa.fa-user-plus.mr-2
+
+                                | Create Account
+
+                        hr
+
+                        .text-center
+
+                            a(href="/website/login")
+
+                                | Already have an account? Login
+
+block scripts
+
+    script(src="/dist/js/website/auth/register.js")                                

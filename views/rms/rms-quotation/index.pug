@@ -842,27 +842,21 @@ block script
           loadQuotation(id);
         });
 
-        document.addEventListener('change', function (e) {
-            if (e.target.id !== 'termsConditionId') return;
+        $('#termsConditionId').on('change', function () {
 
-            console.log("Terms changed:", e.target.value); // 👈 CHECK IF CHANGE DETECTED
+            console.log("Terms changed:", this.value);
 
-            const selected = e.target.options[e.target.selectedIndex];
+            const selected = this.options[this.selectedIndex];
 
             if (!selected || !selected.value) {
                 return;
             }
 
-            // Optional live preview (if you added preview fields)
-            const previewTimeline = document.getElementById('previewTimeline');
-            const previewPayment = document.getElementById('previewPayment');
-            const previewWarranty = document.getElementById('previewWarranty');
-            const previewRemarks = document.getElementById('previewRemarks');
+            $('#previewTimeline').val(selected.dataset.timeline || '');
+            $('#previewPayment').val(selected.dataset.payment || '');
+            $('#previewWarranty').val(selected.dataset.warranty || '');
+            $('#previewRemarks').val(selected.dataset.remarks || '');
 
-            if (previewTimeline) previewTimeline.value = selected.dataset.timeline || '';
-            if (previewPayment) previewPayment.value = selected.dataset.payment || '';
-            if (previewWarranty) previewWarranty.value = selected.dataset.warranty || '';
-            if (previewRemarks) previewRemarks.value = selected.dataset.remarks || '';
         });
 
         // ========================

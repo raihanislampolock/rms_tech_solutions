@@ -1,0 +1,140 @@
+.modal.fade#customerModal(
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+)
+
+    .modal-dialog.modal-lg
+
+        .modal-content
+
+            .modal-header.bg-primary.text-white
+
+                h5.modal-title
+
+                    i.fa.fa-user.mr-2
+
+                    | Edit Website Customer
+
+                button.close(
+                    type="button"
+                    data-dismiss="modal"
+                )
+
+                    span &times;
+
+            .modal-body
+
+                input#customerId(type="hidden")
+
+                .row
+
+                    .col-md-6.mb-3
+
+                        label Customer Name
+
+                        input.form-control(
+                            type="text"
+                            id="customerName"
+                        )
+
+                    .col-md-6.mb-3
+
+                        label Customer Code
+
+                        input.form-control(
+                            type="text"
+                            id="customerCode"
+                            readonly
+                        )
+
+                .row
+
+                    .col-md-6.mb-3
+
+                        label Email
+
+                        input.form-control(
+                            type="email"
+                            id="email"
+                        )
+
+                    .col-md-6.mb-3
+
+                        label Phone
+
+                        input.form-control(
+                            type="text"
+                            id="phone"
+                        )
+
+                .row
+
+                    .col-md-6.mb-3
+
+                        label Company
+
+                        input.form-control(
+                            type="text"
+                            id="company"
+                        )
+
+                    .col-md-6.mb-3
+
+                        label City
+
+                        input.form-control(
+                            type="text"
+                            id="city"
+                        )
+
+                .row
+
+                    .col-md-12.mb-3
+
+                        label Address
+
+                        textarea.form-control(
+                            id="address"
+                            rows="3"
+                        )
+
+                .row
+
+                    .col-md-6.mb-3
+
+                        label Country
+
+                        input.form-control(
+                            type="text"
+                            id="country"
+                        )
+
+                    .col-md-6.mb-3
+
+                        label Status
+
+                        select.form-control#status
+
+                            option(value="Active") Active
+
+                            option(value="Inactive") Inactive
+
+            .modal-footer
+
+                button.btn.btn-secondary(
+                    type="button"
+                    data-dismiss="modal"
+                )
+
+                    i.fa.fa-times.mr-1
+
+                    | Close
+
+                button.btn.btn-primary#updateCustomer(
+                    type="button"
+                )
+
+                    i.fa.fa-save.mr-1
+
+                    | Update Customer

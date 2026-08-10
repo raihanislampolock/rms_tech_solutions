@@ -70,7 +70,7 @@
                 .col-md-3
                   .form-group
                     label Select Item
-                    select.form-control#itemSelect
+                    select.form-control#itemSelect.select2(style='width:100%')
                       option(value='' selected disabled) Select Item
                       if items && items.length > 0
                         each item in items
@@ -79,7 +79,7 @@
                             data-name=item.itemName,
                             data-stock=item.availableStock,
                             data-price=item.itemPrice
-                          ) #{item.itemName}
+                          ) #{item.itemName} - #{item.itemModel} - #{item.itemType}
 
                 .col-md-2
                   .form-group

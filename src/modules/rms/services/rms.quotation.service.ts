@@ -139,7 +139,8 @@ export class RmsQuotationService {
 
             // Load Images
             const headerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/header.png'));
-            const footerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/footer.png'));
+            // const footerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/footer.png'));
+            const footerImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/footer_my_number.png'));
             const signatureImage = await pdfDoc.embedPng(fs.readFileSync('src/public/dist/img/rms-sig.png'));
 
             // Page Constants
@@ -367,9 +368,11 @@ export class RmsQuotationService {
             yPosition -= 50;
             page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 40 });
             yPosition -= 15;
-            page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
+            // page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
+            page.drawText('Md. Raihan Ul Islam', { x: margin, y: yPosition, size: 10, font: fontBold });
             yPosition -= 12;
-            page.drawText('Technical Manager | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
+            // page.drawText('Technical Manager | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
+            page.drawText('CTO | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
 
             // ================= PAGE 2: ITEMS TABLE =================
             addNewPage(); // Forces items to start on Page 2
@@ -476,9 +479,11 @@ export class RmsQuotationService {
             yPosition -= 50;
             page.drawImage(signatureImage, { x: margin, y: yPosition, width: 100, height: 40 });
             yPosition -= 15;
-            page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
+            // page.drawText('Md. Masud Rana', { x: margin, y: yPosition, size: 10, font: fontBold });
+            page.drawText('Md. Raihan Ul Islam', { x: margin, y: yPosition, size: 10, font: fontBold });
             yPosition -= 12;
-            page.drawText('Technical Manager | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
+            // page.drawText('Technical Manager | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
+            page.drawText('CTO | RMS Tech Solutions', { x: margin, y: yPosition, size: 9, font });
 
             const pdfBytes = await pdfDoc.save();
             return { pdfBuffer: Buffer.from(pdfBytes), emailSent: false };

@@ -348,6 +348,40 @@ aside.main-sidebar
                     img(src='/dist/img/invocie.svg' style='width:12px; margin-right:8px;')
                     | Invoice Dashboard
 
+      - var userRole = (user.roleName || '').toLowerCase().trim()      
+      if userRole === 'superadmin'
+        li.treeview
+          a(href='#')
+            img(src='/dist/img/main-logo.svg' style='width:14px; margin-right:10px;')
+            span Website Management
+            span.pull-right-container
+              i.fa.fa-angle-left.pull-right
+          ul.treeview-menu
+            li.treeview
+              a(href='#')
+                img(src='/dist/img/items-logo.svg' style='width:14px; margin-right:8px;')
+                span Website Order Management
+                span.pull-right-container
+                  i.fa.fa-angle-left.pull-right
+              ul.treeview-menu
+                li
+                  a(href='/rms/website-orders')
+                    img(src='/dist/img/invocie.svg' style='width:12px; margin-right:8px;')
+                    | Order List Dashboard 
+
+            li.treeview
+              a(href='#')
+                img(src='/dist/img/items-logo.svg' style='width:14px; margin-right:8px;')
+                span Website Customer Management
+                span.pull-right-container
+                  i.fa.fa-angle-left.pull-right
+              ul.treeview-menu
+                li
+                  a(href='/rms/website.admin/customers')
+                    img(src='/dist/img/invocie.svg' style='width:12px; margin-right:8px;')
+                    | Customers Dashboard                    
+
+
 script.
   document.addEventListener("DOMContentLoaded", function() {
     // Force body to have collapse classes on page load

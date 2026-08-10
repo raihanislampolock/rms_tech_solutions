@@ -70,6 +70,12 @@ import { WebsiteCheckoutController } from "./modules/website/controllers/website
 import { WebsiteOrderService } from "./modules/website/services/website.order.service";
 import { WebsiteOrderRepository } from "./modules/website/repositories/website.order.repository";
 import { WebsiteOrderController } from "./modules/website/controllers/website.order.controller";
+import { WebsiteCustomerRepository } from "./modules/website/repositories/website.customer.repository";
+import { WebsiteCustomerService } from "./modules/website/services/website.customer.service";
+import { WebsiteCustomerController } from "./modules/website/controllers/website.customer.controller";
+import { WebsiteAuthService } from "./modules/website/services/website.auth.service";
+import { WebsiteAuthController } from "./modules/website/controllers/website.auth.controller";
+import { WebsiteAuthRepository } from "./modules/website/repositories/website.auth.repository";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -131,7 +137,8 @@ app.set("RmsItemStockRepository", new RmsItemStockRepository());
 app.set("RmsTermsAndConditionsRepository", new RmsTermsAndConditionsRepository());
 app.set("WebsiteProductRepository", new WebsiteProductRepository());
 app.set("WebsiteOrderRepository", new WebsiteOrderRepository());
-
+app.set("WebsiteCustomerRepository", new WebsiteCustomerRepository());
+app.set("WebsiteAuthRepository", new WebsiteAuthRepository());
 
 app.set("SignUpService", new SignUpService(app.get("UserRepository"), AppDataSource));
 app.set("LoginService", new LoginService(app.get("UserRepository")));
@@ -150,6 +157,8 @@ app.set("WebsiteService", new WebsiteService());
 app.set("WebsiteProductService", new WebsiteProductService( app.get("WebsiteProductRepository")));
 app.set("WebsiteCartService", new WebsiteCartService());
 app.set("WebsiteOrderService", new WebsiteOrderService(app.get("WebsiteOrderRepository")));
+app.set("WebsiteCustomerService", new WebsiteCustomerService());
+app.set("WebsiteAuthService", new WebsiteAuthService());
 
 
 // Initialize and set the mailer to use
@@ -173,6 +182,8 @@ app.registerController(new WebsiteController());
 app.registerController(new WebsiteCartController());
 app.registerController(new WebsiteCheckoutController());
 app.registerController(new WebsiteOrderController());
+app.registerController(new WebsiteCustomerController());
+app.registerController(new WebsiteAuthController());
 
 // Finally setup the cron jobs
 // cron.schedule("* * * * *", async () => {

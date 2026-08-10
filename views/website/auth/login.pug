@@ -1,0 +1,62 @@
+extends ../layouts/main
+
+block content
+
+    .container.py-5
+
+        .row.justify-content-center
+
+            .col-lg-5.col-md-7
+
+                .card.shadow
+
+                    .card-header.bg-primary.text-white
+
+                        h4.mb-0 Customer Login
+
+                    .card-body
+
+                        form#loginForm
+
+                            .form-group.mb-3
+
+                                label Email
+
+                                input.form-control(
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    required
+                                )
+
+                            .form-group.mb-3
+
+                                label Password
+
+                                input.form-control(
+                                    type="password"
+                                    name="password"
+                                    id="password"
+                                    required
+                                )
+
+                            button.btn.btn-primary.w-100(
+                                type="submit"
+                            )
+                                i.fa.fa-sign-in-alt.mr-1
+                                | Login
+
+                        hr
+
+                        p.text-center.mb-0
+
+                            | Don't have an account?
+
+                            a.ml-1(
+                                href="/website/register"
+                            )
+                                | Register
+
+block scripts
+
+    script(src="/dist/js/website/auth/login.js")

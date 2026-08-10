@@ -15,6 +15,9 @@ export class WebsiteOrder {
     @Column({ length: 50, unique: true })
     orderNumber!: string;
 
+    @Column({ nullable: true })
+    customerId!: number;
+
     @Column({length: 200})
     customerName!: string;
 
