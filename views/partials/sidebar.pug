@@ -282,6 +282,47 @@ aside.main-sidebar
             style='width: 18px; height: 18px; margin-right: 10px; vertical-align: middle;'
           )
           span Dashboard
+
+      //- ============================================================
+      //- RMS MEDIA
+      //- ============================================================
+      li.treeview(class=(activeMenu === 'rms-media' ? 'active menu-open' : ''))
+        a(href='#')
+          i.fa.fa-headphones(style='width: 18px; margin-right: 10px;')
+          span RMS Media
+          span.pull-right-container
+            i.fa.fa-angle-left.pull-right
+      
+        ul.treeview-menu
+          li(class=(activeMenu === 'rms-media-home' ? 'active' : ''))
+            a(href='/rms-media')
+              i.fa.fa-home(style='width: 14px; margin-right: 8px;')
+              | Media Home
+      
+          li(class=(activeMenu === 'rms-media-music' ? 'active' : ''))
+            a(href='/rms-media/music')
+              i.fa.fa-music(style='width: 14px; margin-right: 8px;')
+              | Music Library
+      
+          li(class=(activeMenu === 'rms-media-videos' ? 'active' : ''))
+            a(href='/rms-media/videos')
+              i.fa.fa-video-camera(style='width: 14px; margin-right: 8px;')
+              | Video Library
+      
+          li(class=(activeMenu === 'rms-media-youtube' ? 'active' : ''))
+            a(href='/rms-media/youtube')
+              i.fa.fa-youtube-play(style='width: 14px; margin-right: 8px;')
+              | YouTube
+      
+          li(class=(activeMenu === 'rms-media-playlists' ? 'active' : ''))
+            a(href='/rms-media/playlists')
+              i.fa.fa-list(style='width: 14px; margin-right: 8px;')
+              | Playlists
+      
+          li(class=(activeMenu === 'rms-media-downloads' ? 'active' : ''))
+            a(href='/rms-media/downloads')
+              i.fa.fa-download(style='width: 14px; margin-right: 8px;')
+              | Downloads    
           
       - var userRole = (user.roleName || '').toLowerCase().trim()      
       if userRole === 'superadmin'

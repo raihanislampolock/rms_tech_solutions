@@ -24,6 +24,7 @@ import { WebsiteProductModel } from "./modules/website/models/website.product.mo
 import { WebsiteOrder } from "./modules/website/models/website_order";
 import { WebsiteOrderItem } from "./modules/website/models/website_order_items";
 import { WebsiteCustomer } from "./modules/website/models/website.customer.model";
+import { RmsMediaModel } from "./modules/rms-media/models/RmsMediaModel";
 
 
 const APP_CONFIG: Config = new Config(JSON.parse(fs.readFileSync("config.json").toString()));
@@ -39,7 +40,7 @@ export const AppDataSource = new DataSource({
     entities: [UserModel, RoleModel, ProviderModel, PermissionModel, EmailConfigModel, RmsItemsModel, RmsItemStockModel, RmsPurchaseModel,
                 RmsPurchaseItemModel, RmsStockTransactionModel, RmsQuotationModel, RmsQuotationItemModel, RmsStockMovementModel, RmsChallanModel,
                 RmsChallanItemModel, RmsInvoiceModel, RmsInvoiceItemModel, RmsTermsAndConditionsModel, WebsiteProductModel, WebsiteOrder, WebsiteOrderItem
-                , WebsiteCustomer],
+                , WebsiteCustomer, RmsMediaModel],
     synchronize: true, // Automatically sync entity schema (disable in production)
     logging: false,
 });

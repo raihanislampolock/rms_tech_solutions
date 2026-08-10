@@ -76,6 +76,7 @@ import { WebsiteCustomerController } from "./modules/website/controllers/website
 import { WebsiteAuthService } from "./modules/website/services/website.auth.service";
 import { WebsiteAuthController } from "./modules/website/controllers/website.auth.controller";
 import { WebsiteAuthRepository } from "./modules/website/repositories/website.auth.repository";
+import { RmsMediaController } from "./modules/rms-media/controllers/RmsMediaController";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -184,6 +185,7 @@ app.registerController(new WebsiteCheckoutController());
 app.registerController(new WebsiteOrderController());
 app.registerController(new WebsiteCustomerController());
 app.registerController(new WebsiteAuthController());
+app.registerController(new RmsMediaController());
 
 // Finally setup the cron jobs
 // cron.schedule("* * * * *", async () => {
