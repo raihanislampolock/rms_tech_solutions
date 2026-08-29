@@ -1,21 +1,6 @@
 //- Dashboard Selector Component
-//- This allows users to switch between different dashboard views
+//- Renders switcher chips for every dashboard the current role can access.
+//- To support more dashboards later, extend the mapping below.
 mixin dashboardSelector(userRole)
-  - var userRole = (userRole || '').toLowerCase().trim()
-  - var availableDashboards = []
-  
-  //- Determine available dashboards based on role
-  if userRole === 'superadmin'
-    - availableDashboards = ['admin']
-  else if ['admin'].includes(userRole)
-    - availableDashboards = ['admin']
-
-  else
-    - availableDashboards = ['admin']
-          
-          a.btn.btn-sm.btn-default(href=`/dashboard/${dashboard === 'admin' ? '' : dashboard}`, class=isActive, style='text-decoration: none;')
-            i.fa(class=dashboardIcon)
-            |  #{dashboardName} Dashboard
-
-
+  - var dashboards = [{ key: 'admin', name: 'SuperAdmin', icon: 'fa-tachometer', path: '/dashboard' }]
 

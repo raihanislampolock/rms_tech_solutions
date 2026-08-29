@@ -2,438 +2,798 @@ extends ../layouts/rms-media
 
 block content
 
-    .rms-media-app
 
-        // =========================================================
-        // TOP BAR
-        // =========================================================
-        header.rms-media-topbar
+    // =========================================================
+    // TOP BAR
+    // =========================================================
 
-            .rms-media-brand
-                .brand-icon
-                    i.fas.fa-play
-                .brand-text
-                    span RMS
-                    strong MEDIA
+    header.rms-media-topbar
 
-            .rms-media-search
-                i.fas.fa-search
-                input#mediaSearch(
-                    type="text"
-                    placeholder="Search music, videos, playlists..."
-                    autocomplete="off"
+        .rms-media-brand
+
+            .brand-icon
+                i.fas.fa-play
+
+            .brand-text
+                span RMS
+                strong MEDIA
+
+
+        .rms-media-search
+
+            i.fas.fa-search
+
+            input#mediaSearch(
+                type="text"
+                placeholder="Search music, videos, playlists..."
+                autocomplete="off"
+            )
+
+
+        .rms-media-top-actions
+
+            button.media-icon-btn(
+                type="button"
+                title="Notifications"
+            )
+                i.far.fa-bell
+
+            button.media-icon-btn(
+                type="button"
+                title="Settings"
+            )
+                i.fas.fa-cog
+
+
+    // =========================================================
+    // MAIN AREA
+    // =========================================================
+
+    .rms-media-layout
+
+        // =====================================================
+        // SIDEBAR
+        // =====================================================
+
+        aside.rms-media-sidebar
+
+            nav.media-navigation
+
+                a.media-nav-item.active(
+                    href="/rms-media"
                 )
+                    i.fas.fa-home
+                    span Home
 
-            .rms-media-top-actions
-                button.media-icon-btn(
+
+                a.media-nav-item(
+                    href="/rms-media/music"
+                )
+                    i.fas.fa-music
+                    span Music
+
+
+                a.media-nav-item(
+                    href="/rms-media/videos"
+                )
+                    i.fas.fa-video
+                    span Videos
+
+
+                a.media-nav-item(
+                    href="/rms-media/youtube"
+                )
+                    i.fab.fa-youtube
+                    span YouTube
+
+
+                a.media-nav-item(
+                    href="#"
+                    id="localMediaBtn"
+                )
+                    i.fas.fa-folder-open
+                    span My Media
+
+
+                a.media-nav-item(
+                    href="/rms-media/playlists"
+                )
+                    i.fas.fa-list
+                    span Playlists
+
+
+                a.media-nav-item(
+                    href="/rms-media/downloads"
+                )
+                    i.fas.fa-download
+                    span Downloads
+
+
+            .sidebar-divider
+
+
+            .sidebar-section-title
+
+                span YOUR PLAYLISTS
+
+                button#addPlaylistBtn.sidebar-add-btn(
                     type="button"
-                    title="Notifications"
+                    title="Create playlist"
                 )
-                    i.far.fa-bell
-
-                button.media-icon-btn(
-                    type="button"
-                    title="Settings"
-                )
-                    i.fas.fa-cog
+                    i.fas.fa-plus
 
 
-        // =========================================================
-        // MAIN AREA
-        // =========================================================
-        .rms-media-layout
+            .media-playlists
 
-            // =====================================================
-            // SIDEBAR
-            // =====================================================
-            aside.rms-media-sidebar
+                a.playlist-item(href="#")
+                    span.playlist-dot
+                    span My Favorites
 
-                nav.media-navigation
+                a.playlist-item(href="#")
+                    span.playlist-dot
+                    span Workout
 
-                    a.media-nav-item.active(
-                        href="/rms-media"
-                    )
-                        i.fas.fa-home
-                        span Home
+                a.playlist-item(href="#")
+                    span.playlist-dot
+                    span Relax
 
-                    a.media-nav-item(
-                        href="/rms-media/music"
-                    )
-                        i.fas.fa-music
-                        span Music
-
-                    a.media-nav-item(
-                        href="/rms-media/videos"
-                    )
-                        i.fas.fa-video
-                        span Videos
-
-                    a.media-nav-item(
-                        href="/rms-media/youtube"
-                    )
-                        i.fab.fa-youtube
-                        span YouTube
-
-                    a.media-nav-item(
-                        href="#"
-                        id="localMediaBtn"
-                    )
-                        i.fas.fa-folder-open
-                        span My Media
-
-                    a.media-nav-item(
-                        href="/rms-media/playlists"
-                    )
-                        i.fas.fa-list
-                        span Playlists
-
-                    a.media-nav-item(
-                        href="/rms-media/downloads"
-                    )
-                        i.fas.fa-download
-                        span Downloads
+                a.playlist-item(href="#")
+                    span.playlist-dot
+                    span Recently Added
 
 
-                .sidebar-divider
+            .sidebar-bottom
+
+                .media-storage
+
+                    .storage-header
+                        span Storage
+                        span#storagePercent 0%
+
+                    .storage-progress
+
+                        .storage-progress-bar(
+                            id="storageProgress"
+                            style="width: 0%"
+                        )
+
+                    small Local media storage
 
 
-                .sidebar-section-title
-                    span YOUR PLAYLISTS
-                    button#addPlaylistBtn.sidebar-add-btn(
+        // =====================================================
+        // CONTENT
+        // =====================================================
+
+        main.rms-media-content
+
+            // ================================================
+            // NOW PLAYING
+            // ================================================
+
+            section.now-playing-section
+
+                .section-heading
+
+                    div
+                        span.section-eyebrow NOW PLAYING
+                        h1#nowPlayingTitle Nothing Playing
+
+                    button.media-more-btn(
                         type="button"
-                        title="Create playlist"
+                        title="More options"
                     )
-                        i.fas.fa-plus
+                        i.fas.fa-ellipsis-h
 
 
-                .media-playlists
+                // ============================================
+                // PLAYER
+                // ============================================
 
-                    a.playlist-item(href="#")
-                        span.playlist-dot
-                        span My Favorites
+                .player-area
 
-                    a.playlist-item(href="#")
-                        span.playlist-dot
-                        span Workout
+                    // ========================================
+                    // ARTWORK
+                    // ========================================
 
-                    a.playlist-item(href="#")
-                        span.playlist-dot
-                        span Relax
+                    .media-artwork-wrapper
 
-                    a.playlist-item(href="#")
-                        span.playlist-dot
-                        span Recently Added
+                        .media-artwork#mediaArtwork
+
+                            .artwork-background
+
+                            .artwork-content#artworkContent
+
+                                i.fas.fa-music#artworkIcon
 
 
-                .sidebar-bottom
-
-                    .media-storage
-                        .storage-header
-                            span Storage
-                            span#storagePercent 0%
-
-                        .storage-progress
-                            .storage-progress-bar(
-                                id="storageProgress"
-                                style="width: 0%"
+                            video#mediaVideo.media-video(
+                                controls
+                                preload="metadata"
+                                playsinline
                             )
 
-                        small Local media storage
+
+                            audio#mediaAudio(
+                                preload="metadata"
+                            )
 
 
-            // =====================================================
-            // CONTENT
-            // =====================================================
-            main.rms-media-content
+                            .artwork-play-overlay
 
-                // ================================================
-                // NOW PLAYING
-                // ================================================
-                section.now-playing-section
-
-                    .section-heading
-                        div
-                            span.section-eyebrow NOW PLAYING
-                            h1#nowPlayingTitle Nothing Playing
-
-                        button.media-more-btn(
-                            type="button"
-                            title="More options"
-                        )
-                            i.fas.fa-ellipsis-h
-
-
-                    .player-area
-
-                        // ========================================
-                        // ARTWORK
-                        // ========================================
-                        .media-artwork-wrapper
-
-                            .media-artwork#mediaArtwork
-
-                                .artwork-background
-                            
-                                .artwork-content#artworkContent
-                                    i.fas.fa-music#artworkIcon
-                            
-                                video#mediaVideo.media-video(
-                                    controls
-                                    preload="metadata"
-                                    playsinline
-                                )
-                            
-                                audio#mediaAudio(
-                                    preload="metadata"
-                                )
-                            
-                                .artwork-play-overlay
-                                    button#artworkPlayBtn(
-                                        type="button"
-                                        title="Play"
-                                    )
-                                        i.fas.fa-play
-
-
-
-
-                        // ========================================
-                        // PLAYER INFORMATION
-                        // ========================================
-                        .player-information
-
-                            .playing-label
-                                span#mediaTypeLabel MUSIC
-
-                            h2#currentMediaName No media selected
-
-                            p#currentMediaArtist Select a song or video to begin
-
-                            .player-progress-area
-
-                                .progress-time
-                                    span#currentTime 00:00
-                                    span#totalTime 00:00
-
-                                input#mediaProgress(
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value="0"
-                                    step="0.1"
-                                )
-
-
-                            .player-controls
-
-                                button.player-control-btn(
-                                    id="shuffleBtn"
-                                    type="button"
-                                    title="Shuffle"
-                                )
-                                    i.fas.fa-random
-
-                                button.player-control-btn(
-                                    id="previousBtn"
-                                    type="button"
-                                    title="Previous"
-                                )
-                                    i.fas.fa-step-backward
-
-                                button.player-main-btn(
-                                    id="playPauseBtn"
+                                button#artworkPlayBtn(
                                     type="button"
                                     title="Play"
                                 )
-                                    i.fas.fa-play#playPauseIcon
+                                    i.fas.fa-play
 
-                                button.player-control-btn(
-                                    id="nextBtn"
+
+                    // ========================================
+                    // PLAYER INFORMATION
+                    // ========================================
+
+                    .player-information
+
+                        .playing-label
+                            span#mediaTypeLabel MUSIC
+
+
+                        h2#currentMediaName No media selected
+
+
+                        p#currentMediaArtist Select a song or video to begin
+
+
+                        // ====================================
+                        // PROGRESS
+                        // ====================================
+
+                        .player-progress-area
+
+                            .progress-time
+
+                                span#currentTime 00:00
+                                span#totalTime 00:00
+
+
+                            input#mediaProgress(
+                                type="range"
+                                min="0"
+                                max="100"
+                                value="0"
+                                step="0.1"
+                            )
+
+
+                        // ====================================
+                        // MAIN PLAYER CONTROLS
+                        // ====================================
+
+                        .player-controls
+
+                            button.player-control-btn(
+                                id="shuffleBtn"
+                                type="button"
+                                title="Shuffle"
+                            )
+                                i.fas.fa-random
+
+
+                            button.player-control-btn(
+                                id="previousBtn"
+                                type="button"
+                                title="Previous"
+                            )
+                                i.fas.fa-step-backward
+
+
+                            button.player-main-btn(
+                                id="playPauseBtn"
+                                type="button"
+                                title="Play"
+                            )
+                                i.fas.fa-play#playPauseIcon
+
+
+                            button.player-control-btn(
+                                id="nextBtn"
+                                type="button"
+                                title="Next"
+                            )
+                                i.fas.fa-step-forward
+
+
+                            button.player-control-btn(
+                                id="repeatBtn"
+                                type="button"
+                                title="Repeat"
+                            )
+                                i.fas.fa-redo
+
+
+                        // ====================================
+                        // VOLUME
+                        // ====================================
+
+                        .player-volume
+
+                            i.fas.fa-volume-down
+
+                            input#volumeControl(
+                                type="range"
+                                min="0"
+                                max="100"
+                                value="80"
+                            )
+
+                            i.fas.fa-volume-up
+
+
+                        // ====================================
+                        // EQUALIZER
+                        // ====================================
+
+                        #rmsEqualizerContainer.rms-equalizer-card.player-equalizer
+
+                            .equalizer-header
+
+                                div
+                                    span.equalizer-eyebrow AUDIO
+                                    strong Equalizer
+
+                                button#equalizerToggleBtn.equalizer-toggle-btn(
                                     type="button"
-                                    title="Next"
+                                    title="Enable / Disable Equalizer"
                                 )
-                                    i.fas.fa-step-forward
-
-                                button.player-control-btn(
-                                    id="repeatBtn"
-                                    type="button"
-                                    title="Repeat"
-                                )
-                                    i.fas.fa-redo
+                                    i.fas.fa-power-off
 
 
-                            .player-volume
+                            .equalizer-content
 
-                                i.fas.fa-volume-down
+                                // --------------------------------
+                                // PRESETS
+                                // --------------------------------
 
-                                input#volumeControl(
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value="80"
-                                )
+                                .equalizer-preset-row
 
-                                i.fas.fa-volume-up
-
-
-                // ================================================
-                // QUICK ACCESS
-                // ================================================
-                section.quick-access-section
-
-                    .section-heading
-                        div
-                            span.section-eyebrow BROWSE
-                            h2 Quick Access
+                                    label(
+                                        for="equalizerPreset"
+                                    )
+                                        i.fas.fa-sliders-h
+                                        span Preset
 
 
-                    .quick-access-grid
+                                    select#equalizerPreset(
+                                        title="Equalizer Preset"
+                                    )
 
-                        button.quick-card(
-                            type="button"
-                            data-media-type="music"
-                        )
-                            .quick-card-icon
-                                i.fas.fa-music
-                            .quick-card-info
-                                strong Music
-                                span Play your music collection
-                            i.fas.fa-chevron-right
+                                        option(
+                                            value="flat"
+                                            selected
+                                        ) Flat
 
+                                        option(
+                                            value="classical"
+                                        ) Classical
 
-                        button.quick-card(
-                            type="button"
-                            data-media-type="video"
-                        )
-                            .quick-card-icon
-                                i.fas.fa-film
-                            .quick-card-info
-                                strong Videos
-                                span Watch your local videos
-                            i.fas.fa-chevron-right
+                                        option(
+                                            value="club"
+                                        ) Club
 
+                                        option(
+                                            value="dance"
+                                        ) Dance
 
-                        button.quick-card(
-                            type="button"
-                            data-media-type="youtube"
-                        )
-                            .quick-card-icon.youtube-icon
-                                i.fab.fa-youtube
-                            .quick-card-info
-                                strong YouTube
-                                span Watch online videos
-                            i.fas.fa-chevron-right
+                                        option(
+                                            value="bass"
+                                        ) Bass Boost
 
+                                        option(
+                                            value="treble"
+                                        ) Treble Boost
 
-                        button.quick-card(
-                            type="button"
-                            data-media-type="local"
-                        )
-                            .quick-card-icon
-                                i.fas.fa-folder-open
-                            .quick-card-info
-                                strong Local Media
-                                span Browse your PC media
-                            i.fas.fa-chevron-right
+                                        option(
+                                            value="vocal"
+                                        ) Vocal
+
+                                        option(
+                                            value="rock"
+                                        ) Rock
+
+                                        option(
+                                            value="pop"
+                                        ) Pop
+
+                                        option(
+                                            value="jazz"
+                                        ) Jazz
 
 
-                // ================================================
-                // QUEUE
-                // ================================================
-                section.queue-section
+                                // --------------------------------
+                                // FREQUENCY BANDS
+                                // --------------------------------
 
-                    .section-heading
+                                .equalizer-bands
 
-                        div
-                            span.section-eyebrow UP NEXT
-                            h2 Play Queue
+                                    .equalizer-band
 
-                        button#clearQueueBtn.queue-clear-btn(
-                            type="button"
-                        )
-                            i.fas.fa-trash-alt
-                            span Clear
+                                        span.equalizer-frequency 60
 
+                                        input.equalizer-slider(
+                                            id="eq60"
+                                            data-frequency="60"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
 
-                    .queue-list#queueList
-
-                        .empty-queue
-                            .empty-queue-icon
-                                i.fas.fa-headphones
-
-                            strong Your queue is empty
-
-                            span Add music or videos to start playing
+                                        span.equalizer-value#eq60Value 0 dB
 
 
-        // =========================================================
-        // BOTTOM PLAYER BAR
-        // =========================================================
-        footer.rms-mini-player
+                                    .equalizer-band
 
-            .mini-player-info
+                                        span.equalizer-frequency 170
 
-                .mini-artwork
-                    i.fas.fa-music#miniArtworkIcon
+                                        input.equalizer-slider(
+                                            id="eq170"
+                                            data-frequency="170"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
 
-                .mini-track-info
-                    strong#miniTrackName Nothing Playing
-                    span#miniTrackArtist RMS Media Player
-
-
-            .mini-player-controls
-
-                button(
-                    id="miniPreviousBtn"
-                    type="button"
-                    title="Previous"
-                )
-                    i.fas.fa-step-backward
-
-                button.mini-play-btn(
-                    id="miniPlayPauseBtn"
-                    type="button"
-                    title="Play"
-                )
-                    i.fas.fa-play#miniPlayIcon
-
-                button(
-                    id="miniNextBtn"
-                    type="button"
-                    title="Next"
-                )
-                    i.fas.fa-step-forward
+                                        span.equalizer-value#eq170Value 0 dB
 
 
-            .mini-player-right
+                                    .equalizer-band
 
-                button(
-                    id="miniMuteBtn"
-                    type="button"
-                    title="Mute"
-                )
-                    i.fas.fa-volume-up#miniVolumeIcon
+                                        span.equalizer-frequency 310
 
-                input#miniVolume(
-                    type="range"
-                    min="0"
-                    max="100"
-                    value="80"
-                )
+                                        input.equalizer-slider(
+                                            id="eq310"
+                                            data-frequency="310"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
 
-                button(
-                    id="fullscreenBtn"
-                    type="button"
-                    title="Fullscreen"
-                )
-                    i.fas.fa-expand
+                                        span.equalizer-value#eq310Value 0 dB
 
 
-    // Hidden local file selector
+                                    .equalizer-band
+
+                                        span.equalizer-frequency 600
+
+                                        input.equalizer-slider(
+                                            id="eq600"
+                                            data-frequency="600"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
+
+                                        span.equalizer-value#eq600Value 0 dB
+
+
+                                    .equalizer-band
+
+                                        span.equalizer-frequency 1K
+
+                                        input.equalizer-slider(
+                                            id="eq1000"
+                                            data-frequency="1000"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
+
+                                        span.equalizer-value#eq1000Value 0 dB
+
+
+                                    .equalizer-band
+
+                                        span.equalizer-frequency 3K
+
+                                        input.equalizer-slider(
+                                            id="eq3000"
+                                            data-frequency="3000"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
+
+                                        span.equalizer-value#eq3000Value 0 dB
+
+
+                                    .equalizer-band
+
+                                        span.equalizer-frequency 6K
+
+                                        input.equalizer-slider(
+                                            id="eq6000"
+                                            data-frequency="6000"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
+
+                                        span.equalizer-value#eq6000Value 0 dB
+
+
+                                    .equalizer-band
+
+                                        span.equalizer-frequency 12K
+
+                                        input.equalizer-slider(
+                                            id="eq12000"
+                                            data-frequency="12000"
+                                            type="range"
+                                            min="-12"
+                                            max="12"
+                                            value="0"
+                                            step="1"
+                                            orient="vertical"
+                                        )
+
+                                        span.equalizer-value#eq12000Value 0 dB
+
+
+                                // --------------------------------
+                                // EXTRA AUDIO CONTROLS
+                                // --------------------------------
+
+                                .equalizer-options
+
+                                    label.equalizer-option
+
+                                        input#equalizerNormalize(
+                                            type="checkbox"
+                                        )
+
+                                        span Normalize
+
+
+                                    label.equalizer-option
+
+                                        input#equalizerBass(
+                                            type="checkbox"
+                                        )
+
+                                        span Bass Boost
+
+
+                                    label.equalizer-option
+
+                                        input#equalizerSpatial(
+                                            type="checkbox"
+                                        )
+
+                                        span Spatial
+
+
+                                    button#equalizerResetBtn.equalizer-reset-btn(
+                                        type="button"
+                                        title="Reset Equalizer"
+                                    )
+                                        i.fas.fa-undo
+                                        span Reset
+
+
+
+            // ================================================
+            // QUICK ACCESS
+            // ================================================
+
+            section.quick-access-section
+
+                .section-heading
+
+                    div
+                        span.section-eyebrow BROWSE
+                        h2 Quick Access
+
+
+                .quick-access-grid
+
+                    button.quick-card(
+                        type="button"
+                        data-media-type="music"
+                    )
+
+                        .quick-card-icon
+                            i.fas.fa-music
+
+                        .quick-card-info
+
+                            strong Music
+                            span Play your music collection
+
+                        i.fas.fa-chevron-right
+
+
+                    button.quick-card(
+                        type="button"
+                        data-media-type="video"
+                    )
+
+                        .quick-card-icon
+                            i.fas.fa-film
+
+                        .quick-card-info
+
+                            strong Videos
+                            span Watch your local videos
+
+                        i.fas.fa-chevron-right
+
+
+                    button.quick-card(
+                        type="button"
+                        data-media-type="youtube"
+                    )
+
+                        .quick-card-icon.youtube-icon
+                            i.fab.fa-youtube
+
+                        .quick-card-info
+
+                            strong YouTube
+                            span Watch online videos
+
+                        i.fas.fa-chevron-right
+
+
+                    button.quick-card(
+                        type="button"
+                        data-media-type="local"
+                    )
+
+                        .quick-card-icon
+                            i.fas.fa-folder-open
+
+                        .quick-card-info
+
+                            strong Local Media
+                            span Browse your PC media
+
+                        i.fas.fa-chevron-right
+
+
+
+            // ================================================
+            // QUEUE
+            // ================================================
+
+            section.queue-section
+
+                .section-heading
+
+                    div
+                        span.section-eyebrow UP NEXT
+                        h2 Play Queue
+
+
+                    button#clearQueueBtn.queue-clear-btn(
+                        type="button"
+                    )
+                        i.fas.fa-trash-alt
+                        span Clear
+
+
+                .queue-list#queueList
+
+                    .empty-queue
+
+                        .empty-queue-icon
+                            i.fas.fa-headphones
+
+                        strong Your queue is empty
+
+                        span Add music or videos to start playing
+
+
+
+    // =========================================================
+    // BOTTOM PLAYER BAR
+    // =========================================================
+
+    footer.rms-mini-player
+
+        .mini-player-info
+
+            .mini-artwork
+                i.fas.fa-music#miniArtworkIcon
+
+
+            .mini-track-info
+
+                strong#miniTrackName Nothing Playing
+                span#miniTrackArtist RMS Media Player
+
+
+        .mini-player-controls
+
+            button(
+                id="miniPreviousBtn"
+                type="button"
+                title="Previous"
+            )
+                i.fas.fa-step-backward
+
+
+            button.mini-play-btn(
+                id="miniPlayPauseBtn"
+                type="button"
+                title="Play"
+            )
+                i.fas.fa-play#miniPlayIcon
+
+
+            button(
+                id="miniNextBtn"
+                type="button"
+                title="Next"
+            )
+                i.fas.fa-step-forward
+
+
+        .mini-player-right
+
+            button(
+                id="miniMuteBtn"
+                type="button"
+                title="Mute"
+            )
+                i.fas.fa-volume-up#miniVolumeIcon
+
+
+            input#miniVolume(
+                type="range"
+                min="0"
+                max="100"
+                value="80"
+            )
+
+
+            button(
+                id="fullscreenBtn"
+                type="button"
+                title="Fullscreen"
+            )
+                i.fas.fa-expand
+
+
+
+    // =========================================================
+    // HIDDEN LOCAL FILE SELECTOR
+    // =========================================================
+    
     input#localMediaInput(
         type="file"
         accept="audio/*,video/*"
         multiple
         hidden
     )
+
+    script(src="/js/rms-media-equalizer.js")
 

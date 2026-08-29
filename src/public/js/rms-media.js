@@ -160,6 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const mediaTypeLabel =
         document.getElementById("mediaTypeLabel");
+        
 
 
     // ============================================================
@@ -1971,6 +1972,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         );
     }
+    
 
 
     // ============================================================

@@ -1,0 +1,254 @@
+extends ../layouts/main
+
+block content
+
+    .rms-media-app
+
+        // =====================================================
+        // TOP BAR
+        // =====================================================
+
+        .rms-media-topbar
+
+            .rms-media-brand
+                .brand-icon
+                    i.fas.fa-play
+
+                .brand-text
+                    span RMS
+                    strong MEDIA
+
+            form#youtubeSearchForm.rms-media-search
+
+                i.fas.fa-search
+
+                input#youtubeSearchInput(
+                    type="text"
+                    placeholder="Search YouTube..."
+                    autocomplete="off"
+                )
+
+                button#youtubeSearchBtn.media-icon-btn(
+                    type="submit"
+                    title="Search"
+                )
+                    i.fas.fa-arrow-right
+
+
+        // =====================================================
+        // LAYOUT
+        // =====================================================
+
+        .rms-media-layout
+
+            // =================================================
+            // SIDEBAR
+            // =================================================
+
+            aside.rms-media-sidebar
+
+                nav.media-navigation
+
+                    a.media-nav-item(
+                        href="/rms-media"
+                    )
+                        i.fas.fa-home
+                        span Home
+
+                    a.media-nav-item(
+                        href="/rms-media/music"
+                    )
+                        i.fas.fa-music
+                        span Music
+
+                    a.media-nav-item(
+                        href="/rms-media/videos"
+                    )
+                        i.fas.fa-video
+                        span Videos
+
+                    a.media-nav-item.active(
+                        href="/rms-media/youtube"
+                    )
+                        i.fab.fa-youtube
+                        span YouTube
+
+                    a.media-nav-item(
+                        href="/rms-media/playlists"
+                    )
+                        i.fas.fa-list
+                        span Playlists
+
+                    a.media-nav-item(
+                        href="/rms-media/downloads"
+                    )
+                        i.fas.fa-download
+                        span Downloads
+
+
+                .sidebar-divider
+
+
+                .sidebar-bottom
+
+                    .media-storage
+
+                        .storage-header
+                            span Media Storage
+                            strong#mediaStoragePercent 0%
+
+                        .storage-progress
+                            .storage-progress-bar(
+                                id="mediaStorageBar"
+                                style="width: 0%"
+                            )
+
+                        small#mediaStorageText
+                            RMS Media
+
+
+            // =================================================
+            // MAIN CONTENT
+            // =================================================
+
+            main.rms-media-content
+
+                // =================================================
+                // PAGE HEADER
+                // =================================================
+
+                .section-heading
+
+                    div
+                        span.section-eyebrow YOUTUBE
+
+                        h1
+                            | Search, watch & download
+
+
+                // =================================================
+                // SEARCH STATUS
+                // =================================================
+
+                #youtubeSearchStatus(
+                    style="display:none"
+                )
+
+
+                // =================================================
+                // SEARCH RESULTS
+                // =================================================
+
+                section#youtubeResultsSection(
+                    style="display:none"
+                )
+
+                    .section-heading
+
+                        div
+                            span.section-eyebrow SEARCH RESULTS
+
+                            h2#youtubeResultsTitle
+                                | YouTube Results
+
+                        button#youtubeClearResults.media-more-btn(
+                            type="button"
+                            title="Clear results"
+                        )
+                            i.fas.fa-times
+
+
+                    #youtubeResults.youtube-results-grid
+
+
+                // =================================================
+                // PLAYER
+                // =================================================
+
+                section#youtubePlayerSection.youtube-player-section(
+                    style="display:none"
+                )
+
+                    .youtube-player-header
+
+                        div
+                            span.section-eyebrow NOW PLAYING
+
+                            h2#youtubePlayerTitle
+                                | Select a video
+
+                        button#youtubeClosePlayer.media-more-btn(
+                            type="button"
+                            title="Close player"
+                        )
+                            i.fas.fa-times
+
+
+                    .youtube-player-container
+
+                        #youtubePlayerFrame.youtube-player-frame
+
+                            .youtube-player-placeholder
+                                i.fab.fa-youtube
+                                span Select a video to play
+
+
+                    .youtube-player-info
+
+                        img#youtubePlayerThumbnail(
+                            src=""
+                            alt=""
+                        )
+
+                        .youtube-player-details
+
+                            h3#youtubeVideoTitle
+                                | Select a video
+
+                            p#youtubeVideoChannel
+                                | YouTube
+
+                            p#youtubeVideoDescription
+
+
+                    // =================================================
+                    // QUALITY AREA
+                    // =================================================
+
+                    .youtube-download-panel
+
+                        .youtube-download-title
+
+                            div
+                                span.section-eyebrow DOWNLOAD
+
+                                h3
+                                    | Available Quality
+
+                            #youtubeQualityStatus
+                                | Loading...
+
+
+                        #youtubeQualityList.youtube-quality-list
+
+
+                // =================================================
+                // EMPTY STATE
+                // =================================================
+
+                section#youtubeEmptyState.empty-queue
+
+                    .empty-queue-icon
+                        i.fab.fa-youtube
+
+                    strong Search YouTube
+
+                    span
+                        | Search for a video above to get started.
+
+
+    // =========================================================
+    // YOUTUBE PAGE SCRIPT
+    // =========================================================
+
+    script(src="/js/rms-media-youtube.js")

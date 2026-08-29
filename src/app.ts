@@ -77,6 +77,7 @@ import { WebsiteAuthService } from "./modules/website/services/website.auth.serv
 import { WebsiteAuthController } from "./modules/website/controllers/website.auth.controller";
 import { WebsiteAuthRepository } from "./modules/website/repositories/website.auth.repository";
 import { RmsMediaController } from "./modules/rms-media/controllers/RmsMediaController";
+import { RmsMediaService } from "./modules/rms-media/services/RmsMediaService";
 
 // config
 const CONFIG_FILE = "config.json";
@@ -160,6 +161,7 @@ app.set("WebsiteCartService", new WebsiteCartService());
 app.set("WebsiteOrderService", new WebsiteOrderService(app.get("WebsiteOrderRepository")));
 app.set("WebsiteCustomerService", new WebsiteCustomerService());
 app.set("WebsiteAuthService", new WebsiteAuthService());
+app.set("RmsMediaService", new RmsMediaService());
 
 
 // Initialize and set the mailer to use

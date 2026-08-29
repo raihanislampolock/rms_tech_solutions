@@ -116,25 +116,41 @@ export class Application {
             if (auth === true) {
                 const token = req.cookies.auth_token;
 
-                if (!token) {
-                    resp.bag.errorMessage = 'Session expired. Please log in.';
+                const isApiRequest =
+                    String(req.originalUrl || req.url)
+                        .startsWith('/api/') ||
+                    String(req.headers.accept || '')
+                        .includes('application/json');
+
+                const unauthorized = (message: string) => {
+                    if (isApiRequest) {
+                        return resp.status(401).json({
+                            status: false,
+                            message,
+                            data: null
+                        });
+                    }
+
+                    resp.bag.errorMessage = message;
                     return resp.view('login');
+                };
+
+                if (!token) {
+                    return unauthorized('Session expired. Please log in.');
                 }
 
                 jwt.verify(token, this.config.authSecret as string, (err: any, user: any) => {
                     if (err) {
-                        resp.bag.errorMessage = 'Invalid or expired token. Please log in again.';
-                        return resp.view('login');
-                    } else {
-                        req.user = user;
-                        // this.populateBag(req, resp);
-                        callback.call(context, req, resp, next);
+                        return unauthorized('Invalid or expired token. Please log in again.');
                     }
-                })
+                    req.user = user;
+                    // this.populateBag(req, resp);
+                    callback.call(context, req, resp, next);
+                });
             } else {
                 callback.call(context, req, resp, next);
             }
-        }
+        };
     }
 
     // private populateBag(req: HttpRequest, resp: HttpResponse) {
