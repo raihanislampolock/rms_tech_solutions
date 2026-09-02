@@ -2,34 +2,71 @@
 
 ARG NODE_VERSION=20.17.0
 
+# ==========================================
+# Base stage
+# ==========================================
 FROM node:${NODE_VERSION}-alpine AS base
+
 WORKDIR /usr/src/app
 
-# Install only production dependencies
-COPY package.json package-lock.json . 
-RUN npm install --omit=dev
+# Install system dependencies required by npm packages
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    bash
 
-# Install dev dependencies and build the app in a separate stage
+# Make "python" command available
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+
+
+# ==========================================
+# Build stage
+# ==========================================
 FROM base AS build
-RUN npm install
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install all dependencies including devDependencies
+RUN npm ci
+
+# Copy application source
 COPY . .
 
-# Copy config.json into the build stage
-COPY config.json . 
+# Copy config
+COPY config.json .
+
+# Build TypeScript, Sass, lint and static assets
 RUN npm run build
 
-# Final stage for running the production version
+
+# ==========================================
+# Production stage
+# ==========================================
 FROM base AS final
+
 WORKDIR /usr/src/app
+
 ENV NODE_ENV=production
 
-# Copy over the built application, views, and necessary files
-COPY --from=build /usr/src/app/build ./build
-COPY --from=build /usr/src/app/views ./views
-COPY package.json . 
-COPY config.json . 
-RUN npm install --omit=dev
+# Copy package files
+COPY package.json package-lock.json ./
 
-# Expose the port and start the application
+# Install production dependencies only
+RUN npm ci --omit=dev
+
+# Copy compiled application
+COPY --from=build /usr/src/app/build ./build
+
+# Copy Pug views
+COPY --from=build /usr/src/app/views ./views
+
+# Copy config
+COPY --from=build /usr/src/app/config.json ./config.json
+
+# Application port
 EXPOSE 3005
+
+# Start application
 CMD ["node", "build/app.js"]

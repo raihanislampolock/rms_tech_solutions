@@ -32,7 +32,7 @@ const APP_CONFIG: Config = new Config(JSON.parse(fs.readFileSync("config.json").
 
 export const AppDataSource = new DataSource({
     type: "postgres",
-    host: APP_CONFIG.postgres.dbHost || 'localhost',
+    host: process.env.DB_HOST || APP_CONFIG.postgres.dbHost || 'localhost',
     port: Number(APP_CONFIG.postgres.dbPort) || 5432,
     username: APP_CONFIG.postgres.dbUser || 'postgres',
     password: APP_CONFIG.postgres.dbPassword || 'secret',
